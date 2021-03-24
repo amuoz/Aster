@@ -151,6 +151,7 @@
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Ship.cpp" />
+    <ClCompile Include="SpriteRenderer.cpp" />
     <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="TextRenderer.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Ship.h" />
+    <ClInclude Include="SpriteRenderer.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="TextRenderer.h" />
     <ClInclude Include="Texture.h" />
@@ -181,6 +183,8 @@
     <None Include="shaders\shader.fs" />
     <None Include="shaders\shader.gs" />
     <None Include="shaders\shader.vs" />
+    <None Include="shaders\sprite.fs" />
+    <None Include="shaders\sprite.vs" />
     <None Include="shaders\text.fs" />
     <None Include="shaders\text.vs" />
   </ItemGroup>

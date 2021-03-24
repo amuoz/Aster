@@ -29,6 +29,7 @@ class Ship;
 class AsteroidMgr;
 class Actor;
 class TextRenderer;
+class SpriteRenderer;
 
 // Represents the current state of the game
 enum class GameState {
@@ -92,6 +93,8 @@ private:
 	GameState m_state;
 
 	int m_score;
+
+	SpriteRenderer* Renderer;
 };
 
 #endif

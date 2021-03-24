@@ -66,6 +66,9 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
+    <ClCompile Include="SpriteRenderer.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -125,6 +128,9 @@
     <ClInclude Include="ICircleContactReport.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="SpriteRenderer.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader.fs">
@@ -143,6 +149,12 @@
       <Filter>Archivos de recursos</Filter>
     </None>
     <None Include="config\config.conf">
+      <Filter>Archivos de recursos</Filter>
+    </None>
+    <None Include="shaders\sprite.fs">
+      <Filter>Archivos de recursos</Filter>
+    </None>
+    <None Include="shaders\sprite.vs">
       <Filter>Archivos de recursos</Filter>
     </None>
   </ItemGroup>

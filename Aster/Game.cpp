@@ -12,6 +12,7 @@
 
 #include "ResourceManager.h"
 #include "TextRenderer.h"
+#include "SpriteRenderer.h"
 
 #include <string>
 #include <iostream>
@@ -60,7 +61,7 @@ void Game::InitContext()
 	// glfw window creation
 	// --------------------
 	m_window = glfwCreateWindow(Config::GetInstance()->GetValue(Config::SRC_WIDTH),
-		Config::GetInstance()->GetValue(Config::SRC_HEIGHT), "11bits~Asteroids", NULL, NULL);
+		Config::GetInstance()->GetValue(Config::SRC_HEIGHT), "Aster", NULL, NULL);
 	if (m_window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -84,16 +85,17 @@ void Game::InitContext()
 
 	// configure global opengl state: 
 	// ------------------------------
-	glEnable(GL_DEPTH_TEST);	// depth testing
-
+	//glEnable(GL_DEPTH_TEST);	// depth testing
+	glViewport(0, 0, Config::GetInstance()->GetValue(Config::SRC_WIDTH), Config::GetInstance()->GetValue(Config::SRC_HEIGHT));
 	glEnable(GL_BLEND);			// for text render
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	// wireframe mode
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	// wireframe mode
 
 	// build and compile our base shader program
 	// -----------------------------------------
-	ResourceManager::GetInstance()->LoadShader("shaders/shader.vs", "shaders/shader.fs", "shaders/shader.gs", "base");
+	//ResourceManager::GetInstance()->LoadShader("shaders/shader.vs", "shaders/shader.fs", "shaders/shader.gs", "base");
+	ResourceManager::GetInstance()->LoadShader("shaders/sprite.vs", "shaders/sprite.fs", nullptr, "sprite");
 
 	// initialize random seed
 	srand(time(NULL)); 
@@ -103,13 +105,13 @@ void Game::InitGame()
 {
 	g_PhysicsPtr = new Physics(glm::vec3(0.0f, 0.0f, 0.0f));
 	
-	m_camera = new Camera(glm::vec3(0.0f, 0.0f, 20.0f));
+	//m_camera = new Camera(glm::vec3(0.0f, 0.0f, 20.0f));
 	
-	m_ship = new Ship(glm::vec3(0.0f, -6.0f, 0.0f), glm::vec3(1.0f));
-	m_scene.push_back(m_ship);
+	//m_ship = new Ship(glm::vec3(0.0f, -6.0f, 0.0f), glm::vec3(1.0f));
+	//m_scene.push_back(m_ship);
 	
-	m_AsteroidMgr = new AsteroidMgr();
-	m_scene.push_back(m_AsteroidMgr);
+	//m_AsteroidMgr = new AsteroidMgr();
+	//m_scene.push_back(m_AsteroidMgr);
 	
 	// text renderer with freetype
 	m_text = new TextRenderer(Config::GetInstance()->GetValue(Config::SRC_WIDTH), 
@@ -121,17 +123,33 @@ void Game::InitGame()
 	m_demoFinished = false;
 
 	// Projection and camera is fixed no need to update in every tick
-	ResourceManager::GetInstance()->GetShader("base").Use();
+	//ResourceManager::GetInstance()->GetShader("base").Use();
+	ResourceManager::GetInstance()->GetShader("sprite").Use().SetInteger("image", 0);
+
 	// pass projection matrix to shader 
+	/*
 	glm::mat4 projection = glm::perspective(glm::radians(m_camera->GetZoom()),
 		(float)Config::GetInstance()->GetValue(Config::SRC_WIDTH) /
 		(float)Config::GetInstance()->GetValue(Config::SRC_HEIGHT),
 		10.0f, 
 		100.0f);
-	ResourceManager::GetInstance()->GetShader("base").SetMatrix4("projection", projection);
+	*/
+	glm::mat4 projection = glm::ortho(0.0f, 
+		(float)Config::GetInstance()->GetValue(Config::SRC_WIDTH), 
+		(float)Config::GetInstance()->GetValue(Config::SRC_HEIGHT), 
+		0.0f, -1.0f, 1.0f);
+
+	ResourceManager::GetInstance()->GetShader("sprite").SetMatrix4("projection", projection);
 	// camera/view transformation
-	glm::mat4 view = m_camera->GetViewMatrix();
-	ResourceManager::GetInstance()->GetShader("base").SetMatrix4("view", view);
+	//glm::mat4 view = m_camera->GetViewMatrix();
+	//ResourceManager::GetInstance()->GetShader("base").SetMatrix4("view", view);
+	
+	// set render-specific controls
+	Shader shader = ResourceManager::GetInstance()->GetShader("sprite");
+	Renderer = new SpriteRenderer(shader);
+	
+	// load textures
+	ResourceManager::GetInstance()->LoadTexture("textures/samurai-girl.png", true, "samurai");
 }
 
 void Game::Execute()
@@ -189,6 +207,13 @@ void Game::Update(float deltaTime)
 
 void Game::Render()
 {
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	Texture2D texture = ResourceManager::GetInstance()->GetTexture("samurai");
+	Renderer->DrawSprite(texture, glm::vec2(200.0f, 200.0f), glm::vec2(100.0f, 100.0f), 0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+
+	/*
 	// ..:: RENDERING ::..
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -207,6 +232,7 @@ void Game::Render()
 	// camera/view transformation
 	glm::mat4 view = m_camera->GetViewMatrix();
 	ResourceManager::GetInstance()->GetShader("base").SetMatrix4("view", view);
+	
 
 	// Render scene
 	for (Actor* actor: m_scene)
@@ -216,9 +242,10 @@ void Game::Render()
 			actor->Render(ResourceManager::GetInstance()->GetShader("base"));
 		}
 	}
+	*/
 
 	// Render Timer and lose message
-	RenderUI();
+	//RenderUI();
 
 	// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 	// -------------------------------------------------------------------------------
@@ -291,7 +318,7 @@ void Game::ProcessInput(GLFWwindow* window, float deltaTime)
 	}
 
 	// Active inputs
-	if (m_state == GameState::GAME_ACTIVE)
+	if (m_ship != nullptr && m_state == GameState::GAME_ACTIVE)
 	{
 		m_ship->GetPhysicsActor()->accelerationForce = glm::vec3(0.0f);
 
