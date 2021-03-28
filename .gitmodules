@@ -1,0 +1,28 @@
+[submodule "ThirdParty/assimp"]
+    path = ThirdParty/assimp
+    url = https://github.com/assimp/assimp.git
+    branch = master
+[submodule "ThirdParty/glad"]
+    path = ThirdParty/glad
+    url = https://github.com/Dav1dde/glad.git
+    branch = master
+[submodule "ThirdParty/glfw"]
+    path = ThirdParty/glfw
+    url = https://github.com/glfw/glfw.git
+    branch = master
+[submodule "ThirdParty/glm"]
+    path = ThirdParty/glm
+    url = https://github.com/g-truc/glm.git
+    branch = master
+[submodule "ThirdParty/stb"]
+    path = ThirdParty/stb
+    url = https://github.com/nothings/stb.git
+    branch = master
+[submodule "ThirdParty/bullet"]
+    path = ThirdParty/bullet
+    url = https://github.com/bulletphysics/bullet3.git
+    branch = master
+[submodule "ThirdParty/freetype"]
+    path = ThirdParty/freetype
+    url = https://github.com/freetype/freetype
+    branch = master
