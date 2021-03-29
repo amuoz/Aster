@@ -160,7 +160,7 @@ void Asteroid::Update(float deltaTime)
 
 float Asteroid::Randf(float min, float max)
 {
-	return (float)(((rand() & 32767)*(1.0 / 32767.0))*(max - min) + min);
+	return (float)((float)((rand() & 32767)*(1.0 / 32767.0))*(max - min) + min);
 }
 
 bool Asteroid::OutOfBounds()

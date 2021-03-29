@@ -10,6 +10,7 @@
 
 AsteroidMgr::AsteroidMgr()
 {
+	m_difficultyIndex = 0;
 	m_timeAccum = 0.0f;
 	m_currentFreq = Config::GetInstance()->GetValue(Config::FREQUENCY);
 	m_pool = new AsteroidPool<Asteroid>();

@@ -18,7 +18,8 @@ int main(int, char**)
 		}
 
 		// free resources
-		delete g_game;
+		// no need to free resource because smart pointers
+		//delete g_game;
 	}
 	else
 	{
