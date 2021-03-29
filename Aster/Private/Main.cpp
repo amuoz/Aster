@@ -9,14 +9,22 @@ int main(int argc, char *argv[])
 	g_game = new Game();
 	std::cout << "==================== GAME INITIALIZED =======================" << std::endl;
 
-	// game loop
-	while (!g_game->IsFinished())
+	if (g_game != nullptr)
 	{
-		g_game->Execute();
+		// game loop
+		while (!g_game->IsFinished())
+		{
+			g_game->Execute();
+		}
+
+		// free resources
+		delete g_game;
+	}
+	else
+	{
+		std::cout << "ERROR: Something went wrong initializing Game " << std::endl;
 	}
 
-	// free resources
-	delete g_game;
 
 	return 0;
 }

@@ -36,6 +36,7 @@ Config::~Config()
 
 void Config::Load(const char * file)
 {
+	std::cout << "... Load " << file << " ..." << std::endl;
 	m_config.clear();
 
 	// load from file

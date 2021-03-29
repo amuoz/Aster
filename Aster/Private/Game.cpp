@@ -30,8 +30,10 @@ __inline float Randf(float min, float max)
 
 Game::Game() : m_state(GameState::GAME_ACTIVE)
 {
+	std::cout << "...InitContext..." << std::endl;
 	InitContext();
 	
+	std::cout << "...InitGame..." << std::endl;
 	InitGame();
 }
 
@@ -39,10 +41,10 @@ Game::~Game()
 {
 	glfwTerminate();
 
-	delete m_camera;
+	//delete m_camera;
 	//delete ship;
 	//delete m_AsteroidMgr;
-	delete m_text;
+	//delete m_text;
 }
 
 void Game::InitContext()
@@ -60,8 +62,8 @@ void Game::InitContext()
 
 	// glfw window creation
 	// --------------------
-	m_window = glfwCreateWindow(Config::GetInstance()->GetValue(Config::SRC_WIDTH),
-		Config::GetInstance()->GetValue(Config::SRC_HEIGHT), "Aster", NULL, NULL);
+	m_window = glfwCreateWindow((int)Config::GetInstance()->GetValue(Config::SRC_WIDTH),
+		(int)Config::GetInstance()->GetValue(Config::SRC_HEIGHT), "Aster", NULL, NULL);
 	if (m_window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -75,7 +77,7 @@ void Game::InitContext()
 	glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	// glad: load all OpenGL function pointers
-	// ---------------------------------------                                                                   
+	// ---------------------------------------      
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))   
 	{
 		// Glad GLAD is working
@@ -86,16 +88,15 @@ void Game::InitContext()
 	// configure global opengl state: 
 	// ------------------------------
 	//glEnable(GL_DEPTH_TEST);	// depth testing
-	glViewport(0, 0, Config::GetInstance()->GetValue(Config::SRC_WIDTH), Config::GetInstance()->GetValue(Config::SRC_HEIGHT));
+	glViewport(0, 0, GLsizei(Config::GetInstance()->GetValue(Config::SRC_WIDTH)), GLsizei(Config::GetInstance()->GetValue(Config::SRC_HEIGHT)));
 	glEnable(GL_BLEND);			// for text render
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	// wireframe mode
 
 	// build and compile our base shader program
 	// -----------------------------------------
 	//ResourceManager::GetInstance()->LoadShader("shaders/shader.vs", "shaders/shader.fs", "shaders/shader.gs", "base");
-	ResourceManager::GetInstance()->LoadShader("shaders/sprite.vs", "shaders/sprite.fs", nullptr, "sprite");
+	ResourceManager::GetInstance()->LoadShader(PROJECT_SOURCE_DIR "/Aster/Shaders/sprite.vs", PROJECT_SOURCE_DIR "/Aster/Shaders/sprite.fs", nullptr, "sprite");
 
 	// initialize random seed
 	srand(time(NULL)); 
@@ -107,6 +108,7 @@ void Game::InitGame()
 	
 	//m_camera = new Camera(glm::vec3(0.0f, 0.0f, 20.0f));
 	
+	m_ship = nullptr;
 	//m_ship = new Ship(glm::vec3(0.0f, -6.0f, 0.0f), glm::vec3(1.0f));
 	//m_scene.push_back(m_ship);
 	
@@ -114,9 +116,11 @@ void Game::InitGame()
 	//m_scene.push_back(m_AsteroidMgr);
 	
 	// text renderer with freetype
+	/*
 	m_text = new TextRenderer(Config::GetInstance()->GetValue(Config::SRC_WIDTH), 
 		Config::GetInstance()->GetValue(Config::SRC_HEIGHT));
-	m_text->Load("fonts/arial.ttf", 24);
+	m_text->Load(PROJECT_SOURCE_DIR "/Aster/Fonts/arial.ttf", 24);
+	*/
 
 	m_gameTime = 0.0f;
 	m_score = 0;
@@ -134,6 +138,7 @@ void Game::InitGame()
 		10.0f, 
 		100.0f);
 	*/
+
 	glm::mat4 projection = glm::ortho(0.0f, 
 		(float)Config::GetInstance()->GetValue(Config::SRC_WIDTH), 
 		(float)Config::GetInstance()->GetValue(Config::SRC_HEIGHT), 
@@ -149,7 +154,7 @@ void Game::InitGame()
 	Renderer = new SpriteRenderer(shader);
 	
 	// load textures
-	ResourceManager::GetInstance()->LoadTexture("textures/samurai-girl.png", true, "samurai");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/samurai-girl.png", true, "samurai");
 }
 
 void Game::Execute()
@@ -178,6 +183,7 @@ void Game::Update(float deltaTime)
 		// ..:: LOGIC ::..
 		for (std::list<Actor*>::iterator it = m_scene.begin(); it != m_scene.end();)
 		{
+			std::cout << "...Actor..." << std::endl;
 			Actor* actor = (*it);
 			if (actor->IsActive())
 			{
@@ -261,13 +267,13 @@ void Game::RenderUI()
 	stream << std::fixed << std::setprecision(1) << m_gameTime;
 	string timePanel = "Time: " + stream.str();
 	string scorePanel = "Score: " + to_string(m_score);
-	m_text->RenderText(timePanel, 50, Config::GetInstance()->GetValue(Config::SRC_WIDTH) / 10, 1.0, glm::vec3(1.0, 1.0, 1.0));
-	m_text->RenderText(scorePanel, 650, Config::GetInstance()->GetValue(Config::SRC_HEIGHT) / 10, 1.0, glm::vec3(1.0, 1.0, 1.0));
+	//m_text->RenderText(timePanel, 50, Config::GetInstance()->GetValue(Config::SRC_WIDTH) / 10, 1.0, glm::vec3(1.0, 1.0, 1.0));
+	//m_text->RenderText(scorePanel, 650, Config::GetInstance()->GetValue(Config::SRC_HEIGHT) / 10, 1.0, glm::vec3(1.0, 1.0, 1.0));
 
 	if (m_state == GameState::GAME_RESTART)
 	{
-		m_text->RenderText("You LOSE!!!", 320.0, Config::GetInstance()->GetValue(Config::SRC_HEIGHT) / 2 - 25.0, 1.0, glm::vec3(1.0, 0.0, 0.0));
-		m_text->RenderText("Press R to restart or ESC to quit", 220.0, Config::GetInstance()->GetValue(Config::SRC_HEIGHT) / 2, 1.0, glm::vec3(1.0, 1.0, 1.0));
+		//m_text->RenderText("You LOSE!!!", 320.0, Config::GetInstance()->GetValue(Config::SRC_HEIGHT) / 2 - 25.0, 1.0, glm::vec3(1.0, 0.0, 0.0));
+		//m_text->RenderText("Press R to restart or ESC to quit", 220.0, Config::GetInstance()->GetValue(Config::SRC_HEIGHT) / 2, 1.0, glm::vec3(1.0, 1.0, 1.0));
 	}
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -320,6 +326,7 @@ void Game::ProcessInput(GLFWwindow* window, float deltaTime)
 	// Active inputs
 	if (m_ship != nullptr && m_state == GameState::GAME_ACTIVE)
 	{
+		std::cout << "...m_ship != nullptr..." << std::endl;
 		m_ship->GetPhysicsActor()->accelerationForce = glm::vec3(0.0f);
 
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)

@@ -72,7 +72,7 @@ private:
 	void Restart();
 	void Finalize();
 
-	bool m_demoFinished;
+	bool m_demoFinished = false;
 
 	GLFWwindow* m_window;
 	
