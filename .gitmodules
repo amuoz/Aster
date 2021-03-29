@@ -1,21 +1,21 @@
-[submodule "ThirdParty/assimp"]
-	path = ThirdParty/assimp
+[submodule "Aster/ThirdParty/assimp"]
+	path = Aster/ThirdParty/assimp
 	url = https://github.com/assimp/assimp.git
-[submodule "ThirdParty/glad"]
-	path = ThirdParty/glad
+[submodule "Aster/ThirdParty/glad"]
+	path = Aster/ThirdParty/glad
 	url = https://github.com/Dav1dde/glad.git
-[submodule "ThirdParty/glfw"]
-	path = ThirdParty/glfw
+[submodule "Aster/ThirdParty/glfw"]
+	path = Aster/ThirdParty/glfw
 	url = https://github.com/glfw/glfw.git
-[submodule "ThirdParty/glm"]
-	path = ThirdParty/glm
+[submodule "Aster/ThirdParty/glm"]
+	path = Aster/ThirdParty/glm
 	url = https://github.com/g-truc/glm.git
-[submodule "ThirdParty/stb"]
-	path = ThirdParty/stb
+[submodule "Aster/ThirdParty/stb"]
+	path = Aster/ThirdParty/stb
 	url = https://github.com/nothings/stb.git
-[submodule "ThirdParty/bullet"]
-	path = ThirdParty/bullet
+[submodule "Aster/ThirdParty/bullet"]
+	path = Aster/ThirdParty/bullet
 	url = https://github.com/bulletphysics/bullet3.git
-[submodule "ThirdParty/freetype"]
-	path = ThirdParty/freetype
+[submodule "Aster/ThirdParty/freetype"]
+	path = Aster/ThirdParty/freetype
 	url = https://github.com/freetype/freetype.git
