@@ -65,7 +65,7 @@ void Bullet::Render(Shader shader)
 	m_mesh->Draw(shader);
 }
 
-void Bullet::Update(float deltaTime)
+void Bullet::Update(float)
 {
 	if (m_position.y > VERTICAL_BOUND)
 	{
@@ -73,7 +73,7 @@ void Bullet::Update(float deltaTime)
 	}
 }
 
-void Bullet::OnContact(Physics::PhysicActor* other)
+void Bullet::OnContact(Physics::PhysicActor*)
 {
 	m_active = false;
 }

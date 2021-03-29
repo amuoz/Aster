@@ -40,7 +40,7 @@ void Config::Load(const char * file)
 	m_config.clear();
 
 	// load from file
-	unsigned int tileCode;
+	//unsigned int tileCode;
 	std::string line;
 	std::ifstream fstream(file);
 	if (fstream)

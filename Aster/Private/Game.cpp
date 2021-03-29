@@ -25,7 +25,7 @@ Physics* g_PhysicsPtr;
 
 __inline float Randf(float min, float max)
 {
-	return (float)(((rand() & 32767)*(1.0 / 32767.0))*(max - min) + min);
+	return (float)((float)((rand() & 32767)*(1.0 / 32767.0))*(max - min) + min);
 }
 
 Game::Game() : m_state(GameState::GAME_ACTIVE)
@@ -99,7 +99,7 @@ void Game::InitContext()
 	ResourceManager::GetInstance()->LoadShader(PROJECT_SOURCE_DIR "/Aster/Shaders/sprite.vs", PROJECT_SOURCE_DIR "/Aster/Shaders/sprite.fs", nullptr, "sprite");
 
 	// initialize random seed
-	srand(time(NULL)); 
+	//srand(time(NULL)); 
 }
 
 void Game::InitGame()
@@ -159,7 +159,7 @@ void Game::InitGame()
 
 void Game::Execute()
 {
-	float currentFrame = glfwGetTime();
+	float currentFrame = static_cast<float>(glfwGetTime());
 	m_deltaTime = currentFrame - m_lastFrame;
 	m_lastFrame = currentFrame;
 
@@ -315,7 +315,7 @@ void Game::Finalize()
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void Game::ProcessInput(GLFWwindow* window, float deltaTime)
+void Game::ProcessInput(GLFWwindow* window, float)
 {
 	// Quit game
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -380,7 +380,7 @@ void Game::_framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
-void Game::framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void Game::framebuffer_size_callback(GLFWwindow*, int width, int height)
 {
 	// make sure the viewport matches the new window dimensions; note that width and 
 	// height will be significantly larger than specified on retina displays.

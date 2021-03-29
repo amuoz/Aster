@@ -3,7 +3,7 @@
 
 Game* g_game;
 
-int main(int argc, char *argv[])
+int main(int, char**)
 {
 	std::cout << "==================== ...INIT GAME... =======================" << std::endl;
 	g_game = new Game();
@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		std::cout << "ERROR: Something went wrong initializing Game " << std::endl;
+		std::cout << "ERROR: Something went wrong initializing Game" << std::endl;
 	}
 
 

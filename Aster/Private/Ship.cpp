@@ -85,7 +85,7 @@ void Ship::Render(Shader shader)
 	m_mesh->Draw(shader);
 }
 
-void Ship::Update(float deltaTime)
+void Ship::Update(float)
 {
 	//m_physicsActor->accelerationForce = glm::vec3(0.0f);
 
@@ -106,7 +106,7 @@ void Ship::Update(float deltaTime)
 	}
 }
 
-void Ship::OnContact(Physics::PhysicActor* other)
+void Ship::OnContact(Physics::PhysicActor*)
 {
 	m_alive = false;
 }

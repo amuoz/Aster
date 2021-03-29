@@ -200,7 +200,7 @@ void Asteroid::Reset()
 	float y = (rand() % 10) + 10.0f; // keep height of field smaller compared to width of x and z
 
 	// 2. scale: scale between 0.05 and 0.25f / 0.5 and 1
-	float scale = (rand() % 100) / 100.0f + 0.5;
+	float scale = static_cast<float>((float)(rand() % 100) / 100.0f) + 0.5f;
 
 	// 3. rotation: add random rotation around a (semi)randomly picked rotation axis vector
 	float rotAngle = Randf(Config::GetInstance()->GetValue(Config::ANGULAR_VELOCITY) / 2, 

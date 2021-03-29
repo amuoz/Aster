@@ -7,8 +7,7 @@
 ** Custom vertex shader, geometry shader and fragment shader
 ******************************************************************/
 
-#ifndef	GAME_H
-#define GAME_H
+#pragma once
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -96,5 +95,3 @@ private:
 
 	SpriteRenderer* Renderer;
 };
-
-#endif

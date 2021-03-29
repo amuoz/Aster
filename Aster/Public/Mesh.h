@@ -91,11 +91,11 @@ public:
 		glBindVertexArray(VAO);
 		if (indices.size() > 0)
 		{
-			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+			glDrawElements(GL_TRIANGLES, GLsizei(indices.size()), GL_UNSIGNED_INT, 0);
 		}
 		else
 		{
-			glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+			glDrawArrays(GL_TRIANGLES, 0, GLsizei(vertices.size()));
 		}
 		
 		glBindVertexArray(0);
