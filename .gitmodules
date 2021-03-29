@@ -22,7 +22,3 @@
 	path = Aster/ThirdParty/freetype
 	url = https://github.com/freetype/freetype.git
 	branch = master
-[submodule "Aster/ThirdParty/glad"]
-	path = Aster/ThirdParty/glad
-	url = https://github.com/Dav1dde/glad.git
-	branch = c
