@@ -2,10 +2,6 @@
 	path = Aster/ThirdParty/assimp
 	url = https://github.com/assimp/assimp.git
 	branch = master
-[submodule "Aster/ThirdParty/glad"]
-	path = Aster/ThirdParty/glad
-	url = https://github.com/Dav1dde/glad.git
-	branch = c
 [submodule "Aster/ThirdParty/glfw"]
 	path = Aster/ThirdParty/glfw
 	url = https://github.com/glfw/glfw.git
@@ -26,3 +22,7 @@
 	path = Aster/ThirdParty/freetype
 	url = https://github.com/freetype/freetype.git
 	branch = master
+[submodule "Aster/ThirdParty/glad"]
+	path = Aster/ThirdParty/glad
+	url = https://github.com/Dav1dde/glad.git
+	branch = c
