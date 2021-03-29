@@ -16,6 +16,7 @@
 [submodule "Aster/ThirdParty/bullet"]
 	path = Aster/ThirdParty/bullet
 	url = https://github.com/bulletphysics/bullet3.git
+	branch = master
 [submodule "Aster/ThirdParty/freetype"]
 	path = Aster/ThirdParty/freetype
 	url = https://github.com/freetype/freetype.git
