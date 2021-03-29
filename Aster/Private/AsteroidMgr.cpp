@@ -41,7 +41,7 @@ void AsteroidMgr::Update(float deltaTime)
 	// spawn freq increases over time
 	m_currentFreq -= Config::GetInstance()->GetValue(Config::FREQUENCY_INCREASE) * deltaTime;
 	// clamp max freq
-	m_currentFreq = std::max(MAX_FREQ, std::min(m_currentFreq, Config::GetInstance()->GetValue(Config::FREQUENCY)));
+	m_currentFreq = std::max<float>(MAX_FREQ, std::min<float>(m_currentFreq, Config::GetInstance()->GetValue(Config::FREQUENCY)));
 	//std::cout << "Frequency: " << m_currentFreq << std::endl;
 
 	m_difficultyIndex = std::trunc(m_currentFreq / (Config::GetInstance()->GetValue(Config::FREQUENCY) / 4));

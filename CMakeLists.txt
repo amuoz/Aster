@@ -57,6 +57,9 @@ source_group("Public" FILES ${PROJECT_HEADERS})
 source_group("Shaders" FILES ${PROJECT_SHADERS})
 source_group("Private" FILES ${PROJECT_SOURCES})
 source_group("Vendors" FILES ${VENDORS_SOURCES})
+source_group("Config" FILES ${PROJECT_CONFIG})
+source_group("Textures" FILES ${PROJECT_TEXTURES})
+source_group("Fonts" FILES ${PROJECT_FONTS})
 
 add_definitions(-DGLFW_INCLUDE_NONE
                 -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")
