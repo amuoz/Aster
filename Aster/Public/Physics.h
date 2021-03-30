@@ -30,7 +30,7 @@ public:
 		float mass = 0.0f;
 		glm::vec3 accelerationForce = glm::vec3(0.0f);;
 
-		ICircleContactReport* report = 0;
+		ICircleContactReport* report = nullptr;
 
 		float radius = 0.0f;
 		bool ignoreContact = false;

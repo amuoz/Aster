@@ -72,10 +72,9 @@ void Actor::SetColor(glm::vec3 color)
 
 void Actor::SetPosition(glm::vec3 pos)
 {
-	m_position += pos;
-	if (!m_physicsActor->active)
+	if (!m_physicsActor->bSimulate)
 	{
 		// update physics position. Not simulating physics
-		m_physicsActor->pos = m_position;
+		m_physicsActor->pos += pos;
 	}
 }

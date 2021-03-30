@@ -214,6 +214,7 @@ void Game::Update(float deltaTime)
 		}
 
 		// ..:: PHYSICS ::..
+		/*
 		float fixedUpdateFreq = 1.0f / 60.0f;	
 		m_physicsTimeStepAccum += deltaTime;
 		while (m_physicsTimeStepAccum > fixedUpdateFreq)
@@ -221,6 +222,8 @@ void Game::Update(float deltaTime)
 			m_physicsTimeStepAccum -= fixedUpdateFreq;
 			g_PhysicsPtr->Update(fixedUpdateFreq);	// fixed physic timestep 
 		}
+		*/
+		g_PhysicsPtr->Update(deltaTime);
 		
 	}
 
