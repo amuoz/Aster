@@ -25,12 +25,18 @@ void Physics::Update(float deltaTime)
 {
 	for (PhysicActor* dynamicActor : m_dynamicActors)
 	{
-		if (dynamicActor->active)
+		// simulate physics
+		if (dynamicActor->bSimulate)
 		{
 			UpdateDymanicPos(*dynamicActor, deltaTime);
 		}
-	}
 
+		// check collisions
+		if (dynamicActor->bCheckCollision)
+		{
+			DoCollisions(*dynamicActor);
+		}
+	}
 }
 
 void Physics::UpdateDymanicPos(PhysicActor &geom, float deltaTime)
@@ -45,37 +51,8 @@ void Physics::UpdateDymanicPos(PhysicActor &geom, float deltaTime)
 	glm::vec3 newPos = geom.pos + geom.vel * deltaTime;
 	glm::vec3 desplDir = newPos - prevPos;
 	desplDir = glm::normalize(desplDir);
+
 	geom.pos = newPos;
-
-	glm::vec3 col, normal;
-	for (PhysicActor* dynamicActor : m_dynamicActors)
-	{
-		if (&geom != dynamicActor && dynamicActor->active)
-		{
-			if (CheckCircleCircleCollision(geom.pos, geom.radius, dynamicActor->pos, dynamicActor->radius, col, normal))
-			{
-				// push actor in normal direction
-				if (geom.ignoreContact && dynamicActor->ignoreContact)
-				{
-					geom.vel = normal * glm::length(geom.vel);
-					dynamicActor->vel = -normal * glm::length(dynamicActor->vel);
-				}
-								
-				geom.pos = col;
-				
-				// notify collision
-				if (geom.report)
-				{
-					geom.report->OnContact(dynamicActor);
-				}
-				if (dynamicActor->active && dynamicActor->report)
-				{
-					dynamicActor->report->OnContact(&geom);
-				}
-			}
-		}
-	}
-
 }
 
 bool Physics::CheckCircleCircleCollision(const glm::vec3& circle1Pos, float circle1Radius, const glm::vec3& circle2Pos,
@@ -119,5 +96,39 @@ void Physics::DeleteDynamicActor(PhysicActor *geom)
 	if (it != m_dynamicActors.end())
 	{ 
 		m_dynamicActors.erase(it);
+	}
+}
+
+void Physics::DoCollisions(PhysicActor& geom)
+{
+	glm::vec3 col, normal;
+	for (PhysicActor* dynamicActor : m_dynamicActors)
+	{
+		//if (&geom != dynamicActor && dynamicActor->active)
+		if (&geom != dynamicActor)
+		{
+			if (CheckCircleCircleCollision(geom.pos, geom.radius, dynamicActor->pos, dynamicActor->radius, col, normal))
+			{
+				// push actor in normal direction
+				if (geom.ignoreContact && dynamicActor->ignoreContact)
+				{
+					geom.vel = normal * glm::length(geom.vel);
+					dynamicActor->vel = -normal * glm::length(dynamicActor->vel);
+				}
+
+				geom.pos = col;
+
+				// notify collision
+				if (geom.report)
+				{
+					geom.report->OnContact(dynamicActor);
+				}
+				//if (dynamicActor->active && dynamicActor->report)
+				if (dynamicActor->report)
+				{
+					dynamicActor->report->OnContact(&geom);
+				}
+			}
+		}
 	}
 }

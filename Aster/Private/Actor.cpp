@@ -51,6 +51,7 @@ void Actor::Reset()
 
 void Actor::Draw(SpriteRenderer& renderer)
 {
+	m_position = m_physicsActor->pos;
 	renderer.DrawSprite(this->Sprite, this->m_position, this->m_scale, this->m_rotAngle, this->m_color);
 }
 
@@ -67,4 +68,14 @@ void Actor::SetDelete(bool newDelete)
 void Actor::SetColor(glm::vec3 color)
 {
 	m_color = color;
+}
+
+void Actor::SetPosition(glm::vec3 pos)
+{
+	m_position += pos;
+	if (!m_physicsActor->active)
+	{
+		// update physics position. Not simulating physics
+		m_physicsActor->pos = m_position;
+	}
 }

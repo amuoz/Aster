@@ -33,15 +33,14 @@ public:
 	inline Mesh* GetMesh() { return m_mesh; }
 	
 	inline glm::vec3 GetPosition() { return m_position; }
+	void SetPosition(glm::vec3 pos);
 
 	bool bIsSolid;
 	bool bDestroyed;
 
-	glm::vec3 m_position;
-
 protected:
 	// actor state
-	
+	glm::vec3 m_position;
 	glm::vec3 m_scale;
 	glm::vec3 m_velocity;
 	float m_rotAngle;
@@ -56,7 +55,7 @@ protected:
 	bool m_delete;
 
 	// physics pointer
-	Physics::PhysicActor* m_physicsActor = 0;
+	Physics::PhysicActor* m_physicsActor = nullptr;
 
 	// render state
 	Mesh* m_mesh = nullptr;

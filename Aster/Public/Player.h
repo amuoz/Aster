@@ -2,13 +2,14 @@
 
 #include <glm/glm.hpp>
 #include "Actor.h"
+#include "ICircleContactReport.h"
 
 class Texture2D;
 
-class Player : public Actor
+class Player : public Actor, ICircleContactReport
 {
 public:
-	Player();
+
 	Player(glm::vec3 pos, glm::vec3 size, Texture2D sprite, glm::vec3 color = glm::vec3(1.0f), glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f));
 	virtual ~Player();
 
@@ -16,6 +17,8 @@ public:
 	virtual void Update(float deltaTime);
 
 	void Move(float deltaTime, glm::vec3 direction);
+
+	void OnContact(Physics::PhysicActor* other) override;
 
 private:
 	const float PLAYER_VELOCITY = 200.0f;

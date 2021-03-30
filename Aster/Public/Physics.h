@@ -19,17 +19,20 @@ public:
 	
 	struct PhysicActor
 	{
-		bool active;
+		bool active = false;
 
-		glm::vec3 vel;
-		glm::vec3 pos;
+		bool bSimulate = false;
+		bool bCheckCollision = false;
 
-		float mass;
-		glm::vec3 accelerationForce;
+		glm::vec3 vel = glm::vec3(0.0f);
+		glm::vec3 pos = glm::vec3(0.0f);;
+
+		float mass = 0.0f;
+		glm::vec3 accelerationForce = glm::vec3(0.0f);;
 
 		ICircleContactReport* report = 0;
 
-		float radius;
+		float radius = 0.0f;
 		bool ignoreContact = false;
 	};
 
@@ -48,6 +51,8 @@ public:
 	void DeleteDynamicActor(PhysicActor *geom);
 
 private:
+
+	void DoCollisions(PhysicActor& geom);
 
 	glm::vec3 m_gravityForce;
 
