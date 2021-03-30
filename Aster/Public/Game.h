@@ -29,6 +29,8 @@ class AsteroidMgr;
 class Actor;
 class TextRenderer;
 class SpriteRenderer;
+class Level;
+class Player;
 
 // Represents the current state of the game
 enum class GameState {
@@ -40,7 +42,7 @@ class Game
 {
 public:
 	Game();
-	~Game();
+	virtual ~Game();
 
 	void Execute();
 
@@ -79,7 +81,7 @@ private:
 	Ship* m_ship;
 	AsteroidMgr* m_AsteroidMgr;
 	TextRenderer* m_text;
-
+	
 	float m_deltaTime = 0.0f;	// Time between current frame and last frame
 	float m_lastFrame = 0.0f; // Time of last frame
 	float m_physicsTimeStepAccum = 0.0f;
@@ -88,6 +90,9 @@ private:
 
 	// scene actors
 	std::list<Actor*> m_scene;
+
+	std::unique_ptr<Level> CurrentLevel;
+	Player* Character;
 
 	GameState m_state;
 

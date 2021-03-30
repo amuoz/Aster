@@ -52,6 +52,7 @@ file(GLOB PROJECT_CONFIGS CMakeLists.txt
 file(GLOB PROJECT_CONFIG Aster/Config/*.conf)
 file(GLOB PROJECT_TEXTURES Aster/Textures/*.png)
 file(GLOB PROJECT_FONTS Aster/Fonts/*.ttf)
+file(GLOB PROJECT_LEVELS Aster/Levels/*.lvl)
 
 source_group("Public" FILES ${PROJECT_HEADERS})
 source_group("Shaders" FILES ${PROJECT_SHADERS})
@@ -60,13 +61,14 @@ source_group("Vendors" FILES ${VENDORS_SOURCES})
 source_group("Config" FILES ${PROJECT_CONFIG})
 source_group("Textures" FILES ${PROJECT_TEXTURES})
 source_group("Fonts" FILES ${PROJECT_FONTS})
+source_group("Levels" FILES ${PROJECT_LEVELS})
 
 add_definitions(-DGLFW_INCLUDE_NONE
                 -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS}
                                ${PROJECT_SHADERS} ${PROJECT_CONFIGS}
                                ${VENDORS_SOURCES} 
-                               ${PROJECT_CONFIG} ${PROJECT_TEXTURES} ${PROJECT_FONTS})
+                               ${PROJECT_CONFIG} ${PROJECT_TEXTURES} ${PROJECT_FONTS} ${PROJECT_LEVELS})
 target_link_libraries(${PROJECT_NAME} assimp glfw freetype
                       ${GLFW_LIBRARIES} ${GLAD_LIBRARIES}
                       BulletDynamics BulletCollision LinearMath)
@@ -92,3 +94,8 @@ add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/Aster/Fonts $<TARGET_FILE_DIR:${PROJECT_NAME}>
     DEPENDS ${PROJECT_FONTS})
+
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/Aster/Levels $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    DEPENDS ${PROJECT_LEVELS})

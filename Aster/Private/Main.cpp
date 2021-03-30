@@ -1,12 +1,13 @@
 #include "Common.h"
 #include "Game.h"
 
-Game* g_game;
+std::unique_ptr<Game> g_game;
 
 int main(int, char**)
 {
 	std::cout << "==================== ...INIT GAME... =======================" << std::endl;
-	g_game = new Game();
+	//g_game = new Game();
+	g_game = std::make_unique<Game>();
 	std::cout << "==================== GAME INITIALIZED =======================" << std::endl;
 
 	if (g_game != nullptr)

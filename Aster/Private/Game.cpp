@@ -9,6 +9,8 @@
 #include "Config.h"
 #include "AsteroidMgr.h"
 #include "Bullet.h"
+#include "Level.h"
+#include "Player.h"
 
 #include "ResourceManager.h"
 #include "TextRenderer.h"
@@ -22,6 +24,9 @@
 // externs
 Physics* g_PhysicsPtr;
 //Config* g_Config;
+
+const glm::vec3 PLAYER_SIZE(100.0f, 100.0f, 0.0f);
+const glm::vec3 playerPos = glm::vec3(200.0f, 200.0f, 0.0f);
 
 __inline float Randf(float min, float max)
 {
@@ -155,6 +160,17 @@ void Game::InitGame()
 	
 	// load textures
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/samurai-girl.png", true, "samurai");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/block.png", false, "block");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/block_solid.png", false, "block_solid");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/grass-background.png", true, "background");
+
+	// load levels
+	CurrentLevel = std::make_unique<Level>();
+	CurrentLevel->Load(PROJECT_SOURCE_DIR "/Aster/Levels/one.lvl", Config::GetInstance()->GetValue(Config::SRC_WIDTH), Config::GetInstance()->GetValue(Config::SRC_HEIGHT));
+
+	// Player
+	Character = new Player(playerPos, PLAYER_SIZE, ResourceManager::GetInstance()->GetTexture("samurai"));
+	m_scene.push_back(Character);
 }
 
 void Game::Execute()
@@ -183,7 +199,6 @@ void Game::Update(float deltaTime)
 		// ..:: LOGIC ::..
 		for (std::list<Actor*>::iterator it = m_scene.begin(); it != m_scene.end();)
 		{
-			std::cout << "...Actor..." << std::endl;
 			Actor* actor = (*it);
 			if (actor->IsActive())
 			{
@@ -216,8 +231,19 @@ void Game::Render()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	// draw background
+	Texture2D background = ResourceManager::GetInstance()->GetTexture("background");
+	Renderer->DrawSprite(background,
+		glm::vec2(0.0f, 0.0f), glm::vec2(Config::GetInstance()->GetValue(Config::SRC_WIDTH), Config::GetInstance()->GetValue(Config::SRC_HEIGHT)), 0.0f
+	);
+
+	// draw level
+	CurrentLevel->Draw(*Renderer);
+
+	/*
 	Texture2D texture = ResourceManager::GetInstance()->GetTexture("samurai");
 	Renderer->DrawSprite(texture, glm::vec2(200.0f, 200.0f), glm::vec2(100.0f, 100.0f), 0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+	*/
 
 	/*
 	// ..:: RENDERING ::..
@@ -238,17 +264,16 @@ void Game::Render()
 	// camera/view transformation
 	glm::mat4 view = m_camera->GetViewMatrix();
 	ResourceManager::GetInstance()->GetShader("base").SetMatrix4("view", view);
-	
+	*/
 
 	// Render scene
 	for (Actor* actor: m_scene)
 	{
 		if (actor->IsActive()) 
 		{
-			actor->Render(ResourceManager::GetInstance()->GetShader("base"));
+			actor->Draw(*Renderer);
 		}
 	}
-	*/
 
 	// Render Timer and lose message
 	//RenderUI();
@@ -315,7 +340,7 @@ void Game::Finalize()
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void Game::ProcessInput(GLFWwindow* window, float)
+void Game::ProcessInput(GLFWwindow* window, float deltaTime)
 {
 	// Quit game
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -324,9 +349,9 @@ void Game::ProcessInput(GLFWwindow* window, float)
 	}
 
 	// Active inputs
+	/*
 	if (m_ship != nullptr && m_state == GameState::GAME_ACTIVE)
 	{
-		std::cout << "...m_ship != nullptr..." << std::endl;
 		m_ship->GetPhysicsActor()->accelerationForce = glm::vec3(0.0f);
 
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
@@ -353,6 +378,40 @@ void Game::ProcessInput(GLFWwindow* window, float)
 			{
 				m_currentBulletFreq = Config::GetInstance()->GetValue(Config::BULLET_FREQUENCY);
 			}
+		}
+	}
+	*/
+
+	// Player movement
+	if (m_state == GameState::GAME_ACTIVE)
+	{
+		bool bMove = false;
+		glm::vec3 direction(0.0f);
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		{
+			direction += glm::vec3(-1.0f, 0.0f, 0.0f);
+			bMove = true;
+		}
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		{
+			direction += glm::vec3(1.0f, 0.0f, 0.0f);
+			bMove = true;
+		}
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		{
+			direction += glm::vec3(0.0f, -1.0f, 0.0f);
+			bMove = true;
+		}
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		{
+			direction += glm::vec3(0.0f, 1.0f, 0.0f);
+			bMove = true;
+		}
+
+		// apply character movement if needed
+		if (bMove)
+		{
+			Character->Move(deltaTime, direction);
 		}
 	}
 
