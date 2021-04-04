@@ -28,7 +28,7 @@ Actor::Actor(glm::vec3 pos, glm::vec3 size, Texture2D sprite, glm::vec3 color, g
 	Sprite = sprite;
 
 	m_rotAngle = 0.0f;
-	m_radius = 1.0f;
+	m_radius = size.x / 2;
 	m_rotAxis = glm::vec3(0.0f);
 
 	m_active = true;
@@ -51,7 +51,6 @@ void Actor::Reset()
 
 void Actor::Draw(SpriteRenderer& renderer)
 {
-	m_position = m_physicsActor->pos;
 	renderer.DrawSprite(this->Sprite, this->m_position, this->m_scale, this->m_rotAngle, this->m_color);
 }
 
@@ -74,6 +73,7 @@ void Actor::SetPosition(glm::vec3 pos)
 {
 	if (!m_physicsActor->bSimulate)
 	{
+		m_position += pos;
 		// update physics position. Not simulating physics
 		m_physicsActor->pos += pos;
 	}

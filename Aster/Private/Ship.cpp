@@ -22,7 +22,7 @@ Ship::Ship(const glm::vec3 &pos, const glm::vec3 &scale)
 	m_mass = Config::GetInstance()->GetValue(Config::MASS);
 	m_color = glm::vec3(1.0f);
 
-	m_physicsActor = g_PhysicsPtr->AddDynamicActor(m_position, m_velocity, m_radius, glm::vec3(0.0f), m_mass);
+	m_physicsActor = g_PhysicsPtr->AddDynamicActor(m_position, m_velocity, m_scale, glm::vec3(0.0f), m_mass);
 	m_physicsActor->active = true;
 	m_physicsActor->report = this;
 }

@@ -76,6 +76,11 @@ void Camera::ProcessMouseScroll(float yoffset)
         Zoom = 45.0f;
 }
 
+void Camera::SetPosition(const glm::vec3& pos)
+{
+    Position = pos;
+}
+
 // calculates the front vector from the Camera's (updated) Euler Angles
 void Camera::updateCameraVectors()
 {

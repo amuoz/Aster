@@ -15,7 +15,7 @@ Asteroid::Asteroid()
 
 	Reset();
 
-	m_physicsActor = g_PhysicsPtr->AddDynamicActor(m_position, m_velocity, m_radius);
+	m_physicsActor = g_PhysicsPtr->AddDynamicActor(m_position, m_velocity, m_scale);
 	m_physicsActor->report = this;
 }
 

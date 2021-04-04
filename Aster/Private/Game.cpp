@@ -25,7 +25,7 @@
 Physics* g_PhysicsPtr;
 //Config* g_Config;
 
-const glm::vec3 PLAYER_SIZE(100.0f, 100.0f, 0.0f);
+const glm::vec3 PLAYER_SIZE(16.0f, 9.0f, 0.0f);
 const glm::vec3 playerPos = glm::vec3(200.0f, 200.0f, 0.0f);
 
 __inline float Randf(float min, float max)
@@ -46,7 +46,7 @@ Game::~Game()
 {
 	glfwTerminate();
 
-	//delete m_camera;
+	delete m_camera;
 	//delete ship;
 	//delete m_AsteroidMgr;
 	//delete m_text;
@@ -111,7 +111,7 @@ void Game::InitGame()
 {
 	g_PhysicsPtr = new Physics(glm::vec3(0.0f, 0.0f, 0.0f));
 	
-	//m_camera = new Camera(glm::vec3(0.0f, 0.0f, 20.0f));
+	m_camera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f));
 	
 	m_ship = nullptr;
 	//m_ship = new Ship(glm::vec3(0.0f, -6.0f, 0.0f), glm::vec3(1.0f));
@@ -150,10 +150,13 @@ void Game::InitGame()
 		0.0f, -1.0f, 1.0f);
 
 	ResourceManager::GetInstance()->GetShader("sprite").SetMatrix4("projection", projection);
+	
 	// camera/view transformation
 	//glm::mat4 view = m_camera->GetViewMatrix();
 	//ResourceManager::GetInstance()->GetShader("base").SetMatrix4("view", view);
-	
+	glm::mat4 view = m_camera->GetViewMatrix();
+	ResourceManager::GetInstance()->GetShader("sprite").SetMatrix4("view", view);
+
 	// set render-specific controls
 	Shader shader = ResourceManager::GetInstance()->GetShader("sprite");
 	Renderer = new SpriteRenderer(shader);
@@ -169,7 +172,10 @@ void Game::InitGame()
 	CurrentLevel->Load(PROJECT_SOURCE_DIR "/Aster/Levels/one.lvl", Config::GetInstance()->GetValue(Config::SRC_WIDTH), Config::GetInstance()->GetValue(Config::SRC_HEIGHT));
 
 	// Player
-	Character = new Player(playerPos, PLAYER_SIZE, ResourceManager::GetInstance()->GetTexture("samurai"));
+	glm::vec3 charScale(1.0f, 1.0f, 1.0f);
+	charScale.x = Config::GetInstance()->GetValue(Config::SRC_WIDTH) / PLAYER_SIZE.x;
+	charScale.y = Config::GetInstance()->GetValue(Config::SRC_HEIGHT) / PLAYER_SIZE.y;
+	Character = new Player(playerPos, charScale, ResourceManager::GetInstance()->GetTexture("samurai"));
 	m_scene.push_back(Character);
 }
 
@@ -179,14 +185,23 @@ void Game::Execute()
 	m_deltaTime = currentFrame - m_lastFrame;
 	m_lastFrame = currentFrame;
 
-	// ..:: INPUT ::..
-	this->ProcessInput(m_window, m_deltaTime);
+	// fixed time step
+	float fixedUpdateFreq = 1.0f / 60.0f;
+	m_physicsTimeStepAccum += m_deltaTime;
+	while (m_physicsTimeStepAccum > fixedUpdateFreq)
+	{
+		m_physicsTimeStepAccum -= fixedUpdateFreq;
+		
+		// ..:: INPUT ::..
+		this->ProcessInput(m_window, fixedUpdateFreq);
 
-	// ..:: LOGIC ::..
-	this->Update(m_deltaTime);
+		// ..:: LOGIC ::..
+		this->Update(fixedUpdateFreq);
 
-	// ..:: RENDER ::..
-	this->Render();
+		// ..:: RENDER ::..
+		this->Render();
+	}
+
 }
 
 void Game::Update(float deltaTime)
@@ -234,6 +249,14 @@ void Game::Render()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	// camera/view transformation
+	glm::vec3 cameraPos(Character->GetPosition().x - Config::GetInstance()->GetValue(Config::SRC_WIDTH) / 2, 
+		Character->GetPosition().y - Config::GetInstance()->GetValue(Config::SRC_HEIGHT) / 2,
+		0.0f);
+	m_camera->SetPosition(cameraPos);
+	glm::mat4 view = m_camera->GetViewMatrix();
+	ResourceManager::GetInstance()->GetShader("sprite").SetMatrix4("view", view);
+
 	// draw background
 	Texture2D background = ResourceManager::GetInstance()->GetTexture("background");
 	Renderer->DrawSprite(background,
@@ -242,11 +265,6 @@ void Game::Render()
 
 	// draw level
 	CurrentLevel->Draw(*Renderer);
-
-	/*
-	Texture2D texture = ResourceManager::GetInstance()->GetTexture("samurai");
-	Renderer->DrawSprite(texture, glm::vec2(200.0f, 200.0f), glm::vec2(100.0f, 100.0f), 0.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-	*/
 
 	/*
 	// ..:: RENDERING ::..

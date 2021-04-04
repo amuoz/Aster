@@ -16,7 +16,7 @@ Bullet::Bullet(const glm::vec3 &pos, float scale, const glm::vec3 &vel)
 	m_active = true;
 	m_color = glm::vec3(1.0f);
 
-	m_physicsActor = g_PhysicsPtr->AddDynamicActor(m_position, m_velocity, m_radius);
+	m_physicsActor = g_PhysicsPtr->AddDynamicActor(m_position, m_velocity, m_scale);
 	m_physicsActor->active = true;
 	m_physicsActor->report = this;
 }
