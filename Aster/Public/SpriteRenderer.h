@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "texture.h"
+#include "Texture2D.h"
 #include "shader.h"
 
 

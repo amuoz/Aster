@@ -7,7 +7,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-#include "Texture.h"
+#include "Texture2D.h"
 #include "Shader.h"
 
 /// Holds all state information relevant to a character as loaded using FreeType

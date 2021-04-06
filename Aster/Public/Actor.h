@@ -6,7 +6,7 @@
 
 #include "Physics.h"
 #include "Mesh.h"
-#include "Texture.h"
+#include "Texture2D.h"
 
 class SpriteRenderer;
 
