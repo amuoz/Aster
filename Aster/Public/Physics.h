@@ -29,7 +29,7 @@ public:
 		glm::vec3 size = glm::vec3(0.0f);
 
 		float mass = 0.0f;
-		glm::vec3 accelerationForce = glm::vec3(0.0f);;
+		glm::vec3 accelerationForce = glm::vec3(0.0f);
 
 		ICircleContactReport* report = nullptr;
 

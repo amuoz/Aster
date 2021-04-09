@@ -1,12 +1,11 @@
 #include "Level.h"
 
-#include <fstream>
-#include <sstream>
-
 #include <glm/glm.hpp>
+#include <vector>
 
 #include "Block.h"
 #include "ResourceManager.h"
+#include "Files.h"
 
 Level::Level()
 {
@@ -23,28 +22,12 @@ void Level::Load(const char* file, unsigned int levelWidth, unsigned int levelHe
     // clear old data
     Actors.clear();
 
-    // load from file
-    unsigned int tileCode;
-    //Level level;
-    std::string line;
-    std::ifstream fstream(file);
-    std::vector<std::vector<unsigned int>> tileData;
-    if (fstream)
+    std::vector<std::vector<unsigned int> > tileData;
+    ReadFileLines(file, tileData);
+
+    if (tileData.size() > 0)
     {
-        while (std::getline(fstream, line)) // read each line from level file
-        {
-            std::istringstream sstream(line);
-            std::vector<unsigned int> row;
-            while (sstream >> tileCode) // read each word separated by spaces
-            {
-                row.push_back(tileCode);
-            }
-            tileData.push_back(row);
-        }
-        if (tileData.size() > 0)
-        {
-            Init(tileData, levelWidth, levelHeight);
-        }
+        Init(tileData, levelWidth, levelHeight);
     }
 }
 
@@ -59,7 +42,7 @@ void Level::Draw(SpriteRenderer& renderer)
     }
 }
 
-void Level::Init(std::vector<std::vector<unsigned int>> tileData, unsigned int levelWidth, unsigned int levelHeight)
+void Level::Init(std::vector<std::vector<unsigned int> >& tileData, unsigned int levelWidth, unsigned int levelHeight)
 {
     // calculate dimensions
     unsigned int height = static_cast<unsigned int>(tileData.size());
@@ -67,7 +50,7 @@ void Level::Init(std::vector<std::vector<unsigned int>> tileData, unsigned int l
     float unit_width = levelWidth / static_cast<float>(width);
     float unit_height = levelHeight / static_cast<float>(height);
 
-    // initialize level tiles based on tileData		
+    // initialize level tiles based on tileData
     for (unsigned int y = 0; y < height; ++y)
     {
         for (unsigned int x = 0; x < width; ++x)
