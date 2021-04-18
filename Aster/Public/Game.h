@@ -24,7 +24,6 @@
 // Forwards
 class Physics;
 class Camera;
-class Ship;
 class AsteroidMgr;
 class Actor;
 class TextRenderer;
@@ -44,47 +43,34 @@ public:
 	Game();
 	virtual ~Game();
 
-	void Execute();
-
-	// Have we finished?
-	inline bool IsFinished() const { return m_demoFinished; }
+	void Execute(float deltaTime);
 
 	int GetScore() { return m_score; }
 	void IncreaseScore() { ++m_score; }
 
 	void SetGameState(GameState newState);
 
-	// callback
-	static void _framebuffer_size_callback(GLFWwindow* window, int width, int height);
-
-private:
-	
-	void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-	
-	void InitContext();
 	void InitGame();
 
-	void ProcessInput(GLFWwindow* window, float deltaTime);
+	bool Keys[1024];
+	bool KeysProcessed[1024];
+
+private:
+
+	void ProcessInput(float deltaTime);
 	void Update(float deltaTime);	// logic and physics
 	void Render();
 	
 	void RenderUI();
 
 	void Restart();
-	void Finalize();
-
-	bool m_demoFinished = false;
 
 	GLFWwindow* m_window;
 	
 	Camera* m_camera;
-	Ship* m_ship;
 	AsteroidMgr* m_AsteroidMgr;
 	TextRenderer* m_text;
 	
-	float m_deltaTime = 0.0f;	// Time between current frame and last frame
-	float m_lastFrame = 0.0f; // Time of last frame
-	float m_physicsTimeStepAccum = 0.0f;
 	float m_gameTime = 0.0f;
 	float m_currentBulletFreq;
 

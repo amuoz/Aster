@@ -12,7 +12,7 @@ TextRenderer::TextRenderer(unsigned int width, unsigned int height)
 {
 	// load and configure shader
 	this->TextShader = ResourceManager::GetInstance()->LoadShader(PROJECT_SOURCE_DIR "/Aster/Shaders/text.vs", PROJECT_SOURCE_DIR "/Aster/Shaders/text.fs", nullptr, "text");
-	this->TextShader.SetMatrix4("projection", glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f), true);
+	this->TextShader.SetMatrix4("projection", glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, -1.0f, 1.0f), true);
 	this->TextShader.SetInteger("text", 0);
 	
 	// configure VAO/VBO for texture quads

@@ -38,6 +38,12 @@ void SpriteRenderer::DrawSprite(Texture2D& texture, glm::vec2 position, glm::vec
     glBindVertexArray(0);
 }
 
+void SpriteRenderer::SetViewMatrix(glm::mat4 viewMatrix)
+{
+    this->shader.Use();
+    this->shader.SetMatrix4("view", viewMatrix);
+}
+
 void SpriteRenderer::initRenderData()
 {
     // configure VAO/VBO

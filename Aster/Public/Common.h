@@ -4,7 +4,9 @@
 
 #define CONFIG_FILE PROJECT_SOURCE_DIR "/Aster/Config/config.conf"
 
-//class Game;
+static const std::string SRC_WIDTH = "SRC_WIDTH";
+static const std::string SRC_HEIGHT = "SRC_HEIGHT";
+
 class Physics;
 
 extern std::unique_ptr<Game> g_game;
