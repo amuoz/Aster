@@ -17,7 +17,7 @@ Level::~Level()
 
 }
 
-void Level::Load(const char* file, unsigned int levelWidth, unsigned int levelHeight)
+void Level::Load(std::string file, unsigned int levelWidth, unsigned int levelHeight)
 {
     // clear old data
     Actors.clear();

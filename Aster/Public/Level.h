@@ -17,7 +17,7 @@ public:
     virtual ~Level();
 
     // loads level from file
-    void Load(const char* file, unsigned int levelWidth, unsigned int levelHeight);
+    void Load(std::string file, unsigned int levelWidth, unsigned int levelHeight);
     
     // render level
     void Draw(SpriteRenderer& renderer);
