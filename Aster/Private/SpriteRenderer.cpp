@@ -1,5 +1,7 @@
 #include "SpriteRenderer.h"
 
+#include "Texture2D.h"
+#include "Sprite.h"
 
 SpriteRenderer::SpriteRenderer(Shader& shader)
 {
@@ -36,6 +38,12 @@ void SpriteRenderer::DrawSprite(Texture2D& texture, glm::vec2 position, glm::vec
     glBindVertexArray(this->quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
+}
+
+void SpriteRenderer::DrawSprite(Sprite* sprite, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
+{
+    Texture2D texture = sprite->GetTexture();
+    DrawSprite(texture, position, size, rotate, color);
 }
 
 void SpriteRenderer::initRenderData()

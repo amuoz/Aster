@@ -2,6 +2,7 @@
 
 #include "Common.h"
 #include "SpriteRenderer.h"
+#include "Sprite.h"
 
 Actor::Actor()
 {
@@ -19,13 +20,13 @@ Actor::Actor()
 	bDestroyed = false;
 }
 
-Actor::Actor(glm::vec3 pos, glm::vec3 size, Texture2D sprite, glm::vec3 color, glm::vec3 velocity)
+Actor::Actor(glm::vec3 pos, glm::vec3 size, Sprite* sprite, glm::vec3 color, glm::vec3 velocity)
 {
 	m_position = pos;
 	m_scale = size;
 	m_velocity = velocity;
 	m_color = color;
-	Sprite = sprite;
+	m_sprite = sprite;
 
 	m_rotAngle = 0.0f;
 	m_radius = size.x / 2;
@@ -49,9 +50,9 @@ void Actor::Reset()
 
 }
 
-void Actor::Draw(SpriteRenderer& renderer)
+void Actor::Draw(SpriteRenderer& renderer, double)
 {
-	renderer.DrawSprite(this->Sprite, this->m_position, this->m_scale, this->m_rotAngle, this->m_color);
+	renderer.DrawSprite(m_sprite, m_position, m_scale, m_rotAngle, m_color);
 }
 
 void Actor::SetActive(bool newActive)
