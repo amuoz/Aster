@@ -6,22 +6,22 @@
 
 #include "Physics.h"
 #include "Mesh.h"
+#include "Texture2D.h"
 
 class SpriteRenderer;
-class Sprite;
 
 class Actor
 {
 public:
 
 	Actor();
-	Actor(glm::vec3 pos, glm::vec3 size, Sprite* sprite, glm::vec3 color = glm::vec3(1.0f), glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f));
+	Actor(glm::vec3 pos, glm::vec3 size, Texture2D sprite, glm::vec3 color = glm::vec3(1.0f), glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f));
 	virtual ~Actor();
 
 	virtual void Render(Shader shader) = 0;
 	virtual void Update(float deltaTime) = 0;
 	virtual void Reset();
-	virtual void Draw(SpriteRenderer &renderer, double deltatime);
+	virtual void Draw(SpriteRenderer &renderer);
 
 	void SetActive(bool newActive);
 	void SetDelete(bool newDelete);
@@ -59,5 +59,5 @@ protected:
 
 	// render state
 	Mesh* m_mesh = nullptr;
-	Sprite* m_sprite;
+	Texture2D Sprite;
 };

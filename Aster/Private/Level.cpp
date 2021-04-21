@@ -6,7 +6,6 @@
 #include "Block.h"
 #include "ResourceManager.h"
 #include "Files.h"
-#include "Sprite.h"
 
 Level::Level()
 {
@@ -32,13 +31,13 @@ void Level::Load(std::string file, unsigned int levelWidth, unsigned int levelHe
     }
 }
 
-void Level::Draw(SpriteRenderer& renderer, double deltatime)
+void Level::Draw(SpriteRenderer& renderer)
 {
     for (Actor* actor : Actors)
     {
         if (!actor->bDestroyed)
         {
-            actor->Draw(renderer, deltatime);
+            actor->Draw(renderer);
         }
     }
 }
@@ -61,8 +60,7 @@ void Level::Init(std::vector<std::vector<unsigned int> >& tileData, unsigned int
             {
                 glm::vec3 pos(unit_width * x, unit_height * y, 0.0f);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
-                Sprite* blockSprite = new Sprite("block_solid");
-                Block* blockActor = new Block(pos, size, blockSprite, glm::vec3(0.8f, 0.8f, 0.7f));
+                Block* blockActor = new Block(pos, size, ResourceManager::GetInstance()->GetTexture("block_solid"), glm::vec3(0.8f, 0.8f, 0.7f));
                 blockActor->bIsSolid = true;
                 Actors.push_back(blockActor);
             }
@@ -80,8 +78,7 @@ void Level::Init(std::vector<std::vector<unsigned int> >& tileData, unsigned int
 
                 glm::vec3 pos(unit_width * x, unit_height * y, 0.0f);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
-                Sprite* blockSprite = new Sprite("block");
-                Actors.push_back(new Block(pos, size, blockSprite, color));
+                Actors.push_back(new Block(pos, size, ResourceManager::GetInstance()->GetTexture("block"), color));
             }
         }
     }
