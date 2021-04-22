@@ -20,7 +20,7 @@ public:
     void Load(std::string file, unsigned int levelWidth, unsigned int levelHeight);
     
     // render level
-    void Draw(SpriteRenderer& renderer);
+    void Draw(SpriteRenderer& renderer, double deltatime);
 
 private:
 

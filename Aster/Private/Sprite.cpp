@@ -32,16 +32,18 @@ void Sprite::Draw(SpriteRenderer &renderer, double deltatime, glm::vec2 position
 
 	if(m_hasAnimation)
 	{
-		m_animation->Play(m_texture, m_rectangle, deltatime);
-    m_texture.Bind();
-  	m_rectangle.Draw();
+    // m_animation->SetAnimationSpeed(50.0f);
+		// m_animation->Play(m_texture, m_rectangle, deltatime);
+    // m_texture.Bind();
+  	// m_rectangle.Draw();
+    renderer.DrawSubSprite(this, position, glm::vec2(100.0f, 100.0f), rotate, color);
 	}
-  // else
-  // {
-  //   renderer.DrawSprite(this, position, scale, rotAngle, color);
-  // }
+  else 
+  {
+    renderer.DrawSprite(this, position, size, rotate, color);
+  }
 
-  renderer.DrawSprite(this, position, size, rotate, color);
+  // renderer.DrawSprite(this, position, size, rotate, color);
 
 }
 

@@ -11,6 +11,7 @@
 #include "Bullet.h"
 #include "Level.h"
 #include "Player.h"
+#include "Sprite.h"
 
 #include "ResourceManager.h"
 #include "TextRenderer.h"
@@ -163,6 +164,7 @@ void Game::InitGame()
 	
 	// load textures
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/samurai-girl.png", true, "samurai");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/player_walk.png", true, "player_walk");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/block.png", false, "block");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/block_solid.png", false, "block_solid");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/grass-background.png", true, "background");
@@ -175,7 +177,11 @@ void Game::InitGame()
 	glm::vec3 charScale(1.0f, 1.0f, 1.0f);
 	charScale.x = Config::GetInstance()->GetValue(Config::SRC_WIDTH) / PLAYER_SIZE.x;
 	charScale.y = Config::GetInstance()->GetValue(Config::SRC_HEIGHT) / PLAYER_SIZE.y;
-	Character = new Player(playerPos, charScale, ResourceManager::GetInstance()->GetTexture("samurai"));
+	Sprite* playerSprite = new Sprite("player_walk");
+	// playerSprite->m_transformation.position = glm::vec2(200, 200);
+	// playerSprite->m_transformation.scale = glm::vec2(128, 128);
+	playerSprite->AddAnimation("player_walk.txt");
+	Character = new Player(playerPos, charScale, playerSprite);
 	m_scene.push_back(Character);
 }
 
@@ -264,7 +270,7 @@ void Game::Render()
 	);
 
 	// draw level
-	CurrentLevel->Draw(*Renderer);
+	CurrentLevel->Draw(*Renderer, m_deltaTime);
 
 	/*
 	// ..:: RENDERING ::..
@@ -292,7 +298,7 @@ void Game::Render()
 	{
 		if (actor->IsActive()) 
 		{
-			actor->Draw(*Renderer);
+			actor->Draw(*Renderer, m_deltaTime);
 		}
 	}
 
