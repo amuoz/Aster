@@ -36,7 +36,7 @@ void Sprite::Draw(SpriteRenderer &renderer, double deltatime, glm::vec2 position
 		// m_animation->Play(m_texture, m_rectangle, deltatime);
     // m_texture.Bind();
   	// m_rectangle.Draw();
-    renderer.DrawSubSprite(this, position, glm::vec2(100.0f, 100.0f), rotate, color);
+    renderer.DrawSubSprite(this, position, size, rotate, color);
 	}
   else 
   {
