@@ -14,63 +14,28 @@ Rectangle RectangleSystem::Generate()
 {
   Rectangle result;
 
-  glm::vec2 arr[6] = {
-    glm::vec2(0,0),
-    glm::vec2(0,1),
-    glm::vec2(1,0),
-    glm::vec2(1,0),
-    glm::vec2(0,1),
-    glm::vec2(1,1)
-  };
+  float vertices[] = {
+    // pos      // tex
+    0.0f, 1.0f, 0.0f, 1.0f,
+    1.0f, 0.0f, 1.0f, 0.0f,
+    0.0f, 0.0f, 0.0f, 0.0f,
 
-  glm::vec2 colors[6] = {
-    glm::vec4(1,1,1,1),
-    glm::vec4(1,1,1,1),
-    glm::vec4(1,1,1,1),
-    glm::vec4(1,1,1,1),
-    glm::vec4(1,1,1,1),
-    glm::vec4(1,1,1,1)
-  };
-
-  glm::vec2 uv[6] = {
-    glm::vec2(0,0),
-    glm::vec2(0,1),
-    glm::vec2(1,0),
-    glm::vec2(1,0),
-    glm::vec2(0,1),
-    glm::vec2(1,1)
+    0.0f, 1.0f, 0.0f, 1.0f,
+    1.0f, 1.0f, 1.0f, 1.0f,
+    1.0f, 0.0f, 1.0f, 0.0f
   };
 
   glGenVertexArrays(1, &result.vertexArrayObject);
   glGenBuffers(1, &result.vertexBufferObject);
-  glGenBuffers(1, &result.colorBufferObject);
-  glGenBuffers(1, &result.uvBufferObject);
+
+  glBindBuffer(GL_ARRAY_BUFFER, result.vertexBufferObject);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
   glBindVertexArray(result.vertexArrayObject);
-
-  // vertex buffer
-  glBindBuffer(GL_ARRAY_BUFFER, result.vertexBufferObject);
-  glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(glm::vec2), &arr[0], GL_DYNAMIC_DRAW);
-
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 2, GL_FLOAT, false, 0, NULL);
-
-  // color buffer
-  glBindBuffer(GL_ARRAY_BUFFER, result.colorBufferObject);
-  glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(glm::vec4), &colors[0], GL_DYNAMIC_DRAW);
-
-  glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 4, GL_FLOAT, false, 0, NULL);
-
-  // uv buffer
-  glBindBuffer(GL_ARRAY_BUFFER, result.uvBufferObject);
-  glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(glm::vec2), &uv[0], GL_DYNAMIC_DRAW);
-
-  glEnableVertexAttribArray(2);
-  glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, NULL);
-
-
+  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
 
   return result;
 }

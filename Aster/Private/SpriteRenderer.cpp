@@ -48,8 +48,6 @@ void SpriteRenderer::DrawSprite(Sprite* sprite, glm::vec2 position, glm::vec2 si
 
 void SpriteRenderer::DrawSubSprite(Sprite* sprite, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
 {
-    Texture2D texture = sprite->GetTexture();
-
     // prepare transformations
     this->shader.Use();
     glm::mat4 model = glm::mat4(1.0f);
@@ -65,13 +63,6 @@ void SpriteRenderer::DrawSubSprite(Sprite* sprite, glm::vec2 position, glm::vec2
 
     // render textured quad
     this->shader.SetVector3f("spriteColor", color);
-
-    glActiveTexture(GL_TEXTURE0);
-    texture.Bind();
-
-    glBindVertexArray(this->quadVAO);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindVertexArray(0);
 }
 
 void SpriteRenderer::initRenderData()
@@ -81,12 +72,12 @@ void SpriteRenderer::initRenderData()
     float vertices[] = {
         // pos      // tex
         0.0f, 1.0f, 0.0f, 1.0f,
-        1.0f, 0.0f, 0.04f, 0.0f,
+        1.0f, 0.0f, 1.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 0.0f,
 
         0.0f, 1.0f, 0.0f, 1.0f,
-        1.0f, 1.0f, 0.04f, 1.0f,
-        1.0f, 0.0f, 0.04f, 0.0f
+        1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 0.0f, 1.0f, 0.0f
     };
 
     glGenVertexArrays(1, &this->quadVAO);

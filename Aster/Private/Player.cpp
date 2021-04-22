@@ -25,6 +25,11 @@ void Player::Update(float)
 
 }
 
+void Player::Draw(SpriteRenderer &renderer, double deltatime)
+{
+	m_sprite->Draw(renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
+}
+
 void Player::Move(float deltaTime, glm::vec3 direction)
 {
 	float velocity = PLAYER_VELOCITY * deltaTime;

@@ -15,6 +15,7 @@ public:
 
 	virtual void Render(Shader shader);
 	virtual void Update(float deltaTime);
+	virtual void Draw(SpriteRenderer &renderer, double deltaTime);
 
 	void Move(float deltaTime, glm::vec3 direction);
 

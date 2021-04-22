@@ -73,26 +73,6 @@ void Animation::Play(Texture2D& texture, Rectangle& rectangle, double deltatime)
     m_spriteIndex = (m_spriteIndex + 1) % m_framesCount;
     m_animationCursor = 0;
   }
-  
-
-  // std::vector<unsigned int> frame = m_frames[m_spriteIndex];
-
-  // // frame[0] /= texture.Width;
-  // // frame[1] /= texture.Height;
-  // // frame[2] /= texture.Width;
-  // // frame[3] /= texture.Height;
-
-  // std::vector<glm::vec2> uv;
-
-  // uv = {
-  //   glm::vec2(frame[0], frame[1]),
-  //   glm::vec2(frame[0], frame[1] + frame[3]),
-  //   glm::vec2(frame[0], frame[2] + frame[1]),
-
-  //   glm::vec2(frame[0] + frame[2], frame[1]),
-  //   glm::vec2(frame[0], frame[1] + frame[3]),
-  //   glm::vec2(frame[0] + frame[2], frame[1] + frame[3])
-  // };
 
   glm::vec4 frame = m_frames[m_spriteIndex];
 
@@ -101,49 +81,28 @@ void Animation::Play(Texture2D& texture, Rectangle& rectangle, double deltatime)
   frame.z /= texture.Width;
   frame.w /= texture.Height;
 
+  float vertices[] = {
+    0.0f, 1.0f, frame.x,            frame.w,
+    1.0f, 0.0f, frame.x + frame.z,  frame.y,
+    0.0f, 0.0f, frame.x,            frame.y,
 
-
-  std::vector<glm::vec2> uv;
-
-  uv = {
-    glm::vec2(frame.x, frame.y),
-    glm::vec2(frame.x, frame.y + frame.w),
-    glm::vec2(frame.x, frame.z + frame.y),
-
-    glm::vec2(frame.x + frame.z, frame.y),
-    glm::vec2(frame.x, frame.y + frame.w),
-    glm::vec2(frame.x + frame.z, frame.y + frame.w)
+    0.0f, 1.0f, frame.x,            frame.w,
+    1.0f, 1.0f, frame.x + frame.z,  frame.w,
+    1.0f, 0.0f, frame.x + frame.z,  frame.y
   };
 
   glBindVertexArray(rectangle.vertexArrayObject);
 
-  glBindBuffer(GL_ARRAY_BUFFER, rectangle.uvBufferObject);
-  glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(glm::vec2), &uv[0], GL_DYNAMIC_DRAW);
+  glBindBuffer(GL_ARRAY_BUFFER, rectangle.vertexBufferObject);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-  glEnableVertexAttribArray(2);
-  glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, NULL);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
   
   glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-
-
-  // glBindVertexArray(rectangle.vertexArrayObject);
-  // glBindBuffer(GL_ARRAY_BUFFER, rectangle.uvBufferObject);
-
-  // void* gpubuffer = nullptr;
-  // gpubuffer = glMapBufferRange(GL_ARRAY_BUFFER, 0, 6 * sizeof(glm::vec2), GL_MAP_WRITE_BIT| GL_MAP_INVALIDATE_BUFFER_BIT);
-  // memcpy(gpubuffer, uv.data(), 6 * sizeof(glm::vec2));
-  // glUnmapBuffer(GL_ARRAY_BUFFER);
-  // glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void Animation::SetAnimationSpeed(float speed)
 {
   m_speed = speed;
 }
-
-// Texture2D Animation::GetSprite()
-// {
-  
-// 	return ResourceManager::GetInstance()->CropTextureFromFile(PROJECT_SOURCE_DIR "/Aster/Textures/player_walk.png", true);
-// }
