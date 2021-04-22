@@ -24,39 +24,9 @@ Animation::Animation(std::string filename)
   m_spriteIndex(0),
   m_speed(0.05f)
 {
-  // std::string projectSrcDir = PROJECT_SOURCE_DIR;
-  // ReadFileLines(projectSrcDir + "/Aster/Textures/" + filename, m_frames);
-  // m_framesCount = (int)m_frames.size();
-
-  unsigned int word;
-  std::string line;
-  std::ifstream fstream(filename);
-  
-  if (fstream)
-  {
-      while (std::getline(fstream, line)) // read each line from file
-      {
-          std::istringstream sstream(line);
-          std::vector<unsigned int> row;
-          while (sstream >> word) // read each word separated by spaces
-          {
-              row.push_back(word);
-          }
-          glm::vec4 frame = glm::vec4(row[0], row[1], row[2], row[3]);
-          m_frames.push_back(frame);
-      }
-  }
-
+  std::string projectSrcDir = PROJECT_SOURCE_DIR;
+  ReadFileLines(projectSrcDir + "/Aster/Textures/" + filename, m_frames);
   m_framesCount = (int)m_frames.size();
-
-  // std::cout << "m_frames = { ";
-  // for (std::vector<unsigned int> n : m_frames) {
-  //   for (int m : n) {
-  //     std::cout << m << ", ";
-  //   }
-  //   std::cout << "\n";
-  // }
-  // std::cout << "}; \n";
 }
 
 Animation::~Animation()
@@ -74,21 +44,21 @@ void Animation::Play(Texture2D& texture, Rectangle& rectangle, double deltatime)
     m_animationCursor = 0;
   }
 
-  glm::vec4 frame = m_frames[m_spriteIndex];
+  std::vector<unsigned int> frame = m_frames[m_spriteIndex];
 
-  frame.x /= texture.Width;
-  frame.y /= texture.Height;
-  frame.z /= texture.Width;
-  frame.w /= texture.Height;
+  float xPos = (float)frame[0] / texture.Width;
+  float yPos = (float)frame[1] / texture.Height;
+  float width = (float)frame[2] / texture.Width;
+  float height = (float)frame[3] / texture.Height;
 
   float vertices[] = {
-    0.0f, 1.0f, frame.x,            frame.w,
-    1.0f, 0.0f, frame.x + frame.z,  frame.y,
-    0.0f, 0.0f, frame.x,            frame.y,
+    0.0f, 1.0f, xPos,          height,
+    1.0f, 0.0f, xPos + width,  yPos,
+    0.0f, 0.0f, xPos,          yPos,
 
-    0.0f, 1.0f, frame.x,            frame.w,
-    1.0f, 1.0f, frame.x + frame.z,  frame.w,
-    1.0f, 0.0f, frame.x + frame.z,  frame.y
+    0.0f, 1.0f, xPos,          height,
+    1.0f, 1.0f, xPos + width,  height,
+    1.0f, 0.0f, xPos + width,  yPos
   };
 
   glActiveTexture(GL_TEXTURE0);

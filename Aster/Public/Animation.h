@@ -26,10 +26,7 @@ private:
   int m_spriteIndex;
   int m_framesCount;
   float m_speed;
-  std::vector<glm::vec4> m_frames;
 
-  // Texture2D m_spritesheet;
-  // short m_spriteIndex;
-  // std::vector<std::vector<unsigned int> > m_frames;
+  std::vector<std::vector<unsigned int> > m_frames;
 
 };
