@@ -20,8 +20,6 @@ public:
   void Play(Texture2D& sprite, Rectangle& rectangle, double deltatime);
   void SetAnimationSpeed(float speed);
 
-  // Texture2D GetSprite();
-
 private:
 
   double m_animationCursor;

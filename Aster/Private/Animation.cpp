@@ -91,6 +91,9 @@ void Animation::Play(Texture2D& texture, Rectangle& rectangle, double deltatime)
     1.0f, 0.0f, frame.x + frame.z,  frame.y
   };
 
+  glActiveTexture(GL_TEXTURE0);
+  texture.Bind();
+
   glBindVertexArray(rectangle.vertexArrayObject);
 
   glBindBuffer(GL_ARRAY_BUFFER, rectangle.vertexBufferObject);
@@ -100,6 +103,8 @@ void Animation::Play(Texture2D& texture, Rectangle& rectangle, double deltatime)
   glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
   
   glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+  rectangle.Draw();
 }
 
 void Animation::SetAnimationSpeed(float speed)

@@ -181,6 +181,7 @@ void Game::InitGame()
 	// playerSprite->m_transformation.position = glm::vec2(200, 200);
 	// playerSprite->m_transformation.scale = glm::vec2(128, 128);
 	playerSprite->AddAnimation("player_walk.txt");
+	playerSprite->SetAnimationSpeed(0.26f);
 	Character = new Player(playerPos, charScale, playerSprite);
 	m_scene.push_back(Character);
 }

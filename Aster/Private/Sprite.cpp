@@ -32,13 +32,8 @@ void Sprite::Draw(SpriteRenderer &renderer, double deltatime, glm::vec2 position
 
 	if(m_hasAnimation)
 	{
-    m_animation->SetAnimationSpeed(0.26f);
-    renderer.DrawSubSprite(this, position, size, rotate, color);
-    glActiveTexture(GL_TEXTURE0);
-    m_texture.Bind();
+    renderer.SetShader(position, size, rotate, color);
 		m_animation->Play(m_texture, m_rectangle, deltatime);
-  	m_rectangle.Draw();
-    glBindVertexArray(0);
 	}
   else 
   {
@@ -51,6 +46,11 @@ void Sprite::AddAnimation(std::string filename)
 {
   m_animation = new Animation(filename);
   m_hasAnimation = true;
+}
+
+void Sprite::SetAnimationSpeed(float speed)
+{
+  m_animation->SetAnimationSpeed(speed);
 }
 
 Texture2D Sprite::GetTexture()
