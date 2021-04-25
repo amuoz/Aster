@@ -33,7 +33,7 @@ void SpriteRenderer::SetShader(glm::vec2 position, glm::vec2 size, float rotate,
     this->shader.SetVector3f("spriteColor", color);
 }
 
-void SpriteRenderer::DrawSprite(Texture2D& texture, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
+void SpriteRenderer::DrawTexture(Texture2D& texture, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
 {
     SetShader(position, size, rotate, color);
 
@@ -47,7 +47,13 @@ void SpriteRenderer::DrawSprite(Texture2D& texture, glm::vec2 position, glm::vec
 void SpriteRenderer::DrawSprite(Sprite* sprite, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
 {
     Texture2D texture = sprite->GetTexture();
-    DrawSprite(texture, position, size, rotate, color);
+    DrawTexture(texture, position, size, rotate, color);
+}
+
+void SpriteRenderer::SetViewMatrix(glm::mat4 viewMatrix)
+{
+    this->shader.Use();
+    this->shader.SetMatrix4("view", viewMatrix);
 }
 
 void SpriteRenderer::initRenderData()

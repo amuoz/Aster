@@ -23,7 +23,7 @@ public:
 	// retrieves a stored sader
 	Shader GetShader(std::string name);
 	// loads (and generates) a texture from file
-	Texture2D LoadTexture(const char *file, bool alpha, std::string name);
+	Texture2D LoadTexture(const char*, bool alpha, std::string name);
 	// retrieves a stored texture
 	Texture2D GetTexture(std::string name);
 	// properly de-allocates all loaded resources
@@ -41,7 +41,7 @@ private:
 	// loads and generates a shader from file
 	Shader LoadShaderFromFile(const char *vShaderFile, const char *fShaderFile, const char *gShaderFile = nullptr);
 	// loads a single texture from file
-	Texture2D LoadTextureFromFile(const char *file, bool alpha);
+	Texture2D LoadTextureFromFile(const char* file, bool alpha);
 
 	// resource storage
 	std::map<std::string, Shader> Shaders;

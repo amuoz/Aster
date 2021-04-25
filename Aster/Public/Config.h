@@ -24,8 +24,6 @@ public:
 	static const string EXPLOSION_DURATION;
 	static const string RAPID_FIRE;
 	static const string DIFFICULTY_INCREASE;
-	static const string SRC_WIDTH;
-	static const string SRC_HEIGHT;
 
 	// Singletons should not be cloneable
 	Config(Config& other) = delete;
@@ -39,7 +37,7 @@ public:
 	* into the static field. On subsequent runs it returns the existing
 	* object stored in the static field.
 	*/
-	static Config* GetInstance();
+	static Config* Get();
 
 	/*
 	* Business Logic
