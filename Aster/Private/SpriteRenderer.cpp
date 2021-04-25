@@ -1,5 +1,7 @@
 #include "SpriteRenderer.h"
 
+#include "Texture2D.h"
+#include "Sprite.h"
 
 SpriteRenderer::SpriteRenderer(Shader& shader)
 {
@@ -12,7 +14,7 @@ SpriteRenderer::~SpriteRenderer()
     glDeleteVertexArrays(1, &this->quadVAO);
 }
 
-void SpriteRenderer::DrawSprite(Texture2D& texture, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
+void SpriteRenderer::SetShader(glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
 {
     // prepare transformations
     this->shader.Use();
@@ -29,13 +31,23 @@ void SpriteRenderer::DrawSprite(Texture2D& texture, glm::vec2 position, glm::vec
 
     // render textured quad
     this->shader.SetVector3f("spriteColor", color);
+}
 
-    glActiveTexture(GL_TEXTURE0);
+void SpriteRenderer::DrawTexture(Texture2D& texture, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
+{
+    SetShader(position, size, rotate, color);
+
     texture.Bind();
 
     glBindVertexArray(this->quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
+}
+
+void SpriteRenderer::DrawSprite(Sprite* sprite, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
+{
+    Texture2D texture = sprite->GetTexture();
+    DrawTexture(texture, position, size, rotate, color);
 }
 
 void SpriteRenderer::SetViewMatrix(glm::mat4 viewMatrix)

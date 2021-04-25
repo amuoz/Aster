@@ -59,7 +59,7 @@ private:
 
 	void ProcessInput(float deltaTime);
 	void Update(float deltaTime);	// logic and physics
-	void Render();
+	void Render(float deltaTime);
 	
 	void RenderUI();
 

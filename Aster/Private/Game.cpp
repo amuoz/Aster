@@ -8,6 +8,7 @@
 #include "Bullet.h"
 #include "Level.h"
 #include "Player.h"
+#include "Sprite.h"
 
 #include "ResourceManager.h"
 #include "TextRenderer.h"
@@ -66,12 +67,13 @@ void Game::InitGame()
 	ResourceManager::GetInstance()->GetShader("sprite").SetMatrix4("projection", projection);
 	auto shader = ResourceManager::GetInstance()->GetShader("sprite");
 	Renderer = new SpriteRenderer(shader);
-
-	// Load textures
-	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR"/Aster/Textures/samurai-girl.png", true, "samurai");
-	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR"/Aster/Textures/block.png", false, "block");
-	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR"/Aster/Textures/block_solid.png", false, "block_solid");
-	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR"/Aster/Textures/grass-background.png", true, "background");
+	
+	// load textures
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/samurai-girl.png", true, "samurai");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/player_walk.png", true, "player_walk");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/block.png", false, "block");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/block_solid.png", false, "block_solid");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/grass-background.png", true, "background");
 
 	// Load levels
 	CurrentLevel = std::make_unique<Level>();
@@ -81,7 +83,10 @@ void Game::InitGame()
 	glm::vec3 charScale(1.0f, 1.0f, 1.0f);
 	charScale.x = Config::Get()->GetValue(SRC_WIDTH) / PLAYER_SIZE.x;
 	charScale.y = Config::Get()->GetValue(SRC_HEIGHT) / PLAYER_SIZE.y;
-	Character = new Player(playerPos, charScale, ResourceManager::GetInstance()->GetTexture("samurai"));
+	Sprite* playerSprite = new Sprite("player_walk");
+	playerSprite->AddAnimation("player_walk.txt");
+	playerSprite->SetAnimationSpeed(0.02f);
+	Character = new Player(playerPos, charScale, playerSprite);
 	m_scene.push_back(Character);
 }
 
@@ -94,7 +99,7 @@ void Game::Execute(float deltaTime)
 	this->Update(deltaTime);
 
 	// Render
-	this->Render();
+	this->Render(deltaTime);
 }
 
 void Game::Update(float deltaTime)
@@ -133,7 +138,7 @@ void Game::Update(float deltaTime)
 
 }
 
-void Game::Render()
+void Game::Render(float deltaTime)
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -143,19 +148,19 @@ void Game::Render()
 	
 	// Draw background
 	Texture2D background = ResourceManager::GetInstance()->GetTexture("background");
-	Renderer->DrawSprite(background,
+	Renderer->DrawTexture(background,
 		glm::vec2(0.0f, 0.0f), glm::vec2(Config::Get()->GetValue(SRC_WIDTH), Config::Get()->GetValue(SRC_HEIGHT)), 0.0f
 	);
 
 	// Draw level
-	CurrentLevel->Draw(*Renderer);
+	CurrentLevel->Draw(*Renderer, deltaTime);
 
 	// Render scene
 	for (Actor* actor: m_scene)
 	{
 		if (actor->IsActive()) 
 		{
-			actor->Draw(*Renderer);
+			actor->Draw(*Renderer, deltaTime);
 		}
 	}
 
