@@ -64,7 +64,8 @@ void Game::InitGame()
 		(float)Config::Get()->GetValue(SRC_HEIGHT), 
 		0.0f, -1.0f, 1.0f);
 	ResourceManager::GetInstance()->GetShader("sprite").SetMatrix4("projection", projection);
-	Renderer = new SpriteRenderer(ResourceManager::GetInstance()->GetShader("sprite"));
+	auto shader = ResourceManager::GetInstance()->GetShader("sprite");
+	Renderer = new SpriteRenderer(shader);
 
 	// Load textures
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR"/Aster/Textures/samurai-girl.png", true, "samurai");
