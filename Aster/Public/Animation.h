@@ -8,13 +8,21 @@
 class Texture2D;
 class Rectangle;
 class SpriteRenderer;
+
+enum class AnimationType {
+    IDLE,
+    ATTACK_UP,
+    ATTACK_RIGHT,
+    ATTACK_DOWN,
+    ATTACK_LEFT,
+};
  
 class Animation
 {
 public:
 
 	Animation();
-	Animation(std::string filename);
+	Animation(std::string filename, float speed);
 	virtual ~Animation();
 
   void Play(Texture2D& sprite, Rectangle& rectangle, double deltatime);

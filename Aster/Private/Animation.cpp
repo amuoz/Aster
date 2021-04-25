@@ -19,14 +19,15 @@ Animation::Animation()
   m_spriteIndex = 0;
 }
 
-Animation::Animation(std::string filename)
+Animation::Animation(std::string filename, float speed)
   : m_animationCursor(0),
   m_spriteIndex(0),
   m_speed(0.05f)
 {
   std::string projectSrcDir = PROJECT_SOURCE_DIR;
-  ReadFileLines(projectSrcDir + "/Aster/Textures/" + filename, m_frames);
+  ReadFileLines(projectSrcDir + "/Aster/Textures/" + filename + ".txt", m_frames);
   m_framesCount = (int)m_frames.size();
+  m_speed = speed;
 }
 
 Animation::~Animation()
@@ -50,15 +51,17 @@ void Animation::Play(Texture2D& texture, Rectangle& rectangle, double deltatime)
   float yPos = (float)frame[1] / texture.Height;
   float width = (float)frame[2] / texture.Width;
   float height = (float)frame[3] / texture.Height;
+  float rateWidth = (float)frame[2] / 128;
+  float rateHeight = (float)frame[3] / 128;
 
   float vertices[] = {
-    0.0f, 1.0f, xPos,          height,
-    1.0f, 0.0f, xPos + width,  yPos,
-    0.0f, 0.0f, xPos,          yPos,
+    0.0f,       rateHeight, xPos,          yPos + height,   //  3  2
+    rateWidth,  0.0f,       xPos + width,  yPos,            //
+    0.0f,       0.0f,       xPos,          yPos,            //  1
 
-    0.0f, 1.0f, xPos,          height,
-    1.0f, 1.0f, xPos + width,  height,
-    1.0f, 0.0f, xPos + width,  yPos
+    0.0f,       rateHeight, xPos,          yPos + height,   //     3
+    rateWidth,  rateHeight, xPos + width,  yPos + height,   //
+    rateWidth,  0.0f,       xPos + width,  yPos             //  1  2
   };
 
   glActiveTexture(GL_TEXTURE0);

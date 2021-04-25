@@ -6,6 +6,18 @@
 
 #include "Sprite.h"
 
+enum PlayerState {
+    IDLE,
+    MOVEMENT_UP,
+    MOVEMENT_RIGHT,
+    MOVEMENT_DOWN,
+    MOVEMENT_LEFT,
+		ATTACK_UP,
+		ATTACK_RIGHT,
+		ATTACK_DOWN,
+		ATTACK_LEFT,
+};
+
 class Player : public Actor, ICircleContactReport
 {
 public:
@@ -18,9 +30,14 @@ public:
 	virtual void Draw(SpriteRenderer &renderer, double deltaTime);
 
 	void Move(float deltaTime, glm::vec3 direction);
+	void Idle();
+	void Attack();
 
 	void OnContact(Physics::PhysicActor* other) override;
 
 private:
+	void SetState(PlayerState);
 	const float PLAYER_VELOCITY = 200.0f;
+	PlayerState State;
+	PlayerState LastState;
 };

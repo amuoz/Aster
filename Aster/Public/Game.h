@@ -62,6 +62,7 @@ private:
 	void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 	
 	void InitContext();
+	void InitPlayer();
 	void InitGame();
 
 	void ProcessInput(GLFWwindow* window, float deltaTime);
