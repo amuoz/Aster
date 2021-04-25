@@ -50,6 +50,12 @@ void SpriteRenderer::DrawSprite(Sprite* sprite, glm::vec2 position, glm::vec2 si
     DrawSprite(texture, position, size, rotate, color);
 }
 
+void SpriteRenderer::SetViewMatrix(glm::mat4 viewMatrix)
+{
+    this->shader.Use();
+    this->shader.SetMatrix4("view", viewMatrix);
+}
+
 void SpriteRenderer::initRenderData()
 {
     // configure VAO/VBO

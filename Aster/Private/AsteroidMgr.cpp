@@ -1,6 +1,5 @@
 #include "AsteroidMgr.h"
 #include "Asteroid.h"
-//#include "AsteroidPool.h"
 #include "Common.h"
 
 #include <algorithm>
@@ -12,7 +11,7 @@ AsteroidMgr::AsteroidMgr()
 {
 	m_difficultyIndex = 0;
 	m_timeAccum = 0.0f;
-	m_currentFreq = Config::GetInstance()->GetValue(Config::FREQUENCY);
+	m_currentFreq = Config::Get()->GetValue(Config::FREQUENCY);
 	m_pool = new AsteroidPool<Asteroid>();
 	
 	// green		40, 180, 99
@@ -25,7 +24,7 @@ AsteroidMgr::AsteroidMgr()
 	m_colors[0] = glm::vec3(234.0f / 255, 50.0f / 255, 38.0f / 255);
 	
 	m_lastDifficultyIndex = 3;
-	m_currentForwardVelocity = Config::GetInstance()->GetValue(Config::FORWARD_VELOCITY);
+	m_currentForwardVelocity = Config::Get()->GetValue(Config::FORWARD_VELOCITY);
 }
 
 AsteroidMgr::~AsteroidMgr()
@@ -40,15 +39,14 @@ void AsteroidMgr::Update(float deltaTime)
 {
 	m_timeAccum += deltaTime;
 	// spawn freq increases over time
-	m_currentFreq -= Config::GetInstance()->GetValue(Config::FREQUENCY_INCREASE) * deltaTime;
+	m_currentFreq -= Config::Get()->GetValue(Config::FREQUENCY_INCREASE) * deltaTime;
 	// clamp max freq
-	m_currentFreq = static_cast<float>(std::max<float>(MAX_FREQ, std::min<float>(m_currentFreq, Config::GetInstance()->GetValue(Config::FREQUENCY))));
-	//std::cout << "Frequency: " << m_currentFreq << std::endl;
+	m_currentFreq = static_cast<float>(std::max<float>(MAX_FREQ, std::min<float>(m_currentFreq, Config::Get()->GetValue(Config::FREQUENCY))));
 
-	m_difficultyIndex = static_cast<int>(std::trunc(m_currentFreq / (Config::GetInstance()->GetValue(Config::FREQUENCY) / 4)));
+	m_difficultyIndex = static_cast<int>(std::trunc(m_currentFreq / (Config::Get()->GetValue(Config::FREQUENCY) / 4)));
 	if (m_lastDifficultyIndex != m_difficultyIndex)
 	{
-		m_currentForwardVelocity *= Config::GetInstance()->GetValue(Config::DIFFICULTY_INCREASE);
+		m_currentForwardVelocity *= Config::Get()->GetValue(Config::DIFFICULTY_INCREASE);
 	}
 	m_lastDifficultyIndex = m_difficultyIndex;
 
@@ -98,9 +96,9 @@ void AsteroidMgr::Reset()
 	}
 
 	m_timeAccum = 0.0f;
-	m_currentFreq = Config::GetInstance()->GetValue(Config::FREQUENCY);
+	m_currentFreq = Config::Get()->GetValue(Config::FREQUENCY);
 	m_lastDifficultyIndex = 3;
-	m_currentForwardVelocity = Config::GetInstance()->GetValue(Config::FORWARD_VELOCITY);
+	m_currentForwardVelocity = Config::Get()->GetValue(Config::FORWARD_VELOCITY);
 }
 
 void AsteroidMgr::SpawnAsteroid()

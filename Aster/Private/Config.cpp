@@ -16,8 +16,6 @@ const string Config::BULLET_FREQUENCY = "BULLET_FREQUENCY";
 const string Config::EXPLOSION_DURATION = "EXPLOSION_DURATION";
 const string Config::RAPID_FIRE = "RAPID_FIRE";
 const string Config::DIFFICULTY_INCREASE = "DIFFICULTY_INCREASE";
-const string Config::SRC_WIDTH = "SRC_WIDTH";
-const string Config::SRC_HEIGHT = "SRC_HEIGHT";
 
 Config* Config::m_instance = nullptr;
 
@@ -67,7 +65,7 @@ float Config::GetValue(string key) const
 	return m_config.find(key)->second;
 }
 
-Config* Config::GetInstance()
+Config* Config::Get()
 {
 	if (m_instance == nullptr)
 	{

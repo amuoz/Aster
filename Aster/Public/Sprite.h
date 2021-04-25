@@ -6,8 +6,6 @@
 #include "Texture2D.h"
 #include "Rectangle.h"
 
-class Texture2D;
-class Rectangle;
 class Animation;
 class SpriteRenderer;
 

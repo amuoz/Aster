@@ -18,8 +18,8 @@ Ship::Ship(const glm::vec3 &pos, const glm::vec3 &scale)
 	m_scale = scale;
 	m_radius = m_scale.x / 2.0f;
 	m_velocity = glm::vec3(0.0f);
-	m_thrust = Config::GetInstance()->GetValue(Config::THRUST);
-	m_mass = Config::GetInstance()->GetValue(Config::MASS);
+	m_thrust = Config::Get()->GetValue(Config::THRUST);
+	m_mass = Config::Get()->GetValue(Config::MASS);
 	m_color = glm::vec3(1.0f);
 
 	m_physicsActor = g_PhysicsPtr->AddDynamicActor(m_position, m_velocity, m_scale, glm::vec3(0.0f), m_mass);
@@ -115,8 +115,8 @@ void Ship::Reset()
 {
 	m_position = glm::vec3(0.0f, -6.0f, 0.0f);
 	m_physicsActor->pos = m_position;
-	m_thrust = Config::GetInstance()->GetValue(Config::THRUST);
-	m_mass = Config::GetInstance()->GetValue(Config::MASS);
+	m_thrust = Config::Get()->GetValue(Config::THRUST);
+	m_mass = Config::Get()->GetValue(Config::MASS);
 	m_physicsActor->mass = m_mass;
 	m_physicsActor->vel = glm::vec3(0.0f);
 	m_alive = true;
@@ -131,7 +131,7 @@ void Ship::SetForceDirection(float direction)
 Bullet* Ship::Fire()
 {
 	glm::vec3 bulletPosition = glm::vec3(GetPosition()) + glm::vec3(0.0f, 0.8f, 0.0f);
-	Bullet* bullet = new Bullet(bulletPosition, 0.2f, glm::vec3(0.0f, Config::GetInstance()->GetValue(Config::BULLET_VELOCITY), 0.0f));
+	Bullet* bullet = new Bullet(bulletPosition, 0.2f, glm::vec3(0.0f, Config::Get()->GetValue(Config::BULLET_VELOCITY), 0.0f));
 	bullet->SetDelete(true);	// delete from scene on restart
 	return bullet;
 }
