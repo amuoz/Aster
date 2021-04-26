@@ -13,6 +13,7 @@
 #include "Files.h"
 #include "Rectangle.h"
 #include "Common.h"
+#include "SpriteRenderer.h"
 
 Animation::Animation()
 {
@@ -35,7 +36,7 @@ Animation::~Animation()
 
 }
 
-void Animation::Play(Texture2D& texture, Rectangle& rectangle, double deltatime)
+void Animation::Play(SpriteRenderer &renderer, Texture2D& texture, Rectangle& rectangle, double deltatime, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
 {
   m_animationCursor += deltatime;
 
@@ -51,18 +52,22 @@ void Animation::Play(Texture2D& texture, Rectangle& rectangle, double deltatime)
   float yPos = (float)frame[1] / texture.Height;
   float width = (float)frame[2] / texture.Width;
   float height = (float)frame[3] / texture.Height;
-  float rateWidth = (float)frame[2] / 128;
-  float rateHeight = (float)frame[3] / 128;
+  float xCells = (float)frame[2] / 128;
+  float yCells = (float)frame[3] / 128;
+  int xExtend = frame[2] < 0 ? 64 : 0;
+  int yExtend = frame[3] < 0 ? 64 : 0;
 
   float vertices[] = {
-    0.0f,       rateHeight, xPos,          yPos + height,   //  3  2
-    rateWidth,  0.0f,       xPos + width,  yPos,            //
-    0.0f,       0.0f,       xPos,          yPos,            //  1
+    0.0f,    yCells,   xPos,          yPos + height,   //  3  2   //  2  3
+    xCells,  0.0f,     xPos + width,  yPos,            //         //
+    0.0f,    0.0f,     xPos,          yPos,            //  1      //     1
 
-    0.0f,       rateHeight, xPos,          yPos + height,   //     3
-    rateWidth,  rateHeight, xPos + width,  yPos + height,   //
-    rateWidth,  0.0f,       xPos + width,  yPos             //  1  2
+    0.0f,    yCells,   xPos,          yPos + height,   //     3   //  3
+    xCells,  yCells,   xPos + width,  yPos + height,   //         //
+    xCells,  0.0f,     xPos + width,  yPos             //  1  2   //  2  1
   };
+
+  renderer.SetShader(glm::vec2(position.x + xExtend, position.y + yExtend), size, rotate, color);
 
   glActiveTexture(GL_TEXTURE0);
   texture.Bind();

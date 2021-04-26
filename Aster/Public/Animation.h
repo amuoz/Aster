@@ -25,7 +25,7 @@ public:
 	Animation(std::string filename, float speed);
 	virtual ~Animation();
 
-  void Play(Texture2D& sprite, Rectangle& rectangle, double deltatime);
+  void Play(SpriteRenderer &renderer, Texture2D& texture, Rectangle& rectangle, double deltatime, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color);
   void SetAnimationSpeed(float speed);
 
 private:
