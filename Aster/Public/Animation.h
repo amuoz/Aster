@@ -8,14 +8,6 @@
 class Texture2D;
 struct Rectangle;
 class SpriteRenderer;
-
-enum class AnimationType {
-    IDLE,
-    ATTACK_UP,
-    ATTACK_RIGHT,
-    ATTACK_DOWN,
-    ATTACK_LEFT,
-};
  
 class Animation
 {

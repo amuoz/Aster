@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Game.h"
+#include "AsterTypes.h"
 
 #define CONFIG_FILE PROJECT_SOURCE_DIR "/Aster/Config/config.conf"
 

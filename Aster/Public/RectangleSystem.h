@@ -1,15 +1,6 @@
 #pragma once
 
-struct Rectangle
-{
-  unsigned int vertexArrayObject;
-  unsigned int vertexBufferObject;
-  unsigned int colorBufferObject;
-  unsigned int uvBufferObject;
-
-  void Draw();
-};
-
+struct Rectangle;
 class RectangleSystem
 {
   public:
