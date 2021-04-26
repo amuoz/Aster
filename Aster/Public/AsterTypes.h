@@ -1,6 +1,7 @@
 #pragma once
 
 enum class AnimationType {
+    WALK,
     IDLE,
     ATTACK_UP,
     ATTACK_RIGHT,
