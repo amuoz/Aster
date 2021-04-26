@@ -45,7 +45,7 @@ void Animation::Play(Texture2D& texture, Rectangle& rectangle, double deltatime)
     m_animationCursor = 0;
   }
 
-  std::vector<unsigned int> frame = m_frames[m_spriteIndex];
+  std::vector<int> frame = m_frames[m_spriteIndex];
 
   float xPos = (float)frame[0] / texture.Width;
   float yPos = (float)frame[1] / texture.Height;

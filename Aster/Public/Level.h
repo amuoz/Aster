@@ -28,5 +28,5 @@ private:
     std::vector<Actor*> Actors;
 
     // initialize level from tile data
-    void Init(std::vector<std::vector<unsigned int> >& tileData, unsigned int levelWidth, unsigned int levelHeight);
+    void Init(std::vector<std::vector<int> >& tileData, unsigned int levelWidth, unsigned int levelHeight);
 };
