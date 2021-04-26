@@ -48,26 +48,32 @@ void Animation::Play(SpriteRenderer &renderer, Texture2D& texture, Rectangle& re
 
   std::vector<int> frame = m_frames[m_spriteIndex];
 
-  float xPos = (float)frame[0] / texture.Width;
-  float yPos = (float)frame[1] / texture.Height;
-  float width = (float)frame[2] / texture.Width;
-  float height = (float)frame[3] / texture.Height;
-  float xCells = (float)frame[2] / 128;
-  float yCells = (float)frame[3] / 128;
-  int xExtend = frame[2] < 0 ? 64 : 0;
-  int yExtend = frame[3] < 0 ? 64 : 0;
+  const int CELL_WIDTH = 128;
+  const int CELL_HEIGHT = 128;
+
+  // Sprite location in the spritesheet
+  float xSpritePos = (float)frame[0] / texture.Width;
+  float ySpritePos = (float)frame[1] / texture.Height;
+  float spriteWidth = (float)frame[2] / texture.Width;
+  float spriteHeight = (float)frame[3] / texture.Height;
+  // Number of Cells that the sprite occupies
+  float xCells = (float)frame[2] / CELL_WIDTH;
+  float yCells = (float)frame[3] / CELL_HEIGHT;
+  // Position modification when the sprite extends to a negative direction
+  int xExtraPos = frame[2] < 0 ? CELL_WIDTH / 2 : 0;
+  int yExtraPos = frame[3] < 0 ? CELL_HEIGHT / 2 : 0;
 
   float vertices[] = {
-    0.0f,    yCells,   xPos,          yPos + height,   //  3  2   //  2  3
-    xCells,  0.0f,     xPos + width,  yPos,            //         //
-    0.0f,    0.0f,     xPos,          yPos,            //  1      //     1
+    0.0f,    yCells,   xSpritePos,                ySpritePos + spriteHeight,   //  3  2   //  2  3
+    xCells,  0.0f,     xSpritePos + spriteWidth,  ySpritePos,                  //         //
+    0.0f,    0.0f,     xSpritePos,                ySpritePos,                  //  1      //     1
 
-    0.0f,    yCells,   xPos,          yPos + height,   //     3   //  3
-    xCells,  yCells,   xPos + width,  yPos + height,   //         //
-    xCells,  0.0f,     xPos + width,  yPos             //  1  2   //  2  1
+    0.0f,    yCells,   xSpritePos,                ySpritePos + spriteHeight,   //     3   //  3
+    xCells,  yCells,   xSpritePos + spriteWidth,  ySpritePos + spriteHeight,   //         //
+    xCells,  0.0f,     xSpritePos + spriteWidth,  ySpritePos                   //  1  2   //  2  1
   };
 
-  renderer.SetShader(glm::vec2(position.x + xExtend, position.y + yExtend), size, rotate, color);
+  renderer.SetShader(glm::vec2(position.x + xExtraPos, position.y + yExtraPos), size, rotate, color);
 
   glActiveTexture(GL_TEXTURE0);
   texture.Bind();
