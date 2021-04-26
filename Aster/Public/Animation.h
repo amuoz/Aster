@@ -6,7 +6,7 @@
 #include "Common.h"
 
 class Texture2D;
-class Rectangle;
+struct Rectangle;
 class SpriteRenderer;
 
 enum class AnimationType {

@@ -5,7 +5,7 @@
 #include "Common.h"
 #include "Animation.h"
 #include "Texture2D.h"
-#include "Rectangle.h"
+#include "RectangleSystem.h"
 #include "ResourceManager.h"
 #include "SpriteRenderer.h"
 

@@ -11,7 +11,7 @@
 #include "Texture2D.h"
 #include "ResourceManager.h"
 #include "Files.h"
-#include "Rectangle.h"
+#include "RectangleSystem.h"
 #include "Common.h"
 #include "SpriteRenderer.h"
 

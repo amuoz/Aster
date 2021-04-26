@@ -5,11 +5,11 @@
 
 #include "Common.h"
 #include "Texture2D.h"
-#include "Rectangle.h"
+#include "RectangleSystem.h"
 #include "Animation.h"
 
 class Texture2D;
-class Rectangle;
+struct Rectangle;
 class Animation;
 class SpriteRenderer;
 
