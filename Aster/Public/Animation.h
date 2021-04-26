@@ -6,16 +6,8 @@
 #include "Common.h"
 
 class Texture2D;
-class Rectangle;
+struct Rectangle;
 class SpriteRenderer;
-
-enum class AnimationType {
-    IDLE,
-    ATTACK_UP,
-    ATTACK_RIGHT,
-    ATTACK_DOWN,
-    ATTACK_LEFT,
-};
  
 class Animation
 {
@@ -25,7 +17,7 @@ public:
 	Animation(std::string filename, float speed);
 	virtual ~Animation();
 
-  void Play(Texture2D& sprite, Rectangle& rectangle, double deltatime);
+  void Play(SpriteRenderer &renderer, Texture2D& texture, Rectangle& rectangle, double deltatime, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color);
   void SetAnimationSpeed(float speed);
 
 private:
@@ -35,6 +27,6 @@ private:
   int m_framesCount;
   float m_speed;
 
-  std::vector<std::vector<unsigned int> > m_frames;
+  std::vector<std::vector<int> > m_frames;
 
 };

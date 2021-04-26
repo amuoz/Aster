@@ -11,8 +11,9 @@
 #include "Texture2D.h"
 #include "ResourceManager.h"
 #include "Files.h"
-#include "Rectangle.h"
+#include "RectangleSystem.h"
 #include "Common.h"
+#include "SpriteRenderer.h"
 
 Animation::Animation()
 {
@@ -25,7 +26,7 @@ Animation::Animation(std::string filename, float speed)
   m_speed(0.05f)
 {
   std::string projectSrcDir = PROJECT_SOURCE_DIR;
-  ReadFileLines(projectSrcDir + "/Aster/Textures/" + filename + ".txt", m_frames);
+  ReadFileLines(projectSrcDir + "/Aster/Textures/" + filename + ".anim", m_frames);
   m_framesCount = (int)m_frames.size();
   m_speed = speed;
 }
@@ -35,7 +36,7 @@ Animation::~Animation()
 
 }
 
-void Animation::Play(Texture2D& texture, Rectangle& rectangle, double deltatime)
+void Animation::Play(SpriteRenderer &renderer, Texture2D& texture, Rectangle& rectangle, double deltatime, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
 {
   m_animationCursor += deltatime;
 
@@ -45,24 +46,34 @@ void Animation::Play(Texture2D& texture, Rectangle& rectangle, double deltatime)
     m_animationCursor = 0;
   }
 
-  std::vector<unsigned int> frame = m_frames[m_spriteIndex];
+  std::vector<int> frame = m_frames[m_spriteIndex];
 
-  float xPos = (float)frame[0] / texture.Width;
-  float yPos = (float)frame[1] / texture.Height;
-  float width = (float)frame[2] / texture.Width;
-  float height = (float)frame[3] / texture.Height;
-  float rateWidth = (float)frame[2] / 128;
-  float rateHeight = (float)frame[3] / 128;
+  const int CELL_WIDTH = 128;
+  const int CELL_HEIGHT = 128;
+
+  // Sprite location in the spritesheet
+  float xSpritePos = (float)frame[0] / texture.Width;
+  float ySpritePos = (float)frame[1] / texture.Height;
+  float spriteWidth = (float)frame[2] / texture.Width;
+  float spriteHeight = (float)frame[3] / texture.Height;
+  // Number of Cells that the sprite occupies
+  float xCells = (float)frame[2] / CELL_WIDTH;
+  float yCells = (float)frame[3] / CELL_HEIGHT;
+  // Position modification when the sprite extends to a negative direction
+  int xExtraPos = frame[2] < 0 ? CELL_WIDTH / 2 : 0;
+  int yExtraPos = frame[3] < 0 ? CELL_HEIGHT / 2 : 0;
 
   float vertices[] = {
-    0.0f,       rateHeight, xPos,          yPos + height,   //  3  2
-    rateWidth,  0.0f,       xPos + width,  yPos,            //
-    0.0f,       0.0f,       xPos,          yPos,            //  1
+    0.0f,    yCells,   xSpritePos,                ySpritePos + spriteHeight,   //  3  2   //  2  3
+    xCells,  0.0f,     xSpritePos + spriteWidth,  ySpritePos,                  //         //
+    0.0f,    0.0f,     xSpritePos,                ySpritePos,                  //  1      //     1
 
-    0.0f,       rateHeight, xPos,          yPos + height,   //     3
-    rateWidth,  rateHeight, xPos + width,  yPos + height,   //
-    rateWidth,  0.0f,       xPos + width,  yPos             //  1  2
+    0.0f,    yCells,   xSpritePos,                ySpritePos + spriteHeight,   //     3   //  3
+    xCells,  yCells,   xSpritePos + spriteWidth,  ySpritePos + spriteHeight,   //         //
+    xCells,  0.0f,     xSpritePos + spriteWidth,  ySpritePos                   //  1  2   //  2  1
   };
+
+  renderer.SetShader(glm::vec2(position.x + xExtraPos, position.y + yExtraPos), size, rotate, color);
 
   glActiveTexture(GL_TEXTURE0);
   texture.Bind();

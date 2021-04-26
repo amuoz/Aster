@@ -5,7 +5,7 @@
 #include "Common.h"
 #include "Animation.h"
 #include "Texture2D.h"
-#include "Rectangle.h"
+#include "RectangleSystem.h"
 #include "ResourceManager.h"
 #include "SpriteRenderer.h"
 
@@ -32,8 +32,7 @@ void Sprite::Draw(AnimationType type, SpriteRenderer &renderer, double deltatime
 
   if (m_hasAnimation)
   {
-    renderer.SetShader(position, size, rotate, color);
-    m_animations[type]->Play(m_texture, m_rectangle, deltatime);
+    m_animations[type]->Play(renderer, m_texture, m_rectangle, deltatime, position, size, rotate, color);
   }
   else
   {

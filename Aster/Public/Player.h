@@ -6,18 +6,6 @@
 
 #include "Sprite.h"
 
-enum PlayerState {
-    IDLE,
-    MOVEMENT_UP,
-    MOVEMENT_RIGHT,
-    MOVEMENT_DOWN,
-    MOVEMENT_LEFT,
-		ATTACK_UP,
-		ATTACK_RIGHT,
-		ATTACK_DOWN,
-		ATTACK_LEFT,
-};
-
 class Player : public Actor, ICircleContactReport
 {
 public:

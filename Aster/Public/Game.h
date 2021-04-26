@@ -56,10 +56,7 @@ public:
 	bool KeysProcessed[1024];
 
 private:
-
-	void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 	
-	void InitContext();
 	void InitPlayer();
 
 	void ProcessInput(float deltaTime);
