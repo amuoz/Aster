@@ -28,7 +28,7 @@ void Level::Load(std::string file, unsigned int levelWidth, unsigned int levelHe
 
     if (tileData.size() > 0)
     {
-     w   Init(tileData, levelWidth, levelHeight);
+        Init(tileData, levelWidth, levelHeight);
     }
 }
 
