@@ -26,7 +26,7 @@ Animation::Animation(std::string filename, float speed)
   m_speed(0.05f)
 {
   std::string projectSrcDir = PROJECT_SOURCE_DIR;
-  ReadFileLines(projectSrcDir + "/Aster/Textures/" + filename + ".txt", m_frames);
+  ReadFileLines(projectSrcDir + "/Aster/Textures/" + filename + ".anim", m_frames);
   m_framesCount = (int)m_frames.size();
   m_speed = speed;
 }
