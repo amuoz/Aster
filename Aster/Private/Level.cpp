@@ -23,7 +23,7 @@ void Level::Load(std::string file, unsigned int levelWidth, unsigned int levelHe
     // clear old data
     Actors.clear();
 
-    std::vector<std::vector<unsigned int> > tileData;
+    std::vector<std::vector<int> > tileData;
     ReadFileLines(file, tileData);
 
     if (tileData.size() > 0)
@@ -43,11 +43,11 @@ void Level::Draw(SpriteRenderer& renderer, double deltatime)
     }
 }
 
-void Level::Init(std::vector<std::vector<unsigned int> >& tileData, unsigned int levelWidth, unsigned int levelHeight)
+void Level::Init(std::vector<std::vector<int> >& tileData, unsigned int levelWidth, unsigned int levelHeight)
 {
     // calculate dimensions
-    unsigned int height = static_cast<unsigned int>(tileData.size());
-    unsigned int width = static_cast<unsigned int>(tileData[0].size()); // note we can index vector at [0] since this function is only called if height > 0
+    int height = static_cast<int>(tileData.size());
+    int width = static_cast<int>(tileData[0].size()); // note we can index vector at [0] since this function is only called if height > 0
     float unit_width = levelWidth / static_cast<float>(width);
     float unit_height = levelHeight / static_cast<float>(height);
 
