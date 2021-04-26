@@ -27,6 +27,6 @@ private:
   int m_framesCount;
   float m_speed;
 
-  std::vector<std::vector<unsigned int> > m_frames;
+  std::vector<std::vector<int> > m_frames;
 
 };

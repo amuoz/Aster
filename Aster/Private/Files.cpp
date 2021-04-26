@@ -5,9 +5,9 @@
 #include <sstream>
 #include <vector>
 
-void ReadFileLines(std::string file, std::vector<std::vector<unsigned int> >& lines)
+void ReadFileLines(std::string file, std::vector<std::vector<int> >& lines)
 {
-  unsigned int word;
+  int word;
   std::string line;
   std::ifstream fstream(file);
   
@@ -16,7 +16,7 @@ void ReadFileLines(std::string file, std::vector<std::vector<unsigned int> >& li
       while (std::getline(fstream, line)) // read each line from file
       {
           std::istringstream sstream(line);
-          std::vector<unsigned int> row;
+          std::vector<int> row;
           while (sstream >> word) // read each word separated by spaces
           {
               row.push_back(word);
