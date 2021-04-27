@@ -29,7 +29,7 @@ public:
 	void Reset() override;
 
 	void Render(Shader shader) override;
-	void Update(float deltaTime) override;
+	void Update(float deltaTime, glm::vec4) override;
 
 	float Randf(float min, float max);
 

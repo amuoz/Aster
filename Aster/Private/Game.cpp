@@ -119,13 +119,15 @@ void Game::Update(float deltaTime)
 		m_currentBulletFreq += deltaTime;
 		m_gameTime += deltaTime;
 
+		glm::vec4 playerAttackHitbox = Character->GetAttackHitbox(); 
+
 		// ..:: LOGIC ::..
 		for (std::list<Actor*>::iterator it = m_scene.begin(); it != m_scene.end();)
 		{
 			Actor* actor = (*it);
 			if (actor->IsActive())
 			{
-				actor->Update(deltaTime);
+				actor->Update(deltaTime, playerAttackHitbox);
 				it++;
 			}
 			else
@@ -144,6 +146,8 @@ void Game::Update(float deltaTime)
 
 		// Physics simulation
 		g_PhysicsPtr->Update(deltaTime);
+
+		CurrentLevel->Update(deltaTime, playerAttackHitbox);
 	}
 
 }

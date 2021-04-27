@@ -65,7 +65,7 @@ void Bullet::Render(Shader shader)
 	m_mesh->Draw(shader);
 }
 
-void Bullet::Update(float)
+void Bullet::Update(float, glm::vec4)
 {
 	if (m_position.y > VERTICAL_BOUND)
 	{

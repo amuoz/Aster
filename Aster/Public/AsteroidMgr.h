@@ -22,7 +22,7 @@ public:
 	AsteroidMgr();
 	~AsteroidMgr();
 
-	void Update(float deltaTime) override;
+	void Update(float deltaTime, glm::vec4) override;
 	void Render(Shader shader) override;
 
 	void Reset();

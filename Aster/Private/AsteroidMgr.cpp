@@ -35,7 +35,7 @@ AsteroidMgr::~AsteroidMgr()
 	std::list<Asteroid*>().swap(m_asteroids);
 }
 
-void AsteroidMgr::Update(float deltaTime)
+void AsteroidMgr::Update(float deltaTime, glm::vec4 hitbox)
 {
 	m_timeAccum += deltaTime;
 	// spawn freq increases over time
@@ -53,7 +53,7 @@ void AsteroidMgr::Update(float deltaTime)
 	for (std::list<Asteroid*>::iterator it = m_asteroids.begin(); it != m_asteroids.end();)
 	{
 		Asteroid* asteroid = (*it);
-		asteroid->Update(deltaTime);
+		asteroid->Update(deltaTime, hitbox);
 		
 		// if out-of-bounds recycle asteroid
 		if (asteroid->OutOfBounds() || asteroid->HasExploded())

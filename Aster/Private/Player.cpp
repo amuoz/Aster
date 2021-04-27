@@ -21,7 +21,7 @@ void Player::Render(Shader)
 {
 }
 
-void Player::Update(float)
+void Player::Update(float, glm::vec4)
 {
 }
 
@@ -30,30 +30,32 @@ void Player::Draw(SpriteRenderer &renderer, double deltatime)
 	switch (State)
 	{
 	case PlayerState::IDLE:
-		m_sprite->Draw(AnimationType::IDLE, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
+		CurrentAnimation = AnimationType::IDLE;
 		break;
 	case PlayerState::MOVEMENT_RIGHT:
 	case PlayerState::MOVEMENT_LEFT:
 	case PlayerState::MOVEMENT_DOWN:
 	case PlayerState::MOVEMENT_UP:
-		m_sprite->Draw(AnimationType::WALK, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
+		CurrentAnimation = AnimationType::WALK;
 		break;
 	case PlayerState::ATTACK_RIGHT:
-		m_sprite->Draw(AnimationType::ATTACK_RIGHT, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
+		CurrentAnimation = AnimationType::ATTACK_RIGHT;
 		break;
 	case PlayerState::ATTACK_LEFT:
-		m_sprite->Draw(AnimationType::ATTACK_LEFT, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
+		CurrentAnimation = AnimationType::ATTACK_LEFT;
 		break;
 	case PlayerState::ATTACK_DOWN:
-		m_sprite->Draw(AnimationType::ATTACK_DOWN, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
+		CurrentAnimation = AnimationType::ATTACK_DOWN;
 		break;
 	case PlayerState::ATTACK_UP:
-		m_sprite->Draw(AnimationType::ATTACK_UP, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
+		CurrentAnimation = AnimationType::ATTACK_UP;
 		break;
 
 	default:
 		break;
 	}
+
+	m_sprite->Draw(CurrentAnimation, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
 }
 
 void Player::Move(float deltaTime, glm::vec3 direction)
@@ -127,4 +129,16 @@ void Player::OnContact(Physics::PhysicActor *physicActor)
 {
 	// resolved collision gives corrected position
 	m_position = m_physicsActor->pos;
+}
+
+glm::vec4 Player::GetAttackHitbox()
+{
+	glm::vec4 spriteHitbox = m_sprite->GetAttackHitbox(CurrentAnimation);
+
+	return glm::vec4(
+		m_position.x - m_scale.x + spriteHitbox.x,
+		m_position.y - m_scale.y + spriteHitbox.y,
+		spriteHitbox.z,
+		spriteHitbox.w
+	);
 }

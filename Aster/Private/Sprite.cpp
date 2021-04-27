@@ -50,3 +50,8 @@ Texture2D Sprite::GetTexture()
 {
   return m_texture;
 }
+
+glm::vec4 Sprite::GetAttackHitbox(AnimationType type)
+{
+  return m_animations[type]->GetAttackHitbox();
+}

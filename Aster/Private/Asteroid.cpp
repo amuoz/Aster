@@ -145,7 +145,7 @@ void Asteroid::Render(Shader shader)
 	m_mesh->Draw(shader);
 }
 
-void Asteroid::Update(float deltaTime)
+void Asteroid::Update(float deltaTime, glm::vec4)
 {
 	if (m_explosion)
 	{

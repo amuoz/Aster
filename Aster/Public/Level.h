@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <glm/glm.hpp>
 
 class Actor;
 class SpriteRenderer;
@@ -19,6 +20,8 @@ public:
     // loads level from file
     void Load(std::string file, unsigned int levelWidth, unsigned int levelHeight);
     
+    void Update(float deltaTime, glm::vec4 playerAttackHitbox);
+
     // render level
     void Draw(SpriteRenderer& renderer, double deltatime);
 

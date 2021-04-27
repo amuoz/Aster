@@ -27,7 +27,7 @@ public:
 
 	void Render(Shader shader) override;
 
-	void Update(float deltaTime) override;
+	void Update(float deltaTime, glm::vec4) override;
 
 	void OnContact(Physics::PhysicActor* other) override;
 

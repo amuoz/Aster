@@ -85,7 +85,7 @@ void Ship::Render(Shader shader)
 	m_mesh->Draw(shader);
 }
 
-void Ship::Update(float)
+void Ship::Update(float, glm::vec4)
 {
 	//m_physicsActor->accelerationForce = glm::vec3(0.0f);
 
