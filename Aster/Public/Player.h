@@ -18,9 +18,14 @@ public:
 	virtual void Draw(SpriteRenderer &renderer, double deltaTime);
 
 	void Move(float deltaTime, glm::vec3 direction);
+	void Idle();
+	void Attack();
 
 	void OnContact(Physics::PhysicActor* other) override;
 
 private:
+	void SetState(PlayerState);
 	const float PLAYER_VELOCITY = 200.0f;
+	PlayerState State;
+	PlayerState LastState;
 };

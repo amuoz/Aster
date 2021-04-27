@@ -56,6 +56,8 @@ public:
 	bool KeysProcessed[1024];
 
 private:
+	
+	void InitPlayer();
 
 	void ProcessInput(float deltaTime);
 	void Update(float deltaTime);	// logic and physics

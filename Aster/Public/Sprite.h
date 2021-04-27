@@ -1,11 +1,15 @@
 #pragma once
 
 #include <string>
+#include <map>
 
 #include "Common.h"
 #include "Texture2D.h"
-#include "Rectangle.h"
+#include "RectangleSystem.h"
+#include "Animation.h"
 
+class Texture2D;
+struct Rectangle;
 class Animation;
 class SpriteRenderer;
 
@@ -17,10 +21,9 @@ public:
 
 	~Sprite();
 
-	void Draw(SpriteRenderer &renderer, double deltatime, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color);
+	void Draw(AnimationType type, SpriteRenderer &renderer, double deltatime, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color);
 
-	void AddAnimation(std::string filename);
-	void SetAnimationSpeed(float speed);
+	void AddAnimation(std::string filename, AnimationType type, float speed);
 
   Texture2D GetTexture();
 
@@ -29,5 +32,5 @@ private:
 	Rectangle m_rectangle;
   bool m_hasAnimation;
 
-	Animation* m_animation;
+	std::map<AnimationType, Animation*> m_animations;
 };

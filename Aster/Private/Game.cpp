@@ -9,6 +9,7 @@
 #include "Level.h"
 #include "Player.h"
 #include "Sprite.h"
+#include "Animation.h"
 
 #include "ResourceManager.h"
 #include "TextRenderer.h"
@@ -43,6 +44,21 @@ Game::~Game()
 	delete m_camera;
 }
 
+void Game::InitPlayer()
+{
+	glm::vec3 charScale(1.0f, 1.0f, 1.0f);
+	charScale.x = Config::Get()->GetValue(SRC_WIDTH) / PLAYER_SIZE.x;
+	charScale.y = Config::Get()->GetValue(SRC_HEIGHT) / PLAYER_SIZE.y;
+	Sprite* playerSprite = new Sprite("player");
+	playerSprite->AddAnimation("player_walk", AnimationType::IDLE, 0.03f);
+	playerSprite->AddAnimation("attack_up", AnimationType::ATTACK_UP, 0.03f);
+	playerSprite->AddAnimation("attack_right", AnimationType::ATTACK_RIGHT, 0.03f);
+	playerSprite->AddAnimation("attack_down", AnimationType::ATTACK_DOWN, 0.03f);
+	playerSprite->AddAnimation("attack_left", AnimationType::ATTACK_LEFT, 0.03f);
+	Character = new Player(playerPos, charScale, playerSprite);
+	m_scene.push_back(Character);
+}
+
 void Game::InitGame()
 {
 	g_PhysicsPtr = new Physics(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -70,7 +86,7 @@ void Game::InitGame()
 	
 	// load textures
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/samurai-girl.png", true, "samurai");
-	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/player_walk.png", true, "player_walk");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/player.png", true, "player");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/block.png", false, "block");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/block_solid.png", false, "block_solid");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/grass-background.png", true, "background");
@@ -80,14 +96,7 @@ void Game::InitGame()
 	CurrentLevel->Load(PROJECT_SOURCE_DIR "/Aster/Levels/one.lvl", Config::Get()->GetValue(SRC_WIDTH), Config::Get()->GetValue(SRC_HEIGHT));
 
 	// Player
-	glm::vec3 charScale(1.0f, 1.0f, 1.0f);
-	charScale.x = Config::Get()->GetValue(SRC_WIDTH) / PLAYER_SIZE.x;
-	charScale.y = Config::Get()->GetValue(SRC_HEIGHT) / PLAYER_SIZE.y;
-	Sprite* playerSprite = new Sprite("player_walk");
-	playerSprite->AddAnimation("player_walk.txt");
-	playerSprite->SetAnimationSpeed(0.02f);
-	Character = new Player(playerPos, charScale, playerSprite);
-	m_scene.push_back(Character);
+	InitPlayer();
 }
 
 void Game::Execute(float deltaTime)
@@ -233,6 +242,16 @@ void Game::ProcessInput(float deltaTime)
 		if (bMove)
 		{
 			Character->Move(deltaTime, direction);
+		}
+		else
+		{
+			Character->Idle();
+		}
+
+		// attack
+		if(Keys[GLFW_KEY_SPACE])
+		{
+			Character->Attack();
 		}
 	}
 
