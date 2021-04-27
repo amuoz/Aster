@@ -50,7 +50,8 @@ void Game::InitPlayer()
 	charScale.x = Config::Get()->GetValue(SRC_WIDTH) / PLAYER_SIZE.x;
 	charScale.y = Config::Get()->GetValue(SRC_HEIGHT) / PLAYER_SIZE.y;
 	Sprite* playerSprite = new Sprite("player");
-	playerSprite->AddAnimation("player_walk", AnimationType::IDLE, 0.03f);
+	playerSprite->AddAnimation("player_walk", AnimationType::WALK, 0.03f);
+	playerSprite->AddAnimation("player_idle", AnimationType::IDLE, 0.06f);
 	playerSprite->AddAnimation("attack_up", AnimationType::ATTACK_UP, 0.03f);
 	playerSprite->AddAnimation("attack_right", AnimationType::ATTACK_RIGHT, 0.03f);
 	playerSprite->AddAnimation("attack_down", AnimationType::ATTACK_DOWN, 0.03f);
