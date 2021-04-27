@@ -26,6 +26,7 @@ public:
 	void AddAnimation(std::string filename, AnimationType type, float speed);
 
   Texture2D GetTexture();
+  glm::vec4 GetAttackHitbox(AnimationType);
 
 private:
 	Texture2D m_texture;

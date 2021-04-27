@@ -18,15 +18,16 @@ public:
 	virtual ~Animation();
 
   void Play(SpriteRenderer &renderer, Texture2D& texture, Rectangle& rectangle, double deltatime, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color);
-  void SetAnimationSpeed(float speed);
+  glm::vec4 GetAttackHitbox();
 
 private:
 
   double m_animationCursor;
   int m_spriteIndex;
-  int m_framesCount;
+  int FramesCount;
   float m_speed;
 
-  std::vector<std::vector<int> > m_frames;
+  std::vector<std::vector<int> > Frames;
+  std::vector<std::vector<int> > HitboxFrames;
 
 };

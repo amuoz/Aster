@@ -4,6 +4,8 @@
 #include "Sprite.h"
 #include "Animation.h"
 
+#include "SpriteRenderer.h"
+
 Player::Player(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, glm::vec3 velocity) : Actor(pos, size, sprite, color, velocity)
 {
 	m_physicsActor = g_PhysicsPtr->AddDynamicActor(pos, velocity, size, glm::vec3(0.0f), 1.0f);
@@ -21,7 +23,7 @@ void Player::Render(Shader)
 {
 }
 
-void Player::Update(float)
+void Player::Update(float, glm::vec4)
 {
 }
 
@@ -30,30 +32,32 @@ void Player::Draw(SpriteRenderer &renderer, double deltatime)
 	switch (State)
 	{
 	case PlayerState::IDLE:
-		m_sprite->Draw(AnimationType::IDLE, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
+		CurrentAnimation = AnimationType::IDLE;
 		break;
 	case PlayerState::MOVEMENT_RIGHT:
 	case PlayerState::MOVEMENT_LEFT:
 	case PlayerState::MOVEMENT_DOWN:
 	case PlayerState::MOVEMENT_UP:
-		m_sprite->Draw(AnimationType::WALK, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
+		CurrentAnimation = AnimationType::WALK;
 		break;
 	case PlayerState::ATTACK_RIGHT:
-		m_sprite->Draw(AnimationType::ATTACK_RIGHT, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
+		CurrentAnimation = AnimationType::ATTACK_RIGHT;
 		break;
 	case PlayerState::ATTACK_LEFT:
-		m_sprite->Draw(AnimationType::ATTACK_LEFT, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
+		CurrentAnimation = AnimationType::ATTACK_LEFT;
 		break;
 	case PlayerState::ATTACK_DOWN:
-		m_sprite->Draw(AnimationType::ATTACK_DOWN, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
+		CurrentAnimation = AnimationType::ATTACK_DOWN;
 		break;
 	case PlayerState::ATTACK_UP:
-		m_sprite->Draw(AnimationType::ATTACK_UP, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
+		CurrentAnimation = AnimationType::ATTACK_UP;
 		break;
 
 	default:
 		break;
 	}
+
+	m_sprite->Draw(CurrentAnimation, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
 }
 
 void Player::Move(float deltaTime, glm::vec3 direction)
@@ -127,4 +131,22 @@ void Player::OnContact(Physics::PhysicActor *physicActor)
 {
 	// resolved collision gives corrected position
 	m_position = m_physicsActor->pos;
+}
+
+glm::vec4 Player::GetAttackHitbox()
+{
+	glm::vec4 spriteHitbox = m_sprite->GetAttackHitbox(CurrentAnimation);
+
+	if (spriteHitbox.x == 0 && spriteHitbox.y == 0
+		&& spriteHitbox.z == 0 && spriteHitbox.w == 0)
+	{
+		return glm::vec4(0, 0, 0, 0);
+	}
+
+	return glm::vec4(
+		m_position.x + spriteHitbox.x,
+		m_position.y + spriteHitbox.y,
+		spriteHitbox.z,
+		spriteHitbox.w
+	);
 }

@@ -32,11 +32,27 @@ void Level::Load(std::string file, unsigned int levelWidth, unsigned int levelHe
     }
 }
 
+void Level::Update(float deltaTime, glm::vec4 playerAttackHitbox)
+{
+    for (Actor* actor : Actors)
+    {
+        if (!actor->IsDestroyed)
+        {
+            actor->Update(deltaTime, playerAttackHitbox);
+        }
+    }
+}
+
 void Level::Draw(SpriteRenderer& renderer, double deltatime)
 {
     for (Actor* actor : Actors)
     {
-        if (!actor->bDestroyed)
+        if (actor->IsDestroyed)
+        {
+            remove(Actors.begin(), Actors.end(), actor);
+            delete actor;
+        }
+        else
         {
             actor->Draw(renderer, deltatime);
         }
@@ -57,16 +73,16 @@ void Level::Init(std::vector<std::vector<int> >& tileData, unsigned int levelWid
         for (unsigned int x = 0; x < width; ++x)
         {
             // check block type from level data (2D level array)
-            if (tileData[y][x] == 1) // solid
+            if (tileData[y][x] == 1) // destroyable
             {
                 glm::vec3 pos(unit_width * x, unit_height * y, 0.0f);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
                 Sprite* blockSprite = new Sprite("block_solid");
                 Block* blockActor = new Block(pos, size, blockSprite, glm::vec3(0.8f, 0.8f, 0.7f));
-                blockActor->bIsSolid = true;
+                blockActor->IsDestroyable = true;
                 Actors.push_back(blockActor);
             }
-            else if (tileData[y][x] > 1)	// non-solid; now determine its color based on level data
+            else if (tileData[y][x] > 1)	// non-destroyable; now determine its color based on level data
             {
                 glm::vec3 color = glm::vec3(1.0f); // original: white
                 if (tileData[y][x] == 2)

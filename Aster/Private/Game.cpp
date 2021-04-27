@@ -5,7 +5,6 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Config.h"
-#include "Bullet.h"
 #include "Level.h"
 #include "Player.h"
 #include "Sprite.h"
@@ -64,7 +63,7 @@ void Game::InitGame()
 {
 	g_PhysicsPtr = new Physics(glm::vec3(0.0f, 0.0f, 0.0f));
 	m_camera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f));
-	
+
 	// text renderer with freetype
 	m_text = new TextRenderer(Config::Get()->GetValue(SRC_WIDTH), 
 		Config::Get()->GetValue(SRC_HEIGHT));
@@ -119,13 +118,15 @@ void Game::Update(float deltaTime)
 		m_currentBulletFreq += deltaTime;
 		m_gameTime += deltaTime;
 
+		glm::vec4 playerAttackHitbox = Character->GetAttackHitbox();
+
 		// ..:: LOGIC ::..
 		for (std::list<Actor*>::iterator it = m_scene.begin(); it != m_scene.end();)
 		{
 			Actor* actor = (*it);
 			if (actor->IsActive())
 			{
-				actor->Update(deltaTime);
+				actor->Update(deltaTime, playerAttackHitbox);
 				it++;
 			}
 			else
@@ -144,6 +145,8 @@ void Game::Update(float deltaTime)
 
 		// Physics simulation
 		g_PhysicsPtr->Update(deltaTime);
+
+		CurrentLevel->Update(deltaTime, playerAttackHitbox);
 	}
 
 }
@@ -155,7 +158,9 @@ void Game::Render(float deltaTime)
 
 	// Set camera view matrix
 	Renderer->SetViewMatrix(m_camera->GetViewMatrix());
-	
+
+	DebugAttackHitbox(*Renderer);
+
 	// Draw background
 	Texture2D background = ResourceManager::GetInstance()->GetTexture("background");
 	Renderer->DrawTexture(background,
@@ -270,4 +275,18 @@ void Game::ProcessInput(float deltaTime)
 void Game::SetGameState(GameState newState)
 {
 	m_state = newState;
+}
+
+void Game::DebugAttackHitbox(SpriteRenderer& Renderer)
+{
+	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glm::vec4 playerAttackHitbox = Character->GetAttackHitbox();
+	Texture2D texture = ResourceManager::GetInstance()->GetTexture("block");
+	Renderer.DrawTexture(
+		texture,
+		glm::vec2(playerAttackHitbox.x, playerAttackHitbox.y),
+		glm::vec2(playerAttackHitbox.z, playerAttackHitbox.w),
+		0.0f,
+		glm::vec3(0.8f, 0.0f, 0.2f)
+	); 
 }

@@ -16,8 +16,8 @@ Actor::Actor()
 
 	m_active = true;
 	m_delete = false;
-	bIsSolid = false;
-	bDestroyed = false;
+	IsDestroyable = false;
+	IsDestroyed = false;
 }
 
 Actor::Actor(glm::vec3 pos, glm::vec3 size, Sprite* sprite, glm::vec3 color, glm::vec3 velocity)
@@ -34,8 +34,8 @@ Actor::Actor(glm::vec3 pos, glm::vec3 size, Sprite* sprite, glm::vec3 color, glm
 
 	m_active = true;
 	m_delete = false;
-	bIsSolid = false;
-	bDestroyed = false;
+	IsDestroyable = false;
+	IsDestroyed = false;
 }
 
 Actor::~Actor()

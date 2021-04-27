@@ -19,7 +19,7 @@ public:
 	virtual ~Actor();
 
 	virtual void Render(Shader shader) = 0;
-	virtual void Update(float deltaTime) = 0;
+	virtual void Update(float deltaTime, glm::vec4 playerAttackHitbox) = 0;
 	virtual void Reset();
 	virtual void Draw(SpriteRenderer &renderer, double deltatime);
 
@@ -35,8 +35,8 @@ public:
 	inline glm::vec3 GetPosition() { return m_position; }
 	void SetPosition(glm::vec3 pos);
 
-	bool bIsSolid;
-	bool bDestroyed;
+	bool IsDestroyable;
+	bool IsDestroyed;
 
 protected:
 	// actor state

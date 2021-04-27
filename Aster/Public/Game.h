@@ -67,6 +67,8 @@ private:
 
 	void Restart();
 
+	void DebugAttackHitbox(SpriteRenderer& Renderer);
+
 	GLFWwindow* m_window;
 	
 	Camera* m_camera;
