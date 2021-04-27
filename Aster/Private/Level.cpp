@@ -47,7 +47,12 @@ void Level::Draw(SpriteRenderer& renderer, double deltatime)
 {
     for (Actor* actor : Actors)
     {
-        if (!actor->IsDestroyed)
+        if (actor->IsDestroyed)
+        {
+            remove(Actors.begin(), Actors.end(), actor);
+            delete actor;
+        }
+        else
         {
             actor->Draw(renderer, deltatime);
         }
