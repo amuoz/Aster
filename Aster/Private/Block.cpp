@@ -38,14 +38,12 @@ bool Block::IsAttacked(glm::vec4 playerAttackHitbox)
 	float widthHitbox = playerAttackHitbox.z;
 	float heightHitbox = playerAttackHitbox.w;
 
-	float blockWidth = 2 * m_scale.x;
-	float blockHeight = 2 * m_scale.y;
+	float blockWidth = m_scale.x;
+	float blockHeight = m_scale.y;
 
-	bool xCollision = (m_position.x > xHitbox && m_position.x < (xHitbox + widthHitbox))
-								|| ((m_position.x + blockWidth) > xHitbox && (m_position.x + blockWidth) < (xHitbox + widthHitbox));
+	bool xCollision = m_position.x + blockWidth >= xHitbox && xHitbox + widthHitbox >= m_position.x;
 	
-	bool yCollision = (m_position.y > yHitbox && m_position.y < (yHitbox + heightHitbox))
-								|| ((m_position.y + blockHeight) > yHitbox && (m_position.y + blockHeight) < (yHitbox + heightHitbox));
+	bool yCollision = m_position.y + blockHeight >= yHitbox && yHitbox + heightHitbox >= m_position.y;
 
 	return xCollision && yCollision;
 }

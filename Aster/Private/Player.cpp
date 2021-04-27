@@ -4,6 +4,8 @@
 #include "Sprite.h"
 #include "Animation.h"
 
+#include "SpriteRenderer.h"
+
 Player::Player(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, glm::vec3 velocity) : Actor(pos, size, sprite, color, velocity)
 {
 	m_physicsActor = g_PhysicsPtr->AddDynamicActor(pos, velocity, size, glm::vec3(0.0f), 1.0f);
@@ -135,9 +137,15 @@ glm::vec4 Player::GetAttackHitbox()
 {
 	glm::vec4 spriteHitbox = m_sprite->GetAttackHitbox(CurrentAnimation);
 
+	if (spriteHitbox.x == 0 && spriteHitbox.y == 0
+		&& spriteHitbox.z == 0 && spriteHitbox.w == 0)
+	{
+		return glm::vec4(0, 0, 0, 0);
+	}
+
 	return glm::vec4(
-		m_position.x - m_scale.x + spriteHitbox.x,
-		m_position.y - m_scale.y + spriteHitbox.y,
+		m_position.x + spriteHitbox.x,
+		m_position.y + spriteHitbox.y,
 		spriteHitbox.z,
 		spriteHitbox.w
 	);
