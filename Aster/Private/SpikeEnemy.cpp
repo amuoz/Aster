@@ -22,8 +22,11 @@ void SpikeEnemy::Render(Shader)
 {
 }
 
-void SpikeEnemy::Update(float, glm::vec4)
+void SpikeEnemy::Update(float, glm::vec4 attackHitbox)
 {
+	if (IsAttacked(attackHitbox)) {
+		IsDestroyed = true;
+	}
 }
 
 void SpikeEnemy::Draw(SpriteRenderer &renderer, double deltatime)

@@ -79,3 +79,20 @@ void Actor::SetPosition(glm::vec3 pos)
 		m_physicsActor->pos += pos;
 	}
 }
+
+bool Actor::IsAttacked(glm::vec4 attackHitbox)
+{
+	float xHitbox = attackHitbox.x;
+	float yHitbox = attackHitbox.y;
+	float widthHitbox = attackHitbox.z;
+	float heightHitbox = attackHitbox.w;
+
+	float blockWidth = m_scale.x;
+	float blockHeight = m_scale.y;
+
+	bool xCollision = m_position.x + blockWidth >= xHitbox && xHitbox + widthHitbox >= m_position.x;
+	
+	bool yCollision = m_position.y + blockHeight >= yHitbox && yHitbox + heightHitbox >= m_position.y;
+
+	return xCollision && yCollision;
+}

@@ -20,5 +20,4 @@ public:
 	void OnContact(Physics::PhysicActor* other) override;
 
 private:
-	bool IsAttacked(glm::vec4);
 };

@@ -2,6 +2,8 @@
 
 #include <glm/glm.hpp>
 #include <vector>
+#include <list>
+#include <utility>
 
 #include "Config.h"
 #include "Block.h"
@@ -36,7 +38,7 @@ void Level::Load(std::string file, unsigned int levelWidth, unsigned int levelHe
 
 void Level::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 {
-    for (Actor* actor : Actors)
+    for (auto& actor : Actors)
     {
         if (!actor->IsDestroyed)
         {
@@ -47,12 +49,11 @@ void Level::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 
 void Level::Draw(SpriteRenderer& renderer, double deltatime)
 {
-    for (Actor* actor : Actors)
+    for (auto& actor : Actors)
     {
         if (actor->IsDestroyed)
         {
-            remove(Actors.begin(), Actors.end(), actor);
-            delete actor;
+            RemoveFromLevel(actor);
         }
         else
         {
@@ -80,9 +81,11 @@ void Level::Init(std::vector<std::vector<int> >& tileData, unsigned int levelWid
                 glm::vec3 pos(unit_width * x, unit_height * y, 0.0f);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
                 Sprite* blockSprite = new Sprite("block_solid");
-                Block* blockActor = new Block(pos, size, blockSprite, glm::vec3(0.8f, 0.8f, 0.7f));
+                std::unique_ptr<Actor> blockActor = std::make_unique<Block> (
+                    pos, size, blockSprite, glm::vec3(0.8f, 0.8f, 0.7f)
+                );
                 blockActor->IsDestroyable = true;
-                Actors.push_back(blockActor);
+                Actors.push_back(std::move(blockActor));
             }
             else if (tileData[y][x] > 1)	// non-destroyable; now determine its color based on level data
             {
@@ -99,7 +102,10 @@ void Level::Init(std::vector<std::vector<int> >& tileData, unsigned int levelWid
                 glm::vec3 pos(unit_width * x, unit_height * y, 0.0f);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
                 Sprite* blockSprite = new Sprite("block");
-                Actors.push_back(new Block(pos, size, blockSprite, color));
+                std::unique_ptr<Actor> blockActor = std::make_unique<Block> (
+                    pos, size, blockSprite, color
+                );
+                Actors.push_back(std::move(blockActor));
             }
         }
     }
@@ -118,6 +124,21 @@ void Level::InitEnemies()
     Sprite* spikeEnemySprite = new Sprite("spike_enemy");
     spikeEnemySprite->AddAnimation("spike_enemy_idle", AnimationType::IDLE, 0.06f);
 
-    Actor* enemy = new SpikeEnemy(enemyPos, charScale, spikeEnemySprite);
-    Actors.push_back(enemy);
+    std::unique_ptr<Actor> enemy = std::make_unique<SpikeEnemy> (
+        enemyPos, charScale, spikeEnemySprite
+    );
+    Actors.push_back(std::move(enemy));
+}
+
+void Level::RemoveFromLevel(std::unique_ptr<Actor> &actor)
+{
+    auto i = Actors.begin();
+    auto end = Actors.end();
+    while (i != end)
+    {
+        if (actor == *i) 
+            i = Actors.erase(i);
+        else
+            ++i;
+    }
 }
