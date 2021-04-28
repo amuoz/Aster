@@ -85,8 +85,8 @@ void Game::InitGame()
 	Renderer = new SpriteRenderer(shader);
 	
 	// load textures
-	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/samurai-girl.png", true, "samurai");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/player.png", true, "player");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/spike_enemy.png", true, "spike_enemy");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/block.png", false, "block");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/block_solid.png", false, "block_solid");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/grass-background.png", true, "background");
@@ -159,13 +159,13 @@ void Game::Render(float deltaTime)
 	// Set camera view matrix
 	Renderer->SetViewMatrix(m_camera->GetViewMatrix());
 
-	DebugAttackHitbox(*Renderer);
-
 	// Draw background
 	Texture2D background = ResourceManager::GetInstance()->GetTexture("background");
 	Renderer->DrawTexture(background,
 		glm::vec2(0.0f, 0.0f), glm::vec2(Config::Get()->GetValue(SRC_WIDTH), Config::Get()->GetValue(SRC_HEIGHT)), 0.0f
 	);
+
+	// DebugAttackHitbox(*Renderer);
 
 	// Draw level
 	CurrentLevel->Draw(*Renderer, deltaTime);

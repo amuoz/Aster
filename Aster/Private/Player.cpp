@@ -11,8 +11,8 @@ Player::Player(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, g
 	m_physicsActor = g_PhysicsPtr->AddDynamicActor(pos, velocity, size, glm::vec3(0.0f), 1.0f);
 	m_physicsActor->bCheckCollision = true;
 	m_physicsActor->report = this;
-	State = PlayerState::IDLE;
-	LastState = PlayerState::IDLE;
+	State = ActorState::IDLE;
+	LastState = ActorState::IDLE;
 }
 
 Player::~Player()
@@ -31,25 +31,25 @@ void Player::Draw(SpriteRenderer &renderer, double deltatime)
 {
 	switch (State)
 	{
-	case PlayerState::IDLE:
+	case ActorState::IDLE:
 		CurrentAnimation = AnimationType::IDLE;
 		break;
-	case PlayerState::MOVEMENT_RIGHT:
-	case PlayerState::MOVEMENT_LEFT:
-	case PlayerState::MOVEMENT_DOWN:
-	case PlayerState::MOVEMENT_UP:
+	case ActorState::MOVEMENT_RIGHT:
+	case ActorState::MOVEMENT_LEFT:
+	case ActorState::MOVEMENT_DOWN:
+	case ActorState::MOVEMENT_UP:
 		CurrentAnimation = AnimationType::WALK;
 		break;
-	case PlayerState::ATTACK_RIGHT:
+	case ActorState::ATTACK_RIGHT:
 		CurrentAnimation = AnimationType::ATTACK_RIGHT;
 		break;
-	case PlayerState::ATTACK_LEFT:
+	case ActorState::ATTACK_LEFT:
 		CurrentAnimation = AnimationType::ATTACK_LEFT;
 		break;
-	case PlayerState::ATTACK_DOWN:
+	case ActorState::ATTACK_DOWN:
 		CurrentAnimation = AnimationType::ATTACK_DOWN;
 		break;
-	case PlayerState::ATTACK_UP:
+	case ActorState::ATTACK_UP:
 		CurrentAnimation = AnimationType::ATTACK_UP;
 		break;
 
@@ -63,15 +63,15 @@ void Player::Draw(SpriteRenderer &renderer, double deltatime)
 void Player::Move(float deltaTime, glm::vec3 direction)
 {
 	if (direction.x > 0)
-		SetState(PlayerState::MOVEMENT_RIGHT);
+		SetState(ActorState::MOVEMENT_RIGHT);
 	else if (direction.x < 0)
-		SetState(PlayerState::MOVEMENT_LEFT);
+		SetState(ActorState::MOVEMENT_LEFT);
 	else if (direction.y > 0)
-		SetState(PlayerState::MOVEMENT_DOWN);
+		SetState(ActorState::MOVEMENT_DOWN);
 	else if (direction.y < 0)
-		SetState(PlayerState::MOVEMENT_UP);
+		SetState(ActorState::MOVEMENT_UP);
 	else
-		SetState(PlayerState::IDLE);
+		SetState(ActorState::IDLE);
 
 	float velocity = PLAYER_VELOCITY * deltaTime;
 	SetPosition(velocity * direction);
@@ -79,45 +79,45 @@ void Player::Move(float deltaTime, glm::vec3 direction)
 
 void Player::Idle()
 {
-	SetState(PlayerState::IDLE);
+	SetState(ActorState::IDLE);
 }
 
 void Player::Attack()
 {
-	if (State == PlayerState::MOVEMENT_RIGHT)
-		SetState(PlayerState::ATTACK_RIGHT);
-	else if (State == PlayerState::MOVEMENT_LEFT)
-		SetState(PlayerState::ATTACK_LEFT);
-	else if (State == PlayerState::MOVEMENT_DOWN)
-		SetState(PlayerState::ATTACK_DOWN);
-	else if (State == PlayerState::MOVEMENT_UP)
-		SetState(PlayerState::ATTACK_UP);
-	else if (LastState == PlayerState::ATTACK_RIGHT)
-		SetState(PlayerState::ATTACK_RIGHT);
-	else if (LastState == PlayerState::ATTACK_LEFT)
-		SetState(PlayerState::ATTACK_LEFT);
-	else if (LastState == PlayerState::ATTACK_DOWN)
-		SetState(PlayerState::ATTACK_DOWN);
-	else if (LastState == PlayerState::ATTACK_UP)
-		SetState(PlayerState::ATTACK_UP);
-	else if (State == PlayerState::IDLE)
+	if (State == ActorState::MOVEMENT_RIGHT)
+		SetState(ActorState::ATTACK_RIGHT);
+	else if (State == ActorState::MOVEMENT_LEFT)
+		SetState(ActorState::ATTACK_LEFT);
+	else if (State == ActorState::MOVEMENT_DOWN)
+		SetState(ActorState::ATTACK_DOWN);
+	else if (State == ActorState::MOVEMENT_UP)
+		SetState(ActorState::ATTACK_UP);
+	else if (LastState == ActorState::ATTACK_RIGHT)
+		SetState(ActorState::ATTACK_RIGHT);
+	else if (LastState == ActorState::ATTACK_LEFT)
+		SetState(ActorState::ATTACK_LEFT);
+	else if (LastState == ActorState::ATTACK_DOWN)
+		SetState(ActorState::ATTACK_DOWN);
+	else if (LastState == ActorState::ATTACK_UP)
+		SetState(ActorState::ATTACK_UP);
+	else if (State == ActorState::IDLE)
 	{
-		if (LastState == PlayerState::MOVEMENT_RIGHT)
-			SetState(PlayerState::ATTACK_RIGHT);
-		else if (LastState == PlayerState::MOVEMENT_LEFT)
-			SetState(PlayerState::ATTACK_LEFT);
-		else if (LastState == PlayerState::MOVEMENT_DOWN)
-			SetState(PlayerState::ATTACK_DOWN);
-		else if (LastState == PlayerState::MOVEMENT_UP)
-			SetState(PlayerState::ATTACK_UP);
+		if (LastState == ActorState::MOVEMENT_RIGHT)
+			SetState(ActorState::ATTACK_RIGHT);
+		else if (LastState == ActorState::MOVEMENT_LEFT)
+			SetState(ActorState::ATTACK_LEFT);
+		else if (LastState == ActorState::MOVEMENT_DOWN)
+			SetState(ActorState::ATTACK_DOWN);
+		else if (LastState == ActorState::MOVEMENT_UP)
+			SetState(ActorState::ATTACK_UP);
 		else
-			SetState(PlayerState::ATTACK_RIGHT);
+			SetState(ActorState::ATTACK_RIGHT);
 	}
 	else
-		SetState(PlayerState::ATTACK_RIGHT);
+		SetState(ActorState::ATTACK_RIGHT);
 }
 
-void Player::SetState(PlayerState state)
+void Player::SetState(ActorState state)
 {
 	if (State != state)
 	{
