@@ -16,6 +16,7 @@ public:
 
 	void Render(Shader shader);
 	void Update(float deltaTime, glm::vec4 playerAttackHitbox);
+	void TakeDamage();
 
 	void OnContact(Physics::PhysicActor* other) override;
 

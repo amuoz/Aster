@@ -1,5 +1,11 @@
 #pragma once
 
+enum class GameState {
+	GAME_ACTIVE,
+	GAME_RESTART,
+  GAME_OVER
+};
+
 enum class AnimationType {
     WALK,
     IDLE,

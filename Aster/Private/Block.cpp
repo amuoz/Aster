@@ -26,6 +26,10 @@ void Block::Update(float, glm::vec4 attackHitbox)
 	}
 }
 
+void Block::TakeDamage()
+{
+}
+
 void Block::OnContact(Physics::PhysicActor* physicActor)
 {
 	//std::cout << "...Block OnContact..." << std::endl;

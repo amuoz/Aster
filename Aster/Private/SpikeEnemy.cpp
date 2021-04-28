@@ -2,6 +2,7 @@
 
 #include "Common.h"
 #include "Sprite.h"
+#include "Player.h"
 
 #include "SpriteRenderer.h"
 
@@ -42,6 +43,10 @@ void SpikeEnemy::Draw(SpriteRenderer &renderer, double deltatime)
 	m_sprite->Draw(CurrentAnimation, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
 }
 
+void SpikeEnemy::TakeDamage()
+{
+}
+
 void SpikeEnemy::SetState(ActorState state)
 {
 	if (State != state)
@@ -56,4 +61,6 @@ void SpikeEnemy::OnContact(Physics::PhysicActor *physicActor)
 {
 	// resolved collision gives corrected position
 	m_position = m_physicsActor->pos;
+	Player* player = (Player*)physicActor->report;
+	player->TakeDamage();
 }

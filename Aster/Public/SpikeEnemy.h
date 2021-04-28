@@ -17,6 +17,7 @@ public:
 	void Render(Shader shader);
 	void Update(float, glm::vec4);
 	void Draw(SpriteRenderer &renderer, double deltaTime);
+	void TakeDamage();
 
 	void OnContact(Physics::PhysicActor* other) override;
 
