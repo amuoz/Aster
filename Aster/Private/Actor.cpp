@@ -40,8 +40,8 @@ Actor::Actor(glm::vec3 pos, glm::vec3 size, Sprite* sprite, glm::vec3 color, glm
 
 Actor::~Actor()
 {
-	g_PhysicsPtr->DeleteDynamicActor(m_physicsActor);
-	delete m_physicsActor;
+	g_PhysicsPtr->DeleteDynamicActor(ActorCollider);
+	delete ActorCollider;
 	delete m_mesh;
 }
 
@@ -84,7 +84,7 @@ void Actor::SetState(ActorState state)
 
 void Actor::SetActive(bool newActive)
 {
-	m_physicsActor->active = newActive;
+	ActorCollider->active = newActive;
 	m_active = newActive;
 }
 
@@ -100,11 +100,11 @@ void Actor::SetColor(glm::vec3 color)
 
 void Actor::SetPosition(glm::vec3 pos)
 {
-	if (!m_physicsActor->bSimulate)
+	if (!ActorCollider->bSimulate)
 	{
 		m_position += pos;
 		// update physics position. Not simulating physics
-		m_physicsActor->pos += pos;
+		ActorCollider->pos += pos;
 	}
 }
 

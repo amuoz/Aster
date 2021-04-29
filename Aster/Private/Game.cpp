@@ -126,7 +126,7 @@ void Game::Update(float deltaTime)
 			Actor *actor = (*it);
 			if (actor->IsDestroyed)
 			{
-				actor->GetPhysicsActor()->active = false;
+				actor->GetActorCollider()->active = false;
 				it = m_scene.erase(it);
 				delete actor;
 			}
@@ -211,7 +211,7 @@ void Game::Restart()
 		Actor *actor = (*it);
 		if (actor->IsDelete()) // clean runtime deleteable actors
 		{
-			actor->GetPhysicsActor()->active = false;
+			actor->GetActorCollider()->active = false;
 			it = m_scene.erase(it);
 			delete actor;
 		}

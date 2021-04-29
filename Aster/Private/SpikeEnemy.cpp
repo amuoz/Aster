@@ -18,9 +18,9 @@ const float CHANGE_DIRECTION_CHANCE = 0.2;
 
 SpikeEnemy::SpikeEnemy(glm::vec3 pos, glm::vec3 size, Sprite *sprite, float framePeriod, glm::vec3 color, glm::vec3 velocity) : Actor(pos, size, sprite, color, velocity)
 {
-	m_physicsActor = g_PhysicsPtr->AddDynamicActor(pos, velocity, size, false, glm::vec3(0.0f), 1.0f);
-	m_physicsActor->bCheckCollision = true;
-	m_physicsActor->report = this;
+	ActorCollider = g_PhysicsPtr->AddDynamicActor(pos, velocity, size, false, glm::vec3(0.0f), 1.0f);
+	ActorCollider->bCheckCollision = true;
+	ActorCollider->report = this;
 
 	AnimationPeriod = framePeriod * ANIMATION_FRAMES;
 	AnimationProgress = 0.0f;
@@ -80,7 +80,7 @@ void SpikeEnemy::TakeDamage()
 void SpikeEnemy::OnContact(Physics::PhysicActor *physicActor)
 {
 	// resolved collision gives corrected position
-	m_position = m_physicsActor->pos;
+	m_position = ActorCollider->pos;
 	Player *player = (Player *)physicActor->report;
 	player->TakeDamage();
 }

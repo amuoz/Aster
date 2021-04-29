@@ -33,7 +33,7 @@ public:
 
 	inline bool IsActive() { return m_active; }
 	inline bool IsDelete() { return m_delete; }
-	inline Physics::PhysicActor* GetPhysicsActor() { return m_physicsActor; }
+	inline Physics::PhysicActor* GetActorCollider() { return ActorCollider; }
 	inline Mesh* GetMesh() { return m_mesh; }
 	
 	inline glm::vec3 GetPosition() { return m_position; }
@@ -60,7 +60,7 @@ protected:
 	bool m_delete;
 
 	// physics pointer
-	Physics::PhysicActor* m_physicsActor = nullptr;
+	Physics::PhysicActor* ActorCollider = nullptr;
 
 	Mesh* m_mesh = nullptr;
 	Sprite* m_sprite;

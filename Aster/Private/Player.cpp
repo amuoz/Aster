@@ -8,9 +8,9 @@
 
 Player::Player(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, glm::vec3 velocity) : Actor(pos, size, sprite, color, velocity)
 {
-	m_physicsActor = g_PhysicsPtr->AddDynamicActor(pos, velocity, size, false, glm::vec3(0.0f), 1.0f);
-	m_physicsActor->bCheckCollision = true;
-	m_physicsActor->report = this;
+	ActorCollider = g_PhysicsPtr->AddDynamicActor(pos, velocity, size, false, glm::vec3(0.0f), 1.0f);
+	ActorCollider->bCheckCollision = true;
+	ActorCollider->report = this;
 	State = ActorState::IDLE;
 	LastState = ActorState::IDLE;
 }
@@ -108,7 +108,7 @@ void Player::Attack()
 void Player::OnContact(Physics::PhysicActor *physicActor)
 {
 	// resolved collision gives corrected position
-	m_position = m_physicsActor->pos;
+	m_position = ActorCollider->pos;
 }
 
 glm::vec4 Player::GetAttackHitbox()
