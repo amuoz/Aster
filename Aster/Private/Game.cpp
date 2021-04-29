@@ -23,9 +23,6 @@
 Physics *g_PhysicsPtr;
 //Config* g_Config;
 
-const glm::vec3 PLAYER_SIZE(16.0f, 9.0f, 0.0f);
-const glm::vec3 playerPos = glm::vec3(400.0f, 400.0f, 0.0f);
-
 __inline float Randf(float min, float max)
 {
 	return (float)((float)((rand() & 32767) * (1.0 / 32767.0)) * (max - min) + min);
@@ -44,17 +41,23 @@ Game::~Game()
 
 void Game::InitPlayer()
 {
+	const glm::vec3 PLAYER_SIZE(16.0f, 9.0f, 0.0f);
+	const glm::vec3 playerPos = glm::vec3(200.0f, 500.0f, 0.0f);
 	glm::vec3 charScale(1.0f, 1.0f, 1.0f);
 	charScale.x = Config::Get()->GetValue(SRC_WIDTH) / PLAYER_SIZE.x;
 	charScale.y = Config::Get()->GetValue(SRC_HEIGHT) / PLAYER_SIZE.y;
+
 	Sprite *playerSprite = new Sprite("player");
+
 	playerSprite->AddAnimation("player_walk", AnimationType::WALK, 0.03f);
 	playerSprite->AddAnimation("player_idle", AnimationType::IDLE, 0.06f);
 	playerSprite->AddAnimation("attack_up", AnimationType::ATTACK_UP, 0.03f);
 	playerSprite->AddAnimation("attack_right", AnimationType::ATTACK_RIGHT, 0.03f);
 	playerSprite->AddAnimation("attack_down", AnimationType::ATTACK_DOWN, 0.03f);
 	playerSprite->AddAnimation("attack_left", AnimationType::ATTACK_LEFT, 0.03f);
+
 	Character = new Player(playerPos, charScale, playerSprite);
+
 	m_scene.push_back(Character);
 }
 

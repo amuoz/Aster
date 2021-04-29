@@ -34,7 +34,8 @@ public:
 		ICircleContactReport* report = nullptr;
 
 		float radius = 0.0f;
-		bool ignoreContact = false;
+		bool bounce = false;
+		bool justReport = false;
 	};
 
 	Physics(const glm::vec3 &gravity);
@@ -51,7 +52,7 @@ public:
 	bool CheckRectRectCollision(const glm::vec3& rect1Pos, const glm::vec3& rect1Size,
 		const glm::vec3& rect2Pos, const glm::vec3& rect2Size, glm::vec3& col);
 
-	PhysicActor* AddDynamicActor(const glm::vec3 &pos, const glm::vec3 &vel, const glm::vec3& size, glm::vec3 force = glm::vec3(0.0f), float mass = 1.0f);
+	PhysicActor* AddDynamicActor(const glm::vec3 &pos, const glm::vec3 &vel, const glm::vec3& size, bool justReport, glm::vec3 force = glm::vec3(0.0f), float mass = 1.0f);
 
 	void DeleteDynamicActor(PhysicActor *geom);
 

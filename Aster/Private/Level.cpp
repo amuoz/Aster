@@ -116,7 +116,7 @@ void Level::Init(std::vector<std::vector<int> >& tileData, unsigned int levelWid
 void Level::InitEnemies()
 {
     const glm::vec3 ENEMY_SIZE(16.0f, 9.0f, 0.0f);
-    const glm::vec3 enemyPos = glm::vec3(600.0f, 200.0f, 0.0f);
+    const glm::vec3 enemyPos = glm::vec3(700.0f, 200.0f, 0.0f);
     glm::vec3 charScale(1.0f, 1.0f, 1.0f);
     charScale.x = Config::Get()->GetValue(SRC_WIDTH) / ENEMY_SIZE.x;
     charScale.y = Config::Get()->GetValue(SRC_HEIGHT) / ENEMY_SIZE.y;

@@ -66,7 +66,7 @@ bool Physics::CheckCircleCircleCollision(const glm::vec3& circle1Pos, float circ
 		normal = circle1Pos - circle2Pos;
 		normal = glm::normalize(normal);
 
-		// Desplazar la esfera A que ha colisionado en la direccion de colision lo suficiente para que los dos radios estén separados
+		// Desplazar la esfera A que ha colisionado en la direccion de colision lo suficiente para que los dos radios estï¿½n separados
 		col = circle2Pos + normal * (circle1Radius + circle2Radius);
 		return true;
 	}
@@ -119,7 +119,7 @@ bool Physics::CheckRectRectCollision(const glm::vec3& rect1Pos, const glm::vec3&
 	return false;
 }
 
-Physics::PhysicActor* Physics::AddDynamicActor(const glm::vec3 &pos, const glm::vec3 &vel, const glm::vec3& size, glm::vec3 force, float mass)
+Physics::PhysicActor* Physics::AddDynamicActor(const glm::vec3 &pos, const glm::vec3 &vel, const glm::vec3& size, bool justReport, glm::vec3 force, float mass)
 {
 	if (m_dynamicActors.size() < MAX_DYNAMICS)
 	{
@@ -131,6 +131,7 @@ Physics::PhysicActor* Physics::AddDynamicActor(const glm::vec3 &pos, const glm::
 		geom->accelerationForce = force;
 		geom->mass = mass;
 		geom->radius = size.x / 2;
+		geom->justReport = justReport;
 		m_dynamicActors.push_back(geom);
 		return geom;
 	}
@@ -158,13 +159,16 @@ void Physics::DoCollisions(PhysicActor& geom)
 			if (CheckRectRectCollision(geom.pos, geom.size, dynamicActor->pos, dynamicActor->size, col))
 			{
 				// push actor in normal direction
-				if (geom.ignoreContact && dynamicActor->ignoreContact)
+				if (geom.bounce && dynamicActor->bounce)
 				{
 					geom.vel = normal * glm::length(geom.vel);
 					dynamicActor->vel = -normal * glm::length(dynamicActor->vel);
 				}
 
-				geom.pos = col;
+				if (!geom.justReport && !dynamicActor->justReport)
+				{
+					geom.pos = col;
+				}
 
 				// notify collision
 				if (geom.report)
