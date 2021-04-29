@@ -22,9 +22,5 @@ public:
 	void OnContact(Physics::PhysicActor* other) override;
 
 private:
-	void SetState(ActorState);
-
-	ActorState State;
-	ActorState LastState;
 	AnimationType CurrentAnimation;
 };

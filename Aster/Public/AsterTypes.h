@@ -15,7 +15,7 @@ enum class AnimationType {
     ATTACK_LEFT,
 };
 
-enum ActorState {
+enum class ActorState {
     IDLE,
     MOVEMENT_UP,
     MOVEMENT_RIGHT,

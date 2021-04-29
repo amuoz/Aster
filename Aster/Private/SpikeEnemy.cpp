@@ -47,16 +47,6 @@ void SpikeEnemy::TakeDamage()
 {
 }
 
-void SpikeEnemy::SetState(ActorState state)
-{
-	if (State != state)
-	{
-		LastState = State;
-	}
-
-	State = state;
-}
-
 void SpikeEnemy::OnContact(Physics::PhysicActor *physicActor)
 {
 	// resolved collision gives corrected position

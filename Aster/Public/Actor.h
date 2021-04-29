@@ -9,6 +9,7 @@
 
 class SpriteRenderer;
 class Sprite;
+enum class ActorState;
 
 class Actor
 {
@@ -23,7 +24,9 @@ public:
 	virtual void Reset();
 	virtual void Draw(SpriteRenderer &renderer, double deltatime);
 	virtual void TakeDamage() = 0;
-
+	virtual void Move(float deltaTime, glm::vec3 direction);
+	
+	void SetState(ActorState state);
 	void SetActive(bool newActive);
 	void SetDelete(bool newDelete);
 	void SetColor(glm::vec3 color);
@@ -59,7 +62,11 @@ protected:
 	// physics pointer
 	Physics::PhysicActor* m_physicsActor = nullptr;
 
-	// render state
 	Mesh* m_mesh = nullptr;
 	Sprite* m_sprite;
+
+	ActorState State;
+	ActorState LastState;
+
+	const float VELOCITY = 200.0f;
 };

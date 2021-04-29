@@ -65,23 +65,6 @@ void Player::TakeDamage()
 	SetActive(false);
 }
 
-void Player::Move(float deltaTime, glm::vec3 direction)
-{
-	if (direction.x > 0)
-		SetState(ActorState::MOVEMENT_RIGHT);
-	else if (direction.x < 0)
-		SetState(ActorState::MOVEMENT_LEFT);
-	else if (direction.y > 0)
-		SetState(ActorState::MOVEMENT_DOWN);
-	else if (direction.y < 0)
-		SetState(ActorState::MOVEMENT_UP);
-	else
-		SetState(ActorState::IDLE);
-
-	float velocity = PLAYER_VELOCITY * deltaTime;
-	SetPosition(velocity * direction);
-}
-
 void Player::Idle()
 {
 	SetState(ActorState::IDLE);
@@ -120,16 +103,6 @@ void Player::Attack()
 	}
 	else
 		SetState(ActorState::ATTACK_RIGHT);
-}
-
-void Player::SetState(ActorState state)
-{
-	if (State != state)
-	{
-		LastState = State;
-	}
-
-	State = state;
 }
 
 void Player::OnContact(Physics::PhysicActor *physicActor)

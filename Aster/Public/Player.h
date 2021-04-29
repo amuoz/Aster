@@ -20,7 +20,6 @@ public:
 	void Draw(SpriteRenderer &renderer, double deltaTime);
 	void TakeDamage();
 
-	void Move(float deltaTime, glm::vec3 direction);
 	void Idle();
 	void Attack();
 
@@ -28,9 +27,5 @@ public:
 	glm::vec4 GetAttackHitbox();
 
 private:
-	void SetState(ActorState);
-	const float PLAYER_VELOCITY = 200.0f;
-	ActorState State;
-	ActorState LastState;
 	AnimationType CurrentAnimation;
 };
