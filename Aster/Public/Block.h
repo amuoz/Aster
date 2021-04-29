@@ -14,9 +14,9 @@ public:
 	Block(glm::vec3 pos, glm::vec3 size, Sprite* sprite, glm::vec3 color = glm::vec3(1.0f), glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f));
 	virtual ~Block();
 
-	void Render(Shader shader);
-	void Update(float deltaTime, glm::vec4 playerAttackHitbox);
-	void TakeDamage();
+	void Render(Shader shader) override;
+	void Update(float deltaTime, glm::vec4 playerAttackHitbox) override;
+	void TakeDamage() override;
 
 	void OnContact(Physics::PhysicActor* other) override;
 

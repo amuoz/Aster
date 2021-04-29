@@ -122,10 +122,11 @@ void Level::InitEnemies()
     charScale.y = Config::Get()->GetValue(SRC_HEIGHT) / ENEMY_SIZE.y;
 
     Sprite* spikeEnemySprite = new Sprite("spike_enemy");
-    spikeEnemySprite->AddAnimation("spike_enemy_idle", AnimationType::IDLE, 0.06f);
+    float framePeriod = 0.06f;
+    spikeEnemySprite->AddAnimation("spike_enemy_idle", AnimationType::IDLE, framePeriod);
 
     std::unique_ptr<Actor> enemy = std::make_unique<SpikeEnemy> (
-        enemyPos, charScale, spikeEnemySprite
+        enemyPos, charScale, spikeEnemySprite, framePeriod
     );
     Actors.push_back(std::move(enemy));
 }

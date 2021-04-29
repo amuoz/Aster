@@ -68,7 +68,7 @@ void Actor::Move(float deltaTime, glm::vec3 direction)
 	else
 		SetState(ActorState::IDLE);
 
-	float velocity = VELOCITY * deltaTime;
+	float velocity = Speed * deltaTime;
 	SetPosition(velocity * direction);
 }
 

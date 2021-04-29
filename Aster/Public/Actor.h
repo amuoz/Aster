@@ -68,5 +68,5 @@ protected:
 	ActorState State;
 	ActorState LastState;
 
-	const float VELOCITY = 200.0f;
+	float Speed = 200;
 };

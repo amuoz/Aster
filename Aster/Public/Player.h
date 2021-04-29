@@ -15,10 +15,10 @@ public:
 	Player(glm::vec3 pos, glm::vec3 size, Sprite* sprite, glm::vec3 color = glm::vec3(1.0f), glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f));
 	~Player();
 
-	void Render(Shader shader);
-	void Update(float, glm::vec4);
-	void Draw(SpriteRenderer &renderer, double deltaTime);
-	void TakeDamage();
+	void Render(Shader shader) override;
+	void Update(float, glm::vec4) override;
+	void Draw(SpriteRenderer &renderer, double deltaTime) override;
+	void TakeDamage() override;
 
 	void Idle();
 	void Attack();
