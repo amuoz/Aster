@@ -149,7 +149,7 @@ void Physics::DoCollisions(std::shared_ptr<PhysicActor> geom)
 	for (auto& dynamicActor : PhysicsPool)
 	{
 		//if (&geom != dynamicActor && dynamicActor->active)
-		if (geom != dynamicActor)
+		if (geom != dynamicActor && (geom->report != dynamicActor->report))
 		{
 			//if (CheckCircleCircleCollision(geom.pos, geom.radius, dynamicActor->pos, dynamicActor->radius, col, normal))
 			if (CheckRectRectCollision(geom->pos, geom->size, dynamicActor->pos, dynamicActor->size, col))
@@ -169,32 +169,13 @@ void Physics::DoCollisions(std::shared_ptr<PhysicActor> geom)
 				// notify collision
 				if (geom->report)
 				{
-					geom->report->Collisions.push_back(dynamicActor);
+					geom->report->OnContact(dynamicActor, geom);
 				}
-				//if (dynamicActor->active && dynamicActor->report)
 				if (dynamicActor->report)
 				{
-					dynamicActor->report->Collisions.push_back(geom);
+					dynamicActor->report->OnContact(geom, dynamicActor);
 				}
-			}
-			else
-			{
-				RemoveFromCollisions(geom->report->Collisions, dynamicActor);
-				RemoveFromCollisions(dynamicActor->report->Collisions, geom);
 			}
 		}
 	}
-}
-
-void Physics::RemoveFromCollisions(std::list<std::shared_ptr<PhysicActor> > collisions, std::shared_ptr<PhysicActor> dynamicActor)
-{
-    auto i = collisions.begin();
-    auto end = collisions.end();
-    while (i != end)
-    {
-        if (dynamicActor == *i) 
-            i = collisions.erase(i);
-        else
-            ++i;
-    }
 }

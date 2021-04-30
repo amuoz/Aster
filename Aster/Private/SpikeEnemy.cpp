@@ -15,12 +15,29 @@
 const int ANIMATION_FRAMES = 18;
 const float STILL_CHANCE = 0.3;
 const float CHANGE_DIRECTION_CHANCE = 0.2;
+const float AGGRO_SIZE = 350;
 
 SpikeEnemy::SpikeEnemy(glm::vec3 pos, glm::vec3 size, Sprite *sprite, float framePeriod, glm::vec3 color, glm::vec3 velocity) : Actor(pos, size, sprite, color, velocity)
 {
-	ActorCollider = g_PhysicsPtr->AddDynamicActor(pos, velocity, size, false, glm::vec3(0.0f), 1.0f);
+	ActorCollider = g_PhysicsPtr->AddDynamicActor(
+			pos,
+			velocity,
+			size,
+			false,
+			glm::vec3(0.0f),
+			1.0f);
 	ActorCollider->bCheckCollision = true;
 	ActorCollider->report = this;
+
+	AggroCollider = g_PhysicsPtr->AddDynamicActor(
+			GetAggroPosition(pos, size),
+			velocity,
+			glm::vec3(AGGRO_SIZE, AGGRO_SIZE, 0),
+			true,
+			glm::vec3(0.0f),
+			1.0f);
+	AggroCollider->bCheckCollision = true;
+	AggroCollider->report = this;
 
 	AnimationPeriod = framePeriod * ANIMATION_FRAMES;
 	AnimationProgress = 0.0f;
@@ -48,10 +65,6 @@ void SpikeEnemy::Update(float deltaTime, glm::vec4 attackHitbox)
 		IsDestroyed = true;
 	}
 
-	if (Collisions.size()) {
-		OnContact();
-	}
-
 	AnimationProgress += deltaTime;
 	if (AnimationProgress > AnimationPeriod)
 	{
@@ -62,6 +75,8 @@ void SpikeEnemy::Update(float deltaTime, glm::vec4 attackHitbox)
 	SetSpeed();
 
 	Move(deltaTime, Direction);
+
+	AggroCollider->pos = GetAggroPosition(m_position, m_scale);
 }
 
 void SpikeEnemy::Draw(SpriteRenderer &renderer, double deltatime)
@@ -75,18 +90,29 @@ void SpikeEnemy::Draw(SpriteRenderer &renderer, double deltatime)
 	}
 
 	m_sprite->Draw(CurrentAnimation, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
+	m_color = glm::vec3(1, 1, 1);
 }
 
 void SpikeEnemy::TakeDamage()
 {
 }
 
-void SpikeEnemy::OnContact()
+void SpikeEnemy::OnContact(
+		std::shared_ptr<Physics::PhysicActor> external,
+		std::shared_ptr<Physics::PhysicActor> internal)
 {
-	for (auto& dynamicActor : Collisions)
+	if (internal == ActorCollider)
 	{
-		auto *actor = dynamicActor->report;
-		actor->TakeDamage();
+		auto *collidedActor = external->report;
+		collidedActor->TakeDamage();
+	}
+
+	if (internal == AggroCollider)
+	{
+		if (external->report->IsPlayer())
+		{
+			m_color = glm::vec3(1, 0.5, 0.5);
+		}
 	}
 
 	m_position = ActorCollider->pos;
@@ -140,4 +166,15 @@ void SpikeEnemy::SetSpeed()
 	{
 		Speed = MAX_SPEED;
 	}
+}
+
+glm::vec3 SpikeEnemy::GetAggroPosition(glm::vec3 actorPosition, glm::vec3 actorSize)
+{
+	float posCorrectionX = (AGGRO_SIZE - actorSize.x) / 2;
+	float posCorrectionY = (AGGRO_SIZE - actorSize.y) / 2;
+
+	return glm::vec3(
+			actorPosition.x - posCorrectionX,
+			actorPosition.y - posCorrectionY,
+			0);
 }

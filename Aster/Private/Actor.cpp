@@ -22,7 +22,7 @@ Actor::Actor()
 	IsDestroyed = false;
 }
 
-Actor::Actor(glm::vec3 pos, glm::vec3 size, Sprite* sprite, glm::vec3 color, glm::vec3 velocity)
+Actor::Actor(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, glm::vec3 velocity)
 {
 	m_position = pos;
 	m_scale = size;
@@ -48,10 +48,9 @@ Actor::~Actor()
 
 void Actor::Reset()
 {
-
 }
 
-void Actor::Draw(SpriteRenderer& renderer, double)
+void Actor::Draw(SpriteRenderer &renderer, double)
 {
 	renderer.DrawSprite(m_sprite, m_position, m_scale, m_rotAngle, m_color);
 }
@@ -71,6 +70,18 @@ void Actor::Move(float deltaTime, glm::vec3 direction)
 
 	float velocity = Speed * deltaTime;
 	SetPosition(velocity * direction);
+}
+
+void Actor::OnContact(
+		std::shared_ptr<Physics::PhysicActor> external,
+		std::shared_ptr<Physics::PhysicActor> internal)
+{
+
+}
+
+bool Actor::IsPlayer()
+{
+	return false;
 }
 
 void Actor::SetState(ActorState state)
@@ -120,7 +131,7 @@ bool Actor::IsAttacked(glm::vec4 attackHitbox)
 	float blockHeight = m_scale.y;
 
 	bool xCollision = m_position.x + blockWidth >= xHitbox && xHitbox + widthHitbox >= m_position.x;
-	
+
 	bool yCollision = m_position.y + blockHeight >= yHitbox && yHitbox + heightHitbox >= m_position.y;
 
 	return xCollision && yCollision;

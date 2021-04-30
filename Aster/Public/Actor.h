@@ -16,9 +16,8 @@ enum class ActorState;
 class Actor
 {
 public:
-
 	Actor();
-	Actor(glm::vec3 pos, glm::vec3 size, Sprite* sprite, glm::vec3 color = glm::vec3(1.0f), glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f));
+	Actor(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color = glm::vec3(1.0f), glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f));
 	virtual ~Actor();
 
 	virtual void Render(Shader shader) = 0;
@@ -27,7 +26,11 @@ public:
 	virtual void Draw(SpriteRenderer &renderer, double deltatime);
 	virtual void TakeDamage() = 0;
 	virtual void Move(float deltaTime, glm::vec3 direction);
-	
+	virtual void OnContact(
+			std::shared_ptr<Physics::PhysicActor> external,
+			std::shared_ptr<Physics::PhysicActor> internal);
+	virtual bool IsPlayer();
+
 	void SetState(ActorState state);
 	void SetActive(bool newActive);
 	void SetDelete(bool newDelete);
@@ -36,16 +39,14 @@ public:
 	inline bool IsActive() { return m_active; }
 	inline bool IsDelete() { return m_delete; }
 	inline std::shared_ptr<Physics::PhysicActor> GetActorCollider() { return ActorCollider; }
-	inline Mesh* GetMesh() { return m_mesh; }
-	
+	inline Mesh *GetMesh() { return m_mesh; }
+
 	inline glm::vec3 GetPosition() { return m_position; }
 	void SetPosition(glm::vec3 pos);
 	bool IsAttacked(glm::vec4 attackHitbox);
 
 	bool IsDestroyable;
 	bool IsDestroyed;
-
-	std::list<std::shared_ptr<Physics::PhysicActor> > Collisions;
 
 protected:
 	// actor state
@@ -56,7 +57,6 @@ protected:
 	glm::vec3 m_rotAxis;
 	float m_radius;
 	glm::vec3 m_color;
-	
 
 	bool m_active;
 
@@ -66,8 +66,8 @@ protected:
 	// physics pointer
 	std::shared_ptr<Physics::PhysicActor> ActorCollider = nullptr;
 
-	Mesh* m_mesh = nullptr;
-	Sprite* m_sprite;
+	Mesh *m_mesh = nullptr;
+	Sprite *m_sprite;
 
 	ActorState State;
 	ActorState LastState;

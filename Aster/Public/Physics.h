@@ -60,7 +60,6 @@ public:
 private:
 
 	void DoCollisions(std::shared_ptr<PhysicActor> geom);
-	void RemoveFromCollisions(std::list<std::shared_ptr<Physics::PhysicActor> > collisions, std::shared_ptr<PhysicActor> dynamicActor);
 
 	glm::vec3 m_gravityForce;
 
