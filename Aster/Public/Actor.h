@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <utility>
+#include <list>
 
 #include "Physics.h"
 #include "Mesh.h"
@@ -33,7 +35,7 @@ public:
 
 	inline bool IsActive() { return m_active; }
 	inline bool IsDelete() { return m_delete; }
-	inline Physics::PhysicActor* GetActorCollider() { return ActorCollider; }
+	inline std::shared_ptr<Physics::PhysicActor> GetActorCollider() { return ActorCollider; }
 	inline Mesh* GetMesh() { return m_mesh; }
 	
 	inline glm::vec3 GetPosition() { return m_position; }
@@ -42,6 +44,8 @@ public:
 
 	bool IsDestroyable;
 	bool IsDestroyed;
+
+	std::list<std::shared_ptr<Physics::PhysicActor> > Collisions;
 
 protected:
 	// actor state
@@ -60,7 +64,7 @@ protected:
 	bool m_delete;
 
 	// physics pointer
-	Physics::PhysicActor* ActorCollider = nullptr;
+	std::shared_ptr<Physics::PhysicActor> ActorCollider = nullptr;
 
 	Mesh* m_mesh = nullptr;
 	Sprite* m_sprite;

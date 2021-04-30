@@ -25,6 +25,9 @@ void Player::Render(Shader)
 
 void Player::Update(float, glm::vec4)
 {
+	if (Collisions.size()) {
+		OnContact();
+	}
 }
 
 void Player::Draw(SpriteRenderer &renderer, double deltatime)
@@ -105,9 +108,8 @@ void Player::Attack()
 		SetState(ActorState::ATTACK_RIGHT);
 }
 
-void Player::OnContact(Physics::PhysicActor *physicActor)
+void Player::OnContact()
 {
-	// resolved collision gives corrected position
 	m_position = ActorCollider->pos;
 }
 

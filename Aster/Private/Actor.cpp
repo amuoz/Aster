@@ -1,5 +1,7 @@
 #include "Actor.h"
 
+#include <utility>
+
 #include "Common.h"
 #include "SpriteRenderer.h"
 #include "Sprite.h"
@@ -40,8 +42,7 @@ Actor::Actor(glm::vec3 pos, glm::vec3 size, Sprite* sprite, glm::vec3 color, glm
 
 Actor::~Actor()
 {
-	g_PhysicsPtr->DeleteDynamicActor(ActorCollider);
-	delete ActorCollider;
+	g_PhysicsPtr->DeleteDynamicActor(std::move(ActorCollider));
 	delete m_mesh;
 }
 

@@ -2,12 +2,11 @@
 
 #include <glm/glm.hpp>
 #include "Actor.h"
-#include "ICircleContactReport.h"
 
 class Texture2D;
 class Sprite;
 
-class Block : public Actor, ICircleContactReport
+class Block : public Actor
 {
 public:
 
@@ -17,8 +16,6 @@ public:
 	void Render(Shader shader) override;
 	void Update(float deltaTime, glm::vec4 playerAttackHitbox) override;
 	void TakeDamage() override;
-
-	void OnContact(Physics::PhysicActor* other) override;
 
 private:
 };

@@ -2,13 +2,12 @@
 
 #include <glm/glm.hpp>
 #include "Actor.h"
-#include "ICircleContactReport.h"
 
 #include "Sprite.h"
 
 enum class AnimationType;
 
-class Player : public Actor, ICircleContactReport
+class Player : public Actor
 {
 public:
 
@@ -22,10 +21,10 @@ public:
 
 	void Idle();
 	void Attack();
-
-	void OnContact(Physics::PhysicActor* other) override;
 	glm::vec4 GetAttackHitbox();
 
 private:
 	AnimationType CurrentAnimation;
+
+	void OnContact();
 };

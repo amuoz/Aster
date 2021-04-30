@@ -8,7 +8,7 @@
 #include "Common.h"
 #include "Sprite.h"
 #include "Player.h"
-
+#include "Physics.h"
 #include "SpriteRenderer.h"
 
 // TODO: calculate this vvv based on the current animation
@@ -48,6 +48,10 @@ void SpikeEnemy::Update(float deltaTime, glm::vec4 attackHitbox)
 		IsDestroyed = true;
 	}
 
+	if (Collisions.size()) {
+		OnContact();
+	}
+
 	AnimationProgress += deltaTime;
 	if (AnimationProgress > AnimationPeriod)
 	{
@@ -77,12 +81,15 @@ void SpikeEnemy::TakeDamage()
 {
 }
 
-void SpikeEnemy::OnContact(Physics::PhysicActor *physicActor)
+void SpikeEnemy::OnContact()
 {
-	// resolved collision gives corrected position
+	for (auto& dynamicActor : Collisions)
+	{
+		auto *actor = dynamicActor->report;
+		actor->TakeDamage();
+	}
+
 	m_position = ActorCollider->pos;
-	Player *player = (Player *)physicActor->report;
-	player->TakeDamage();
 }
 
 bool SpikeEnemy::PassRandomChance(float chance)
