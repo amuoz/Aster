@@ -28,6 +28,7 @@ private:
 	float GetRandomDirectionComponent();
 	glm::vec3 GetRandomDirection();
 	void SetWanderMovement();
+	void SetAggroMovement();
 	void SetSpeed();
 	glm::vec3 GetAggroPosition(glm::vec3 actorPosition, glm::vec3 actorSize);
 
@@ -40,4 +41,5 @@ private:
 	const float MAX_SPEED = 100.0f;
 
 	std::shared_ptr<Physics::PhysicActor> AggroCollider = nullptr;
+	glm::vec3 ObjectivePosition;
 };

@@ -65,11 +65,26 @@ void SpikeEnemy::Update(float deltaTime, glm::vec4 attackHitbox)
 		IsDestroyed = true;
 	}
 
+	if (AggroCollider->Collisions.size() == 0)
+	{
+		SetState(ActorState::IDLE);
+	}
+
 	AnimationProgress += deltaTime;
 	if (AnimationProgress > AnimationPeriod)
 	{
 		AnimationProgress -= AnimationPeriod;
-		SetWanderMovement();
+
+		switch (State)
+		{
+		case ActorState::IDLE:
+		default:
+			SetWanderMovement();
+			break;
+		case ActorState::AGGRO:
+			SetAggroMovement();
+			break;
+		}
 	}
 
 	SetSpeed();
@@ -81,16 +96,24 @@ void SpikeEnemy::Update(float deltaTime, glm::vec4 attackHitbox)
 
 void SpikeEnemy::Draw(SpriteRenderer &renderer, double deltatime)
 {
+	cout << ((State == ActorState::IDLE) ? "IDLE" : "AGGRO") << endl;
+	
 	switch (State)
 	{
 	case ActorState::IDLE:
-	default:
+		m_color = glm::vec3(1, 1, 1);
 		CurrentAnimation = AnimationType::IDLE;
+		break;
+	case ActorState::AGGRO:
+		m_color = glm::vec3(1, 0.5, 0.5);
+		CurrentAnimation = AnimationType::IDLE;
+		break;
+	default:
 		break;
 	}
 
+	cout << ((m_color.y == 0.5) ? "red" : "white") << endl;
 	m_sprite->Draw(CurrentAnimation, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
-	m_color = glm::vec3(1, 1, 1);
 }
 
 void SpikeEnemy::TakeDamage()
@@ -111,7 +134,8 @@ void SpikeEnemy::OnContact(
 	{
 		if (external->report->IsPlayer())
 		{
-			m_color = glm::vec3(1, 0.5, 0.5);
+			SetState(ActorState::AGGRO);
+			ObjectivePosition = external->report->GetPosition();
 		}
 	}
 
@@ -153,6 +177,11 @@ void SpikeEnemy::SetWanderMovement()
 		}
 		// 80% maintain direction
 	}
+}
+
+void SpikeEnemy::SetAggroMovement()
+{
+	Direction = glm::normalize(ObjectivePosition - m_position);
 }
 
 void SpikeEnemy::SetSpeed()

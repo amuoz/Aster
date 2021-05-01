@@ -65,6 +65,22 @@ void Player::TakeDamage()
 	SetActive(false);
 }
 
+void Player::Move(float deltaTime, glm::vec3 direction)
+{
+	if (direction.x > 0)
+		SetState(ActorState::MOVEMENT_RIGHT);
+	else if (direction.x < 0)
+		SetState(ActorState::MOVEMENT_LEFT);
+	else if (direction.y > 0)
+		SetState(ActorState::MOVEMENT_DOWN);
+	else if (direction.y < 0)
+		SetState(ActorState::MOVEMENT_UP);
+	else
+		SetState(ActorState::IDLE);
+
+	Actor::Move(deltaTime, direction);
+}
+
 void Player::Idle()
 {
 	SetState(ActorState::IDLE);

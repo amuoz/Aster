@@ -17,6 +17,7 @@ public:
 	void Update(float, glm::vec4) override;
 	void Draw(SpriteRenderer &renderer, double deltaTime) override;
 	void TakeDamage() override;
+	void Move(float deltaTime, glm::vec3 direction) override;
 	void OnContact(
 			std::shared_ptr<Physics::PhysicActor> external,
 			std::shared_ptr<Physics::PhysicActor> internal) override;

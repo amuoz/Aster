@@ -170,11 +170,18 @@ void Physics::DoCollisions(std::shared_ptr<PhysicActor> geom)
 				if (geom->report)
 				{
 					geom->report->OnContact(dynamicActor, geom);
+					geom->Collisions.insert(dynamicActor);
 				}
 				if (dynamicActor->report)
 				{
 					dynamicActor->report->OnContact(geom, dynamicActor);
+					dynamicActor->Collisions.insert(geom);
 				}
+			}
+			else
+			{
+				geom->Collisions.erase(dynamicActor);
+				dynamicActor->Collisions.erase(geom);
 			}
 		}
 	}

@@ -57,17 +57,6 @@ void Actor::Draw(SpriteRenderer &renderer, double)
 
 void Actor::Move(float deltaTime, glm::vec3 direction)
 {
-	if (direction.x > 0)
-		SetState(ActorState::MOVEMENT_RIGHT);
-	else if (direction.x < 0)
-		SetState(ActorState::MOVEMENT_LEFT);
-	else if (direction.y > 0)
-		SetState(ActorState::MOVEMENT_DOWN);
-	else if (direction.y < 0)
-		SetState(ActorState::MOVEMENT_UP);
-	else
-		SetState(ActorState::IDLE);
-
 	float velocity = Speed * deltaTime;
 	SetPosition(velocity * direction);
 }

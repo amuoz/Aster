@@ -25,6 +25,7 @@ enum class ActorState {
 		ATTACK_RIGHT,
 		ATTACK_DOWN,
 		ATTACK_LEFT,
+    AGGRO
 };
 
 struct Rectangle

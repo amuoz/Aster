@@ -2,7 +2,7 @@
 #define PHYSICS_H
 
 #include <cmath>
-#include <list>
+#include <set>
 #include <vector>
 #include <utility>
 
@@ -37,6 +37,8 @@ public:
 		float radius = 0.0f;
 		bool bounce = false;
 		bool justReport = false;
+		
+		std::set<std::shared_ptr<PhysicActor> > Collisions;
 	};
 
 	Physics(const glm::vec3 &gravity);
