@@ -52,6 +52,7 @@ SpikeEnemy::SpikeEnemy(glm::vec3 pos, glm::vec3 size, Sprite *sprite, float fram
 
 SpikeEnemy::~SpikeEnemy()
 {
+	AggroCollider->report = nullptr;
 }
 
 void SpikeEnemy::Render(Shader)
@@ -66,8 +67,17 @@ void SpikeEnemy::Update(float deltaTime, glm::vec4 attackHitbox)
 	}
 
 	if (AggroCollider->Collisions.size() == 0)
-	{
 		SetState(ActorState::IDLE);
+	else
+	{
+		auto it = std::find_if(
+			AggroCollider->Collisions.begin(),
+			AggroCollider->Collisions.end(),
+			[](const auto &dynamicActor) {
+				return dynamicActor->report->IsPlayer();
+			});
+		if (it == AggroCollider->Collisions.end())
+			SetState(ActorState::IDLE);
 	}
 
 	AnimationProgress += deltaTime;
@@ -96,8 +106,6 @@ void SpikeEnemy::Update(float deltaTime, glm::vec4 attackHitbox)
 
 void SpikeEnemy::Draw(SpriteRenderer &renderer, double deltatime)
 {
-	cout << ((State == ActorState::IDLE) ? "IDLE" : "AGGRO") << endl;
-	
 	switch (State)
 	{
 	case ActorState::IDLE:
@@ -112,8 +120,14 @@ void SpikeEnemy::Draw(SpriteRenderer &renderer, double deltatime)
 		break;
 	}
 
-	cout << ((m_color.y == 0.5) ? "red" : "white") << endl;
-	m_sprite->Draw(CurrentAnimation, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
+	m_sprite->Draw(
+			CurrentAnimation,
+			renderer,
+			deltatime,
+			m_position,
+			m_scale,
+			m_rotAngle,
+			m_color);
 }
 
 void SpikeEnemy::TakeDamage()

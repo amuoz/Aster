@@ -42,6 +42,7 @@ Actor::Actor(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, glm
 
 Actor::~Actor()
 {
+	ActorCollider->report = nullptr;
 	g_PhysicsPtr->DeleteDynamicActor(std::move(ActorCollider));
 	delete m_mesh;
 }
