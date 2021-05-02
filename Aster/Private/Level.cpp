@@ -1,9 +1,13 @@
 #include "Level.h"
 
 #include <glm/glm.hpp>
+#include <nlohmann/json.hpp>
+#include <fstream>
+#include <iostream>
 #include <vector>
 #include <list>
 #include <utility>
+#include <string>
 
 #include "Config.h"
 #include "Block.h"
@@ -27,8 +31,28 @@ void Level::Load(std::string file, unsigned int levelWidth, unsigned int levelHe
     // clear old data
     Actors.clear();
 
+    std::ifstream in(file);
+    nlohmann::json jsonFile = nlohmann::json::parse(in);
+
     std::vector<std::vector<int> > tileData;
-    ReadFileLines(file, tileData);
+
+    auto& tiles = jsonFile["tiles"];
+    unsigned int i = 0;
+    for (std::string line : tiles)
+    {
+        std::vector<int> lineNumbers;
+
+        size_t last = 0;
+        size_t next = 0;
+        while ((next = line.find(" ", last)) != string::npos)
+        {
+            lineNumbers.push_back(stoi(line.substr(last, next-last)));
+            last = next + 1;
+        }
+        lineNumbers.push_back(stoi(line.substr(last)));
+        tileData.push_back(lineNumbers);
+        i = i + 1;
+    }
 
     if (tileData.size() > 0)
     {

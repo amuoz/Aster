@@ -18,6 +18,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <utility>
 
 // externs
 Physics *g_PhysicsPtr;
@@ -93,9 +94,8 @@ void Game::InitGame()
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/block_solid.png", false, "block_solid");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/grass-background.png", true, "background");
 
-	// Load levels
-	CurrentLevel = std::make_unique<Level>();
-	CurrentLevel->Load(PROJECT_SOURCE_DIR "/Aster/Levels/one.lvl", Config::Get()->GetValue(SRC_WIDTH), Config::Get()->GetValue(SRC_HEIGHT));
+	// level
+	CurrentLevel = ResourceManager::GetInstance()->LoadLevel(PROJECT_SOURCE_DIR "/Aster/Levels/one.json", "one");
 
 	// Player
 	InitPlayer();

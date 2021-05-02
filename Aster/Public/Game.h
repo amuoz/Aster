@@ -76,7 +76,7 @@ private:
 	// scene actors
 	std::list<Actor*> m_scene;
 
-	std::unique_ptr<Level> CurrentLevel;
+	std::shared_ptr<Level> CurrentLevel;
 	Player* Character;
 
 	GameState State;
