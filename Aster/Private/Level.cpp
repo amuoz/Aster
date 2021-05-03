@@ -11,8 +11,6 @@
 
 #include "Config.h"
 #include "Block.h"
-#include "ResourceManager.h"
-#include "Files.h"
 #include "Sprite.h"
 #include "SpikeEnemy.h"
 
