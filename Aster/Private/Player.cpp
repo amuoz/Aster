@@ -32,12 +32,10 @@ void Player::Draw(SpriteRenderer &renderer, double deltatime)
 	switch (ActivePowerUp)
 	{
 	case PowerUpType::SWORD:
-		std::cout << "SWORD" << endl;
 		CurrentAnimation = GetSwordAnimation();
 		break;
 	
 	default:
-		std::cout << "NONE" << endl;
 		CurrentAnimation = GetDefaultAnimation();
 		break;
 	}

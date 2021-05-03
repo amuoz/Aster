@@ -55,10 +55,10 @@ Player *Game::CreatePlayer(glm::vec3 playerPosition)
 	playerSprite->AddAnimation("attack_right", AnimationType::ATTACK_RIGHT, 0.03f);
 	playerSprite->AddAnimation("attack_down", AnimationType::ATTACK_DOWN, 0.03f);
 	playerSprite->AddAnimation("attack_left", AnimationType::ATTACK_LEFT, 0.03f);
-	playerSprite->AddAnimation("attack_up", AnimationType::SWORD_UP, 0.03f);
-	playerSprite->AddAnimation("attack_right", AnimationType::SWORD_RIGHT, 0.03f);
-	playerSprite->AddAnimation("attack_down", AnimationType::SWORD_DOWN, 0.03f);
-	playerSprite->AddAnimation("attack_left", AnimationType::SWORD_LEFT, 0.03f);
+	playerSprite->AddAnimation("sword_up", AnimationType::SWORD_UP, 0.03f);
+	playerSprite->AddAnimation("sword_right", AnimationType::SWORD_RIGHT, 0.03f);
+	playerSprite->AddAnimation("sword_down", AnimationType::SWORD_DOWN, 0.03f);
+	playerSprite->AddAnimation("sword_left", AnimationType::SWORD_LEFT, 0.03f);
 
 	Player *player = new Player(playerPosition, charScale, playerSprite);
 
