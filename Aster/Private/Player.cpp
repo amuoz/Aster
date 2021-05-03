@@ -29,35 +29,82 @@ void Player::Update(float, glm::vec4)
 
 void Player::Draw(SpriteRenderer &renderer, double deltatime)
 {
-	switch (State)
+	switch (ActivePowerUp)
 	{
-	case ActorState::IDLE:
-		CurrentAnimation = AnimationType::IDLE;
+	case PowerUpType::SWORD:
+		std::cout << "SWORD" << endl;
+		CurrentAnimation = GetSwordAnimation();
 		break;
-	case ActorState::MOVEMENT_RIGHT:
-	case ActorState::MOVEMENT_LEFT:
-	case ActorState::MOVEMENT_DOWN:
-	case ActorState::MOVEMENT_UP:
-		CurrentAnimation = AnimationType::WALK;
-		break;
-	case ActorState::ATTACK_RIGHT:
-		CurrentAnimation = AnimationType::ATTACK_RIGHT;
-		break;
-	case ActorState::ATTACK_LEFT:
-		CurrentAnimation = AnimationType::ATTACK_LEFT;
-		break;
-	case ActorState::ATTACK_DOWN:
-		CurrentAnimation = AnimationType::ATTACK_DOWN;
-		break;
-	case ActorState::ATTACK_UP:
-		CurrentAnimation = AnimationType::ATTACK_UP;
-		break;
-
+	
 	default:
+		std::cout << "NONE" << endl;
+		CurrentAnimation = GetDefaultAnimation();
 		break;
 	}
 
 	m_sprite->Draw(CurrentAnimation, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
+}
+
+AnimationType Player::GetDefaultAnimation()
+{
+	switch (State)
+	{
+	case ActorState::IDLE:
+	default:
+		return AnimationType::IDLE;
+		break;
+
+	case ActorState::MOVEMENT_RIGHT:
+	case ActorState::MOVEMENT_LEFT:
+	case ActorState::MOVEMENT_DOWN:
+	case ActorState::MOVEMENT_UP:
+		return AnimationType::WALK;
+		break;
+
+	case ActorState::ATTACK_RIGHT:
+		return AnimationType::ATTACK_RIGHT;
+		break;
+	case ActorState::ATTACK_LEFT:
+		return AnimationType::ATTACK_LEFT;
+		break;
+	case ActorState::ATTACK_DOWN:
+		return AnimationType::ATTACK_DOWN;
+		break;
+	case ActorState::ATTACK_UP:
+		return AnimationType::ATTACK_UP;
+		break;
+	}
+}
+
+AnimationType Player::GetSwordAnimation()
+{
+	switch (State)
+	{
+	case ActorState::IDLE:
+	default:
+		return AnimationType::IDLE;
+		break;
+
+	case ActorState::MOVEMENT_RIGHT:
+	case ActorState::MOVEMENT_LEFT:
+	case ActorState::MOVEMENT_DOWN:
+	case ActorState::MOVEMENT_UP:
+		return AnimationType::WALK;
+		break;
+
+	case ActorState::ATTACK_RIGHT:
+		return AnimationType::SWORD_RIGHT;
+		break;
+	case ActorState::ATTACK_LEFT:
+		return AnimationType::SWORD_LEFT;
+		break;
+	case ActorState::ATTACK_DOWN:
+		return AnimationType::SWORD_DOWN;
+		break;
+	case ActorState::ATTACK_UP:
+		return AnimationType::SWORD_UP;
+		break;
+	}
 }
 
 void Player::TakeDamage()
@@ -149,4 +196,9 @@ glm::vec4 Player::GetAttackHitbox()
 		spriteHitbox.z,
 		spriteHitbox.w
 	);
+}
+
+void Player::PowerUp(PowerUpType powerUp)
+{
+	ActivePowerUp = powerUp;
 }

@@ -13,6 +13,10 @@ enum class AnimationType {
     ATTACK_RIGHT,
     ATTACK_DOWN,
     ATTACK_LEFT,
+    SWORD_UP,
+    SWORD_RIGHT,
+    SWORD_DOWN,
+    SWORD_LEFT,
 };
 
 enum class ActorState {
@@ -26,6 +30,11 @@ enum class ActorState {
 		ATTACK_DOWN,
 		ATTACK_LEFT,
     AGGRO
+};
+
+enum class PowerUpType {
+  NONE,
+  SWORD
 };
 
 struct Rectangle

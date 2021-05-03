@@ -6,6 +6,7 @@
 #include "Sprite.h"
 
 enum class AnimationType;
+enum class PowerUp;
 
 class Player : public Actor
 {
@@ -26,7 +27,12 @@ public:
 	void Idle();
 	void Attack();
 	glm::vec4 GetAttackHitbox();
+	void PowerUp(PowerUpType powerUp);
 
 private:
 	AnimationType CurrentAnimation;
+	PowerUpType ActivePowerUp = PowerUpType::NONE;
+
+	AnimationType GetDefaultAnimation();
+	AnimationType GetSwordAnimation();
 };

@@ -74,7 +74,7 @@ void SpikeEnemy::Update(float deltaTime, glm::vec4 attackHitbox)
 			AggroCollider->Collisions.begin(),
 			AggroCollider->Collisions.end(),
 			[](const auto &dynamicActor) {
-				return dynamicActor->report->IsPlayer();
+				return dynamicActor->report && dynamicActor->report->IsPlayer();
 			});
 		if (it == AggroCollider->Collisions.end())
 			SetState(ActorState::IDLE);

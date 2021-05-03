@@ -13,15 +13,14 @@
 #include "Block.h"
 #include "Sprite.h"
 #include "SpikeEnemy.h"
+#include "SwordPowerUp.h"
 
 Level::Level()
 {
-
 }
 
 Level::~Level()
 {
-
 }
 
 void Level::Load(std::string file, unsigned int levelWidth, unsigned int levelHeight)
@@ -36,13 +35,15 @@ void Level::Load(std::string file, unsigned int levelWidth, unsigned int levelHe
 
     if (Tiles.size() > 0)
     {
-        Init(levelWidth, levelHeight);
+        InitBlocks(levelWidth, levelHeight);
+        InitEnemies();
+        InitPowerUps();
     }
 }
 
 void Level::LoadTiles()
 {
-    auto& tiles = LevelInfo["tiles"];
+    auto &tiles = LevelInfo["tiles"];
     unsigned int i = 0;
     for (std::string line : tiles)
     {
@@ -52,7 +53,7 @@ void Level::LoadTiles()
         size_t next = 0;
         while ((next = line.find(" ", last)) != string::npos)
         {
-            lineNumbers.push_back(stoi(line.substr(last, next-last)));
+            lineNumbers.push_back(stoi(line.substr(last, next - last)));
             last = next + 1;
         }
         lineNumbers.push_back(stoi(line.substr(last)));
@@ -63,7 +64,7 @@ void Level::LoadTiles()
 
 void Level::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 {
-    for (auto& actor : Actors)
+    for (auto &actor : Actors)
     {
         if (!actor->IsDestroyed)
         {
@@ -72,9 +73,9 @@ void Level::Update(float deltaTime, glm::vec4 playerAttackHitbox)
     }
 }
 
-void Level::Draw(SpriteRenderer& renderer, double deltatime)
+void Level::Draw(SpriteRenderer &renderer, double deltatime)
 {
-    for (auto& actor : Actors)
+    for (auto &actor : Actors)
     {
         if (actor->IsDestroyed)
         {
@@ -85,12 +86,6 @@ void Level::Draw(SpriteRenderer& renderer, double deltatime)
             actor->Draw(renderer, deltatime);
         }
     }
-}
-
-void Level::Init(unsigned int levelWidth, unsigned int levelHeight)
-{
-    InitBlocks(levelWidth, levelHeight);
-    InitEnemies();
 }
 
 void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
@@ -109,14 +104,13 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
             {
                 glm::vec3 pos(unit_width * x, unit_height * y, 0.0f);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
-                Sprite* blockSprite = new Sprite("block_solid");
-                std::unique_ptr<Actor> blockActor = std::make_unique<Block> (
-                    pos, size, blockSprite, glm::vec3(0.8f, 0.8f, 0.7f)
-                );
+                Sprite *blockSprite = new Sprite("block_solid");
+                std::unique_ptr<Actor> blockActor = std::make_unique<Block>(
+                    pos, size, blockSprite, glm::vec3(0.8f, 0.8f, 0.7f));
                 blockActor->IsDestroyable = true;
                 Actors.push_back(std::move(blockActor));
             }
-            else if (Tiles[y][x] > 1)	// non-destroyable; now determine its color based on level data
+            else if (Tiles[y][x] > 1) // non-destroyable; now determine its color based on level data
             {
                 glm::vec3 color = glm::vec3(1.0f); // original: white
                 if (Tiles[y][x] == 2)
@@ -130,10 +124,9 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
 
                 glm::vec3 pos(unit_width * x, unit_height * y, 0.0f);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
-                Sprite* blockSprite = new Sprite("block");
-                std::unique_ptr<Actor> blockActor = std::make_unique<Block> (
-                    pos, size, blockSprite, color
-                );
+                Sprite *blockSprite = new Sprite("block");
+                std::unique_ptr<Actor> blockActor = std::make_unique<Block>(
+                    pos, size, blockSprite, color);
                 Actors.push_back(std::move(blockActor));
             }
         }
@@ -160,25 +153,58 @@ void Level::InitEnemies()
     }
 }
 
-void Level::InitSpike(nlohmann::json  &enemyInfo)
+void Level::InitSpike(nlohmann::json &enemyInfo)
 {
     const glm::vec3 ENEMY_SIZE(16.0f, 9.0f, 0.0f);
 
-    auto enemyPosition = enemyInfo["position"];
-    const glm::vec3 enemyPos = glm::vec3(enemyPosition[0], enemyPosition[1], 0.0f);
+    auto position = enemyInfo["position"];
+    const glm::vec3 pos = glm::vec3(position[0], position[1], 0.0f);
 
     glm::vec3 charScale(1.0f, 1.0f, 1.0f);
     charScale.x = Config::Get()->GetValue(SRC_WIDTH) / ENEMY_SIZE.x;
     charScale.y = Config::Get()->GetValue(SRC_HEIGHT) / ENEMY_SIZE.y;
 
-    Sprite* spikeEnemySprite = new Sprite("spike_enemy");
+    Sprite *spikeEnemySprite = new Sprite("spike_enemy");
     float framePeriod = 0.06f;
     spikeEnemySprite->AddAnimation("spike_enemy_idle", AnimationType::IDLE, framePeriod);
 
-    std::unique_ptr<Actor> enemy = std::make_unique<SpikeEnemy> (
-        enemyPos, charScale, spikeEnemySprite, framePeriod
-    );
+    std::unique_ptr<Actor> enemy = std::make_unique<SpikeEnemy>(
+        pos, charScale, spikeEnemySprite, framePeriod);
+
     Actors.push_back(std::move(enemy));
+}
+
+void Level::InitPowerUps()
+{
+    auto powerUps = LevelInfo["powerUps"];
+
+    for (auto &powerUp : powerUps)
+    {
+        std::string powerUpType = powerUp["type"].get<std::string>();
+        if (powerUpType == "Sword")
+        {
+            InitSword(powerUp);
+        }
+    }
+}
+
+void Level::InitSword(nlohmann::json &powerUpInfo)
+{
+    const glm::vec3 POWER_UP_SIZE(16.0f, 9.0f, 0.0f);
+    glm::vec3 size(1.0f, 1.0f, 1.0f);
+    size.x = Config::Get()->GetValue(SRC_WIDTH) / POWER_UP_SIZE.x;
+    size.y = Config::Get()->GetValue(SRC_HEIGHT) / POWER_UP_SIZE.y;
+
+    glm::vec3 color = glm::vec3(0, 0, 1);
+
+    auto position = powerUpInfo["position"];
+    glm::vec3 pos(position[0], position[1], 0.0f);
+
+    Sprite *blockSprite = new Sprite("block");
+    std::unique_ptr<Actor> swordPowerUp = std::make_unique<SwordPowerUp>(
+        pos, size, blockSprite, color);
+
+    Actors.push_back(std::move(swordPowerUp));
 }
 
 void Level::RemoveFromLevel(std::unique_ptr<Actor> &actor)
@@ -187,7 +213,7 @@ void Level::RemoveFromLevel(std::unique_ptr<Actor> &actor)
     auto end = Actors.end();
     while (i != end)
     {
-        if (actor == *i) 
+        if (actor == *i)
             i = Actors.erase(i);
         else
             ++i;

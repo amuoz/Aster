@@ -38,9 +38,10 @@ private:
     std::list<std::unique_ptr<Actor> > Actors;
 
     void LoadTiles();
-    void Init(unsigned int levelWidth, unsigned int levelHeight);
     void InitBlocks(unsigned int levelWidth, unsigned int levelHeight);
     void InitEnemies();
     void InitSpike(nlohmann::json  &enemyInfo);
+    void InitPowerUps();
+    void InitSword(nlohmann::json &powerUpInfo);
     void RemoveFromLevel(std::unique_ptr<Actor> &actor);
 };
