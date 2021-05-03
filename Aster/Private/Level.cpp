@@ -32,11 +32,19 @@ void Level::Load(std::string file, unsigned int levelWidth, unsigned int levelHe
     Actors.clear();
 
     std::ifstream in(file);
-    nlohmann::json jsonFile = nlohmann::json::parse(in);
+    LevelInfo = nlohmann::json::parse(in);
 
-    std::vector<std::vector<int> > tileData;
+    LoadTiles();
 
-    auto& tiles = jsonFile["tiles"];
+    if (Tiles.size() > 0)
+    {
+        Init(levelWidth, levelHeight);
+    }
+}
+
+void Level::LoadTiles()
+{
+    auto& tiles = LevelInfo["tiles"];
     unsigned int i = 0;
     for (std::string line : tiles)
     {
@@ -50,13 +58,8 @@ void Level::Load(std::string file, unsigned int levelWidth, unsigned int levelHe
             last = next + 1;
         }
         lineNumbers.push_back(stoi(line.substr(last)));
-        tileData.push_back(lineNumbers);
+        Tiles.push_back(lineNumbers);
         i = i + 1;
-    }
-
-    if (tileData.size() > 0)
-    {
-        Init(tileData, levelWidth, levelHeight);
     }
 }
 
@@ -86,21 +89,25 @@ void Level::Draw(SpriteRenderer& renderer, double deltatime)
     }
 }
 
-void Level::Init(std::vector<std::vector<int> >& tileData, unsigned int levelWidth, unsigned int levelHeight)
+void Level::Init(unsigned int levelWidth, unsigned int levelHeight)
 {
-    // calculate dimensions
-    int height = static_cast<int>(tileData.size());
-    int width = static_cast<int>(tileData[0].size()); // note we can index vector at [0] since this function is only called if height > 0
+    InitBlocks(levelWidth, levelHeight);
+    InitEnemies();
+}
+
+void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
+{
+    int height = static_cast<int>(Tiles.size());
+    int width = static_cast<int>(Tiles[0].size()); // note we can index vector at [0] since this function is only called if height > 0
     float unit_width = levelWidth / static_cast<float>(width);
     float unit_height = levelHeight / static_cast<float>(height);
 
-    // initialize level tiles based on tileData
     for (unsigned int y = 0; y < height; ++y)
     {
         for (unsigned int x = 0; x < width; ++x)
         {
             // check block type from level data (2D level array)
-            if (tileData[y][x] == 1) // destroyable
+            if (Tiles[y][x] == 1) // destroyable
             {
                 glm::vec3 pos(unit_width * x, unit_height * y, 0.0f);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
@@ -111,16 +118,16 @@ void Level::Init(std::vector<std::vector<int> >& tileData, unsigned int levelWid
                 blockActor->IsDestroyable = true;
                 Actors.push_back(std::move(blockActor));
             }
-            else if (tileData[y][x] > 1)	// non-destroyable; now determine its color based on level data
+            else if (Tiles[y][x] > 1)	// non-destroyable; now determine its color based on level data
             {
                 glm::vec3 color = glm::vec3(1.0f); // original: white
-                if (tileData[y][x] == 2)
+                if (Tiles[y][x] == 2)
                     color = glm::vec3(0.2f, 0.6f, 1.0f);
-                else if (tileData[y][x] == 3)
+                else if (Tiles[y][x] == 3)
                     color = glm::vec3(0.0f, 0.7f, 0.0f);
-                else if (tileData[y][x] == 4)
+                else if (Tiles[y][x] == 4)
                     color = glm::vec3(0.8f, 0.8f, 0.4f);
-                else if (tileData[y][x] == 5)
+                else if (Tiles[y][x] == 5)
                     color = glm::vec3(1.0f, 0.5f, 0.0f);
 
                 glm::vec3 pos(unit_width * x, unit_height * y, 0.0f);
@@ -133,14 +140,35 @@ void Level::Init(std::vector<std::vector<int> >& tileData, unsigned int levelWid
             }
         }
     }
+}
 
-    InitEnemies();
+glm::vec3 Level::GetPlayerPosition()
+{
+    auto playerPosition = LevelInfo["player"]["position"];
+    return glm::vec3(playerPosition[0], playerPosition[1], 0);
 }
 
 void Level::InitEnemies()
 {
+    auto enemies = LevelInfo["enemies"];
+
+    for (auto &enemy : enemies)
+    {
+        std::string enemyType = enemy["type"].get<std::string>();
+        if (enemyType == "Spike")
+        {
+            InitSpike(enemy);
+        }
+    }
+}
+
+void Level::InitSpike(nlohmann::json  &enemyInfo)
+{
     const glm::vec3 ENEMY_SIZE(16.0f, 9.0f, 0.0f);
-    const glm::vec3 enemyPos = glm::vec3(700.0f, 200.0f, 0.0f);
+
+    auto enemyPosition = enemyInfo["position"];
+    const glm::vec3 enemyPos = glm::vec3(enemyPosition[0], enemyPosition[1], 0.0f);
+
     glm::vec3 charScale(1.0f, 1.0f, 1.0f);
     charScale.x = Config::Get()->GetValue(SRC_WIDTH) / ENEMY_SIZE.x;
     charScale.y = Config::Get()->GetValue(SRC_HEIGHT) / ENEMY_SIZE.y;

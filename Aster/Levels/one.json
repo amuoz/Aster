@@ -21,6 +21,5 @@
   "powerUps": [{
     "type": "Sword",
     "position": [300, 500]
-  }],
-  "test": "test1"
+  }]
 }

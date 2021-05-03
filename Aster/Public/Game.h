@@ -51,37 +51,36 @@ public:
 	bool KeysProcessed[1024];
 
 private:
-	
-	void InitPlayer();
+	Player *CreatePlayer(glm::vec3 playerPosition);
 
 	void ProcessInput(float deltaTime);
-	void Update(float deltaTime);	// logic and physics
+	void Update(float deltaTime); // logic and physics
 	void Render(float deltaTime);
-	
+
 	void RenderUI();
 
 	void Restart();
 
-	void DebugAttackHitbox(SpriteRenderer& Renderer);
+	void DebugAttackHitbox(SpriteRenderer &Renderer);
 
-	GLFWwindow* m_window;
-	
-	Camera* m_camera;
-	AsteroidMgr* m_AsteroidMgr;
-	TextRenderer* m_text;
-	
+	GLFWwindow *m_window;
+
+	Camera *m_camera;
+	AsteroidMgr *m_AsteroidMgr;
+	TextRenderer *m_text;
+
 	float m_gameTime = 0.0f;
 	float m_currentBulletFreq;
 
 	// scene actors
-	std::list<Actor*> m_scene;
+	std::list<Actor *> m_scene;
 
 	std::shared_ptr<Level> CurrentLevel;
-	Player* Character;
+	Player *Character;
 
 	GameState State;
 
 	int m_score;
 
-	SpriteRenderer* Renderer;
+	SpriteRenderer *Renderer;
 };

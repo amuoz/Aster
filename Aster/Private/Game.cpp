@@ -40,10 +40,9 @@ Game::~Game()
 	delete m_camera;
 }
 
-void Game::InitPlayer()
+Player *Game::CreatePlayer(glm::vec3 playerPosition)
 {
 	const glm::vec3 PLAYER_SIZE(16.0f, 9.0f, 0.0f);
-	const glm::vec3 playerPos = glm::vec3(200.0f, 500.0f, 0.0f);
 	glm::vec3 charScale(1.0f, 1.0f, 1.0f);
 	charScale.x = Config::Get()->GetValue(SRC_WIDTH) / PLAYER_SIZE.x;
 	charScale.y = Config::Get()->GetValue(SRC_HEIGHT) / PLAYER_SIZE.y;
@@ -57,9 +56,11 @@ void Game::InitPlayer()
 	playerSprite->AddAnimation("attack_down", AnimationType::ATTACK_DOWN, 0.03f);
 	playerSprite->AddAnimation("attack_left", AnimationType::ATTACK_LEFT, 0.03f);
 
-	Character = new Player(playerPos, charScale, playerSprite);
+	Player *player = new Player(playerPosition, charScale, playerSprite);
 
-	m_scene.push_back(Character);
+	m_scene.push_back(player);
+
+	return player;
 }
 
 void Game::InitGame()
@@ -96,9 +97,10 @@ void Game::InitGame()
 
 	// level
 	CurrentLevel = ResourceManager::GetInstance()->LoadLevel(PROJECT_SOURCE_DIR "/Aster/Levels/one.json", "one");
+	glm::vec3 playerPosition = CurrentLevel->GetPlayerPosition();
 
 	// Player
-	InitPlayer();
+	Character = CreatePlayer(playerPosition);
 }
 
 void Game::Execute(float deltaTime)

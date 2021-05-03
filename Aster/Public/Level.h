@@ -2,8 +2,10 @@
 
 #include <vector>
 #include <list>
+#include <vector>
 #include <utility>
 #include <glm/glm.hpp>
+#include <nlohmann/json.hpp>
 
 class Actor;
 class SpriteRenderer;
@@ -26,12 +28,19 @@ public:
     // render level
     void Draw(SpriteRenderer &renderer, double deltatime);
 
+    glm::vec3 GetPlayerPosition();
+
 private:
-    // level state
+    nlohmann::json LevelInfo;
+    glm::vec3 PlayerPosition;
+    std::vector<std::vector<int> > Tiles;
+
     std::list<std::unique_ptr<Actor> > Actors;
 
-    // initialize level from tile data
-    void Init(std::vector<std::vector<int> > &tileData, unsigned int levelWidth, unsigned int levelHeight);
+    void LoadTiles();
+    void Init(unsigned int levelWidth, unsigned int levelHeight);
+    void InitBlocks(unsigned int levelWidth, unsigned int levelHeight);
     void InitEnemies();
+    void InitSpike(nlohmann::json  &enemyInfo);
     void RemoveFromLevel(std::unique_ptr<Actor> &actor);
 };
