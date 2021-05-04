@@ -190,17 +190,17 @@ void Level::InitPowerUps()
 
 void Level::InitSword(nlohmann::json &powerUpInfo)
 {
-    const glm::vec3 POWER_UP_SIZE(16.0f, 9.0f, 0.0f);
+    const glm::vec3 POWER_UP_SIZE(22.0f, 15.0f, 0.0f);
     glm::vec3 size(1.0f, 1.0f, 1.0f);
     size.x = Config::Get()->GetValue(SRC_WIDTH) / POWER_UP_SIZE.x;
     size.y = Config::Get()->GetValue(SRC_HEIGHT) / POWER_UP_SIZE.y;
 
-    glm::vec3 color = glm::vec3(0, 0, 1);
+    glm::vec3 color = glm::vec3(1, 1, 1);
 
     auto position = powerUpInfo["position"];
     glm::vec3 pos(position[0], position[1], 0.0f);
 
-    Sprite *blockSprite = new Sprite("block");
+    Sprite *blockSprite = new Sprite("sword_powerup");
     std::unique_ptr<Actor> swordPowerUp = std::make_unique<SwordPowerUp>(
         pos, size, blockSprite, color);
 
