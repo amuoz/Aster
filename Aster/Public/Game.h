@@ -51,10 +51,8 @@ private:
 	std::shared_ptr<Player> CreatePlayer(glm::vec3 playerPosition);
 
 	void ProcessInput(float deltaTime);
-	void Update(float deltaTime); // logic and physics
+	void Update(float deltaTime);
 	void Render(float deltaTime);
-	void RenderUI();
-	// void RemoveFromLevel(std::shared_ptr<Actor> actor);
 
 	void Restart();
 
@@ -62,7 +60,6 @@ private:
 
 	Camera *m_camera;
 	AsteroidMgr *m_AsteroidMgr;
-	TextRenderer *m_text;
 
 	float m_gameTime = 0.0f;
 
@@ -72,4 +69,5 @@ private:
 	GameState State;
 
 	SpriteRenderer *Renderer;
+	TextRenderer *Text;
 };
