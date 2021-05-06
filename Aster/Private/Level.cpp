@@ -226,13 +226,8 @@ void Level::InitPowerUps()
 
 void Level::InitSword(nlohmann::json &powerUpInfo)
 {
-    const glm::vec3 POWER_UP_SIZE(22.0f, 15.0f, 0.0f);
-    glm::vec3 size(1.0f, 1.0f, 1.0f);
-    size.x = Config::Get()->GetValue(SRC_WIDTH) / POWER_UP_SIZE.x;
-    size.y = Config::Get()->GetValue(SRC_HEIGHT) / POWER_UP_SIZE.y;
-
+    const glm::vec3 size(50, 50, 0);
     glm::vec3 color = glm::vec3(1, 1, 1);
-
     auto position = powerUpInfo["position"];
     glm::vec3 pos(position[0], position[1], 0.0f);
 

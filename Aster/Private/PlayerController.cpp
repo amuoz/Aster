@@ -10,6 +10,8 @@
 #include "Config.h"
 #include "SpriteRenderer.h"
 #include "TextRenderer.h"
+#include "Texture2D.h"
+#include "ResourceManager.h"
 
 bool keys[1024];
 bool keysProcessed[1024];
@@ -67,8 +69,20 @@ void PlayerController::ProcessInput(float deltaTime)
 	}
 }
 
-void PlayerController::DrawUI()
+void PlayerController::DrawUI(glm::vec3 position)
 {
+	float screenWidth = Config::Get()->GetValue(SRC_WIDTH);
+	float screenHeight = Config::Get()->GetValue(SRC_HEIGHT);
+	glm::vec2 spriteSize = glm::vec2(50, 50);
+	glm::vec3 spriteColor = glm::vec3(1);
+
+	glm::vec3 spearPosition = glm::vec3(position.x + 10, position.y + 10, position.z);
+	Texture2D spear = ResourceManager::GetInstance()->GetTexture("spear_powerup");
+	Renderer->DrawTexture(spear, spearPosition, spriteSize, 0, spriteColor);
+
+	glm::vec3 swordPosition = glm::vec3(position.x + 70, position.y + 10, position.z);
+	Texture2D sword = ResourceManager::GetInstance()->GetTexture("sword_powerup");
+	Renderer->DrawTexture(sword, swordPosition, spriteSize, 0, spriteColor);
 }
 
 void PlayerController::DrawPlayerDeath()

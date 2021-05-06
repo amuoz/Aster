@@ -58,7 +58,7 @@ private:
 
 	void DebugAttackHitbox(SpriteRenderer &Renderer);
 
-	Camera *m_camera;
+	Camera *PlayerCamera;
 	AsteroidMgr *m_AsteroidMgr;
 
 	float m_gameTime = 0.0f;

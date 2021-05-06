@@ -16,7 +16,7 @@ public:
 	~PlayerController();
 
 	void ProcessInput(float deltaTime);
-	void DrawUI();
+	void DrawUI(glm::vec3 position);
 	void DrawPlayerDeath();
 	void DrawObjectives();
 	glm::vec4 GetAttackHitbox();

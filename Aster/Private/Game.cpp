@@ -38,7 +38,7 @@ Game::~Game()
 {
 	glfwTerminate();
 
-	delete m_camera;
+	delete PlayerCamera;
 }
 
 std::shared_ptr<Player> Game::CreatePlayer(glm::vec3 playerPosition)
@@ -70,7 +70,7 @@ std::shared_ptr<Player> Game::CreatePlayer(glm::vec3 playerPosition)
 void Game::InitGame(GLFWwindow *window)
 {
 	g_PhysicsPtr = new Physics(glm::vec3(0.0f, 0.0f, 0.0f));
-	m_camera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f));
+	PlayerCamera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f));
 
 	// text renderer with freetype
 	Text = new TextRenderer(Config::Get()->GetValue(SRC_WIDTH),
@@ -94,6 +94,7 @@ void Game::InitGame(GLFWwindow *window)
 	// load textures
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/player.png", true, "player");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/spike_enemy.png", true, "spike_enemy");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/bone.png", true, "spear_powerup");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/anvil.png", true, "sword_powerup");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/block.png", false, "block");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/block_solid.png", false, "block_solid");
@@ -136,7 +137,7 @@ void Game::Update(float deltaTime)
 		glm::vec3 cameraPos(CharacterController->GetPosition().x - Config::Get()->GetValue(SRC_WIDTH) / 2,
 												CharacterController->GetPosition().y - Config::Get()->GetValue(SRC_HEIGHT) / 2,
 												0.0f);
-		m_camera->SetPosition(cameraPos);
+		PlayerCamera->SetPosition(cameraPos);
 
 		// Physics simulation
 		g_PhysicsPtr->Update(deltaTime);
@@ -151,7 +152,7 @@ void Game::Render(float deltaTime)
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Set camera view matrix
-	Renderer->SetViewMatrix(m_camera->GetViewMatrix());
+	Renderer->SetViewMatrix(PlayerCamera->GetViewMatrix());
 
 	// Draw background
 	Texture2D background = ResourceManager::GetInstance()->GetTexture("background");
@@ -172,7 +173,7 @@ void Game::Render(float deltaTime)
 		CharacterController->DrawObjectives();
 	}
 
-	CharacterController->DrawUI();
+	CharacterController->DrawUI(PlayerCamera->GetPosition());
 }
 
 void Game::Restart()
