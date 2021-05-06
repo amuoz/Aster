@@ -12,6 +12,7 @@
 #include "Config.h"
 #include "Block.h"
 #include "Sprite.h"
+#include "Player.h"
 #include "SpikeEnemy.h"
 #include "SwordPowerUp.h"
 
@@ -71,9 +72,19 @@ void Level::Update(float deltaTime, glm::vec4 playerAttackHitbox)
             actor->Update(deltaTime, playerAttackHitbox);
         }
     }
+
+    if (Character->IsDestroyed)
+    {
+        Character->GetActorCollider()->active = false;
+        Character.reset();
+    }
+    else
+    {
+        Character->Update(deltaTime, playerAttackHitbox);
+    }
 }
 
-void Level::Draw(SpriteRenderer &renderer, double deltatime)
+void Level::Draw(SpriteRenderer &renderer, double deltaTime)
 {
     for (auto &actor : Actors)
     {
@@ -83,8 +94,13 @@ void Level::Draw(SpriteRenderer &renderer, double deltatime)
         }
         else
         {
-            actor->Draw(renderer, deltatime);
+            actor->Draw(renderer, deltaTime);
         }
+    }
+
+    if (Character->IsActive())
+    {
+        Character->Draw(renderer, deltaTime);
     }
 }
 
@@ -93,6 +109,16 @@ void Level::Reset()
     for (auto &actor : Actors)
     {
         actor->Reset();
+    }
+
+    if (Character->IsDelete())
+    {
+        Character->GetActorCollider()->active = false;
+        Character.reset();
+    }
+    else
+    {
+        Character->Reset();
     }
 }
 
@@ -133,9 +159,8 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
                 glm::vec3 pos(unit_width * x, unit_height * y, 0.0f);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
                 Sprite *blockSprite = new Sprite("block");
-                std::unique_ptr<Actor> blockActor = std::make_unique<Block>(
-                    pos, size, blockSprite, color);
-                Actors.push_back(std::move(blockActor));
+                Actors.push_back(
+                    std::make_unique<Block>(pos, size, blockSprite, color));
             }
         }
     }
@@ -147,10 +172,10 @@ glm::vec3 Level::GetPlayerPosition()
     return glm::vec3(playerPosition[0], playerPosition[1], 0);
 }
 
-// void Level::AddPlayer(std::shared_ptr<Player> player)
-// {
-//     Actors.push_back((std::shared_ptr<Actor>)player);
-// }
+void Level::AddPlayer(std::shared_ptr<Player> player)
+{
+    Character = player;
+}
 
 void Level::InitEnemies()
 {
@@ -181,10 +206,8 @@ void Level::InitSpike(nlohmann::json &enemyInfo)
     float framePeriod = 0.06f;
     spikeEnemySprite->AddAnimation("spike_enemy_idle", AnimationType::IDLE, framePeriod);
 
-    std::unique_ptr<Actor> enemy = std::make_unique<SpikeEnemy>(
-        pos, charScale, spikeEnemySprite, framePeriod);
-
-    Actors.push_back(std::move(enemy));
+    Actors.push_back(
+        std::make_unique<SpikeEnemy>(pos, charScale, spikeEnemySprite, framePeriod));
 }
 
 void Level::InitPowerUps()
@@ -214,10 +237,9 @@ void Level::InitSword(nlohmann::json &powerUpInfo)
     glm::vec3 pos(position[0], position[1], 0.0f);
 
     Sprite *blockSprite = new Sprite("sword_powerup");
-    std::unique_ptr<Actor> swordPowerUp = std::make_unique<SwordPowerUp>(
-        pos, size, blockSprite, color);
 
-    Actors.push_back(std::move(swordPowerUp));
+    Actors.push_back(
+        std::make_unique<SwordPowerUp>(pos, size, blockSprite, color));
 }
 
 void Level::RemoveFromLevel(std::unique_ptr<Actor> &actor)

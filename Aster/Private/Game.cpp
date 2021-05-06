@@ -104,10 +104,9 @@ void Game::InitGame(GLFWwindow *window)
 	glm::vec3 playerPosition = CurrentLevel->GetPlayerPosition();
 
 	// Player
-	// std::shared_ptr<Player> player = CreatePlayer(playerPosition);
-	Character = CreatePlayer(playerPosition);
-	CharacterController = new PlayerController(Character, window);
-	// CurrentLevel->AddPlayer(player);
+	std::shared_ptr<Player> player = CreatePlayer(playerPosition);
+	CharacterController = new PlayerController(player, window);
+	CurrentLevel->AddPlayer(player);
 }
 
 void Game::Execute(float deltaTime)
@@ -127,16 +126,6 @@ void Game::Update(float deltaTime)
 		m_gameTime += deltaTime;
 
 		glm::vec4 playerAttackHitbox = CharacterController->GetAttackHitbox();
-
-		if (Character->IsDestroyed)
-		{
-			Character->GetActorCollider()->active = false;
-			Character.reset();
-		}
-		else
-		{
-			Character->Update(deltaTime, playerAttackHitbox);
-		}
 
 		if (!CharacterController->IsActive())
 		{
@@ -173,12 +162,6 @@ void Game::Render(float deltaTime)
 
 	CurrentLevel->Draw(*Renderer, deltaTime);
 
-	// Render scene
-	if (Character->IsActive())
-	{
-		Character->Draw(*Renderer, deltaTime);
-	}
-
 	// Render UI
 	RenderUI();
 }
@@ -204,16 +187,6 @@ void Game::Restart()
 	Config::Get()->Load(CONFIG_FILE);
 
 	CurrentLevel->Reset();
-
-	if (Character->IsDelete()) // clean runtime deleteable actors
-	{
-		Character->GetActorCollider()->active = false;
-		Character.reset();
-	}
-	else
-	{
-		Character->Reset();
-	}
 
 	m_gameTime = 0.0f;
 	SetGameState(GameState::GAME_ACTIVE);

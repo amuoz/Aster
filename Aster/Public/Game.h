@@ -66,7 +66,6 @@ private:
 
 	float m_gameTime = 0.0f;
 
-	std::shared_ptr<Player> Character;
 	std::shared_ptr<Level> CurrentLevel;
 	PlayerController *CharacterController;
 

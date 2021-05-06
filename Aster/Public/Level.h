@@ -27,17 +27,17 @@ public:
     void Update(float deltaTime, glm::vec4 playerAttackHitbox);
 
     // render level
-    void Draw(SpriteRenderer &renderer, double deltatime);
+    void Draw(SpriteRenderer &renderer, double deltaTime);
 
     void Reset();
 
     glm::vec3 GetPlayerPosition();
-    // void AddPlayer(std::shared_ptr<Player> player);
+    void AddPlayer(std::shared_ptr<Player> player);
 
 private:
     nlohmann::json LevelInfo;
     std::vector<std::vector<int> > Tiles;
-
+    std::shared_ptr<Player> Character;
     std::list<std::unique_ptr<Actor> > Actors;
 
     void LoadTiles();
