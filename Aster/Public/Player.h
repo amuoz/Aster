@@ -1,8 +1,9 @@
 #pragma once
 
+#include <list>
+
 #include <glm/glm.hpp>
 #include "Actor.h"
-
 #include "Sprite.h"
 
 enum class AnimationType;
@@ -28,10 +29,13 @@ public:
 	void Attack();
 	glm::vec4 GetAttackHitbox();
 	void PowerUp(PowerUpType powerUp);
+	std::list<PowerUpType> GetPowerUps();
+	PowerUpType GetActivePowerUp();
 
 private:
+	std::list<PowerUpType> Inventory;
 	AnimationType CurrentAnimation;
-	PowerUpType ActivePowerUp = PowerUpType::NONE;
+	PowerUpType ActivePowerUp = PowerUpType::SPEAR;
 
 	AnimationType GetDefaultAnimation();
 	AnimationType GetSwordAnimation();

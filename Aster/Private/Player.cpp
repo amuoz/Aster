@@ -13,6 +13,7 @@ Player::Player(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, g
 	ActorCollider->report = this;
 	State = ActorState::IDLE;
 	LastState = ActorState::IDLE;
+	Inventory.push_back(PowerUpType::SPEAR);
 }
 
 Player::~Player()
@@ -198,5 +199,16 @@ glm::vec4 Player::GetAttackHitbox()
 
 void Player::PowerUp(PowerUpType powerUp)
 {
+	Inventory.push_back(powerUp);
 	ActivePowerUp = powerUp;
+}
+
+std::list<PowerUpType> Player::GetPowerUps()
+{
+	return Inventory;
+}
+
+PowerUpType Player::GetActivePowerUp()
+{
+	return ActivePowerUp;
 }

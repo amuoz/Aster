@@ -34,7 +34,8 @@ enum class ActorState {
 
 enum class PowerUpType {
   NONE,
-  SWORD
+  SWORD,
+  SPEAR
 };
 
 struct Rectangle

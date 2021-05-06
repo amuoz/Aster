@@ -2,6 +2,9 @@
 
 #include <utility>
 #include <memory>
+#include <list>
+#include <map>
+#include <string>
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
 
@@ -18,8 +21,18 @@ bool keysProcessed[1024];
 
 void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mode);
 
-PlayerController::PlayerController(std::shared_ptr<Player> player, GLFWwindow *window, SpriteRenderer *renderer, TextRenderer *text)
-		: Character(player), Renderer(renderer), Text(text)
+const unsigned int UI_PADDING = 10;
+const glm::vec2 UI_ITEM_SIZE = glm::vec2(50, 50);
+const glm::vec3 UI_ITEM_COLOR = glm::vec3(1);
+const glm::vec3 UI_SELECTED_ITEM_COLOR = glm::vec3(1, 0.5, 0.5);
+
+std::map<PowerUpType, std::string> POWER_UP_SPRITES = {
+		{PowerUpType::NONE, "sword_powerup"},
+		{PowerUpType::SWORD, "sword_powerup"},
+		{PowerUpType::SPEAR, "spear_powerup"}};
+
+PlayerController::PlayerController(std::shared_ptr<Player> player, GLFWwindow *window, SpriteRenderer *renderer, TextRenderer *text) : Character(player),
+																																																																			 Renderer(renderer), Text(text)
 {
 	glfwSetKeyCallback(window, keyCallback);
 }
@@ -69,20 +82,27 @@ void PlayerController::ProcessInput(float deltaTime)
 	}
 }
 
-void PlayerController::DrawUI(glm::vec3 position)
+void PlayerController::DrawUI(glm::vec3 cameraPosition)
 {
-	float screenWidth = Config::Get()->GetValue(SRC_WIDTH);
-	float screenHeight = Config::Get()->GetValue(SRC_HEIGHT);
-	glm::vec2 spriteSize = glm::vec2(50, 50);
-	glm::vec3 spriteColor = glm::vec3(1);
+	std::list<PowerUpType> inventory = Character->GetPowerUps();
+	PowerUpType activePowerUp = Character->GetActivePowerUp();
 
-	glm::vec3 spearPosition = glm::vec3(position.x + 10, position.y + 10, position.z);
-	Texture2D spear = ResourceManager::GetInstance()->GetTexture("spear_powerup");
-	Renderer->DrawTexture(spear, spearPosition, spriteSize, 0, spriteColor);
+	unsigned int space = UI_PADDING;
 
-	glm::vec3 swordPosition = glm::vec3(position.x + 70, position.y + 10, position.z);
-	Texture2D sword = ResourceManager::GetInstance()->GetTexture("sword_powerup");
-	Renderer->DrawTexture(sword, swordPosition, spriteSize, 0, spriteColor);
+	for (PowerUpType powerUp : inventory)
+	{
+		auto color = powerUp == activePowerUp ? UI_SELECTED_ITEM_COLOR : UI_ITEM_COLOR;
+		auto textureName = POWER_UP_SPRITES[powerUp];
+		auto texturePosition = glm::vec3(
+				cameraPosition.x + space,
+				cameraPosition.y + UI_PADDING,
+				0);
+
+		Texture2D powerUpTexture = ResourceManager::GetInstance()->GetTexture(textureName);
+		Renderer->DrawTexture(powerUpTexture, texturePosition, UI_ITEM_SIZE, 0, color);
+
+		space += UI_PADDING + UI_ITEM_SIZE.x;
+	}
 }
 
 void PlayerController::DrawPlayerDeath()
