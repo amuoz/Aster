@@ -88,6 +88,14 @@ void Level::Draw(SpriteRenderer &renderer, double deltatime)
     }
 }
 
+void Level::Reset()
+{
+    for (auto &actor : Actors)
+    {
+        actor->Reset();
+    }
+}
+
 void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
 {
     int height = static_cast<int>(Tiles.size());
@@ -138,6 +146,11 @@ glm::vec3 Level::GetPlayerPosition()
     auto playerPosition = LevelInfo["player"]["position"];
     return glm::vec3(playerPosition[0], playerPosition[1], 0);
 }
+
+// void Level::AddPlayer(std::shared_ptr<Player> player)
+// {
+//     Actors.push_back((std::shared_ptr<Actor>)player);
+// }
 
 void Level::InitEnemies()
 {
@@ -214,8 +227,12 @@ void Level::RemoveFromLevel(std::unique_ptr<Actor> &actor)
     while (i != end)
     {
         if (actor == *i)
+        {
             i = Actors.erase(i);
+        }
         else
+        {
             ++i;
+        }
     }
 }

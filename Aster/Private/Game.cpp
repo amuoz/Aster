@@ -13,23 +13,24 @@
 #include "ResourceManager.h"
 #include "TextRenderer.h"
 #include "SpriteRenderer.h"
+#include "PlayerController.h"
 
 #include <string>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <utility>
+#include <GLFW/glfw3.h>
 
 // externs
 Physics *g_PhysicsPtr;
-//Config* g_Config;
 
 __inline float Randf(float min, float max)
 {
 	return (float)((float)((rand() & 32767) * (1.0 / 32767.0)) * (max - min) + min);
 }
 
-Game::Game() : State(GameState::GAME_ACTIVE), Keys(), KeysProcessed()
+Game::Game() : State(GameState::GAME_ACTIVE)
 {
 }
 
@@ -40,7 +41,7 @@ Game::~Game()
 	delete m_camera;
 }
 
-Player *Game::CreatePlayer(glm::vec3 playerPosition)
+std::shared_ptr<Player> Game::CreatePlayer(glm::vec3 playerPosition)
 {
 	const glm::vec3 PLAYER_SIZE(16.0f, 9.0f, 0.0f);
 	glm::vec3 charScale(1.0f, 1.0f, 1.0f);
@@ -60,14 +61,13 @@ Player *Game::CreatePlayer(glm::vec3 playerPosition)
 	playerSprite->AddAnimation("sword_down", AnimationType::SWORD_DOWN, 0.03f);
 	playerSprite->AddAnimation("sword_left", AnimationType::SWORD_LEFT, 0.03f);
 
-	Player *player = new Player(playerPosition, charScale, playerSprite);
-
-	m_scene.push_back(player);
+	std::shared_ptr<Player> player = std::make_shared<Player>(
+			playerPosition, charScale, playerSprite);
 
 	return player;
 }
 
-void Game::InitGame()
+void Game::InitGame(GLFWwindow *window)
 {
 	g_PhysicsPtr = new Physics(glm::vec3(0.0f, 0.0f, 0.0f));
 	m_camera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -78,7 +78,6 @@ void Game::InitGame()
 	m_text->Load(PROJECT_SOURCE_DIR "/Aster/Fonts/arial.ttf", 24);
 
 	m_gameTime = 0.0f;
-	m_score = 0;
 
 	// Initialize sprite renderer with sprite shader
 	ResourceManager::GetInstance()->LoadShader(PROJECT_SOURCE_DIR "/Aster/Shaders/sprite.vs", PROJECT_SOURCE_DIR "/Aster/Shaders/sprite.fs", nullptr, "sprite");
@@ -105,7 +104,10 @@ void Game::InitGame()
 	glm::vec3 playerPosition = CurrentLevel->GetPlayerPosition();
 
 	// Player
+	// std::shared_ptr<Player> player = CreatePlayer(playerPosition);
 	Character = CreatePlayer(playerPosition);
+	CharacterController = new PlayerController(Character, window);
+	// CurrentLevel->AddPlayer(player);
 }
 
 void Game::Execute(float deltaTime)
@@ -122,36 +124,28 @@ void Game::Update(float deltaTime)
 {
 	if (State == GameState::GAME_ACTIVE)
 	{
-		m_currentBulletFreq += deltaTime;
 		m_gameTime += deltaTime;
 
-		glm::vec4 playerAttackHitbox = Character->GetAttackHitbox();
+		glm::vec4 playerAttackHitbox = CharacterController->GetAttackHitbox();
 
-		// ..:: LOGIC ::..
-		for (std::list<Actor *>::iterator it = m_scene.begin(); it != m_scene.end();)
+		if (Character->IsDestroyed)
 		{
-			Actor *actor = (*it);
-			if (actor->IsDestroyed)
-			{
-				actor->GetActorCollider()->active = false;
-				it = m_scene.erase(it);
-				delete actor;
-			}
-			else
-			{
-				actor->Update(deltaTime, playerAttackHitbox);
-				it++;
-			}
+			Character->GetActorCollider()->active = false;
+			Character.reset();
+		}
+		else
+		{
+			Character->Update(deltaTime, playerAttackHitbox);
 		}
 
-		if (!Character->IsActive())
+		if (!CharacterController->IsActive())
 		{
 			SetGameState(GameState::GAME_OVER);
 		}
 
 		// camera/view transformation
-		glm::vec3 cameraPos(Character->GetPosition().x - Config::Get()->GetValue(SRC_WIDTH) / 2,
-												Character->GetPosition().y - Config::Get()->GetValue(SRC_HEIGHT) / 2,
+		glm::vec3 cameraPos(CharacterController->GetPosition().x - Config::Get()->GetValue(SRC_WIDTH) / 2,
+												CharacterController->GetPosition().y - Config::Get()->GetValue(SRC_HEIGHT) / 2,
 												0.0f);
 		m_camera->SetPosition(cameraPos);
 
@@ -177,16 +171,12 @@ void Game::Render(float deltaTime)
 
 	// DebugAttackHitbox(*Renderer);
 
-	// Draw level
 	CurrentLevel->Draw(*Renderer, deltaTime);
 
 	// Render scene
-	for (Actor *actor : m_scene)
+	if (Character->IsActive())
 	{
-		if (actor->IsActive())
-		{
-			actor->Draw(*Renderer, deltaTime);
-		}
+		Character->Draw(*Renderer, deltaTime);
 	}
 
 	// Render UI
@@ -213,24 +203,19 @@ void Game::Restart()
 	// hot-reload config file
 	Config::Get()->Load(CONFIG_FILE);
 
-	for (std::list<Actor *>::iterator it = m_scene.begin(); it != m_scene.end();)
+	CurrentLevel->Reset();
+
+	if (Character->IsDelete()) // clean runtime deleteable actors
 	{
-		Actor *actor = (*it);
-		if (actor->IsDelete()) // clean runtime deleteable actors
-		{
-			actor->GetActorCollider()->active = false;
-			it = m_scene.erase(it);
-			delete actor;
-		}
-		else
-		{
-			actor->Reset();
-			it++;
-		}
+		Character->GetActorCollider()->active = false;
+		Character.reset();
+	}
+	else
+	{
+		Character->Reset();
 	}
 
 	m_gameTime = 0.0f;
-	m_score = 0;
 	SetGameState(GameState::GAME_ACTIVE);
 }
 
@@ -241,55 +226,18 @@ void Game::ProcessInput(float deltaTime)
 	// Player movement
 	if (State == GameState::GAME_ACTIVE)
 	{
-		bool bMove = false;
-		glm::vec3 direction(0.0f);
-		if (Keys[GLFW_KEY_A])
-		{
-			direction += glm::vec3(-1.0f, 0.0f, 0.0f);
-			bMove = true;
-		}
-		if (Keys[GLFW_KEY_D])
-		{
-			direction += glm::vec3(1.0f, 0.0f, 0.0f);
-			bMove = true;
-		}
-		if (Keys[GLFW_KEY_W])
-		{
-			direction += glm::vec3(0.0f, -1.0f, 0.0f);
-			bMove = true;
-		}
-		if (Keys[GLFW_KEY_S])
-		{
-			direction += glm::vec3(0.0f, 1.0f, 0.0f);
-			bMove = true;
-		}
-
-		// apply character movement if needed
-		if (bMove)
-		{
-			Character->Move(deltaTime, direction);
-		}
-		else
-		{
-			Character->Idle();
-		}
-
-		// attack
-		if (Keys[GLFW_KEY_SPACE])
-		{
-			Character->Attack();
-		}
+		CharacterController->ProcessInput(deltaTime);
 	}
 
-	if (State == GameState::GAME_RESTART)
-	{
-		if (Keys[GLFW_KEY_R] && !KeysProcessed[GLFW_KEY_R])
-		{
-			std::cout << "...RESTART GAME..." << std::endl;
-			KeysProcessed[GLFW_KEY_R] = true;
-			Restart();
-		}
-	}
+	// if (State == GameState::GAME_RESTART)
+	// {
+	// 	if (Keys[GLFW_KEY_R] && !KeysProcessed[GLFW_KEY_R])
+	// 	{
+	// 		std::cout << "...RESTART GAME..." << std::endl;
+	// 		KeysProcessed[GLFW_KEY_R] = true;
+	// 		Restart();
+	// 	}
+	// }
 }
 
 void Game::SetGameState(GameState newState)
@@ -300,7 +248,7 @@ void Game::SetGameState(GameState newState)
 void Game::DebugAttackHitbox(SpriteRenderer &Renderer)
 {
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glm::vec4 playerAttackHitbox = Character->GetAttackHitbox();
+	glm::vec4 playerAttackHitbox = CharacterController->GetAttackHitbox();
 	Texture2D texture = ResourceManager::GetInstance()->GetTexture("block");
 	Renderer.DrawTexture(
 			texture,
