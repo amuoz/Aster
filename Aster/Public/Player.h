@@ -1,8 +1,10 @@
 #pragma once
 
+#include <list>
+#include <vector>
+
 #include <glm/glm.hpp>
 #include "Actor.h"
-
 #include "Sprite.h"
 
 enum class AnimationType;
@@ -19,6 +21,8 @@ public:
 	void Draw(SpriteRenderer &renderer, double deltaTime) override;
 	void TakeDamage() override;
 	void Move(float deltaTime, glm::vec3 direction) override;
+	void Dash();
+	void SetDashSpeed();
 	void OnContact(
 			std::shared_ptr<Physics::PhysicActor> external,
 			std::shared_ptr<Physics::PhysicActor> internal) override;
@@ -28,10 +32,17 @@ public:
 	void Attack();
 	glm::vec4 GetAttackHitbox();
 	void PowerUp(PowerUpType powerUp);
+	std::vector<PowerUpType> GetPowerUps();
+	PowerUpType GetActivePowerUp();
+	void SelectPowerUp(unsigned int index);
 
 private:
+	std::vector<PowerUpType> Inventory;
 	AnimationType CurrentAnimation;
-	PowerUpType ActivePowerUp = PowerUpType::NONE;
+	PowerUpType ActivePowerUp = PowerUpType::SPEAR;
+	float DashTime;
+	glm::vec3 MovementDirection;
+	glm::vec3 LastMovementDirection;
 
 	AnimationType GetDefaultAnimation();
 	AnimationType GetSwordAnimation();

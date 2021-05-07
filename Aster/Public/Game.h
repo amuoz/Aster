@@ -20,6 +20,7 @@
 #include <cmath>
 #include <list>
 #include <map>
+#include <utility>
 
 // Forwards
 class Physics;
@@ -30,6 +31,8 @@ class TextRenderer;
 class SpriteRenderer;
 class Level;
 class Player;
+class PlayerController;
+class GLFWwindow;
 enum class GameState;
 
 class Game
@@ -40,47 +43,31 @@ public:
 
 	void Execute(float deltaTime);
 
-	int GetScore() { return m_score; }
-	void IncreaseScore() { ++m_score; }
-
 	void SetGameState(GameState newState);
 
-	void InitGame();
-
-	bool Keys[1024];
-	bool KeysProcessed[1024];
+	void InitGame(GLFWwindow *window);
 
 private:
-	Player *CreatePlayer(glm::vec3 playerPosition);
+	std::shared_ptr<Player> CreatePlayer(glm::vec3 playerPosition);
 
 	void ProcessInput(float deltaTime);
-	void Update(float deltaTime); // logic and physics
+	void Update(float deltaTime);
 	void Render(float deltaTime);
-
-	void RenderUI();
 
 	void Restart();
 
 	void DebugAttackHitbox(SpriteRenderer &Renderer);
 
-	GLFWwindow *m_window;
-
-	Camera *m_camera;
+	Camera *PlayerCamera;
 	AsteroidMgr *m_AsteroidMgr;
-	TextRenderer *m_text;
 
 	float m_gameTime = 0.0f;
-	float m_currentBulletFreq;
-
-	// scene actors
-	std::list<Actor *> m_scene;
 
 	std::shared_ptr<Level> CurrentLevel;
-	Player *Character;
+	PlayerController *CharacterController;
 
 	GameState State;
 
-	int m_score;
-
 	SpriteRenderer *Renderer;
+	TextRenderer *Text;
 };

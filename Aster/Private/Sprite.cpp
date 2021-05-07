@@ -15,24 +15,26 @@ Sprite::Sprite()
 
 Sprite::Sprite(std::string filename)
 {
-  m_texture = ResourceManager::GetInstance()->GetTexture(filename);
-  m_rectangle = RectangleSystem::GetInstance()->Generate();
-  m_hasAnimation = false;
+  Texture = ResourceManager::GetInstance()->GetTexture(filename);
+  SubspriteRectangle = RectangleSystem::GetInstance()->Generate();
+  HasAnimation = false;
 }
 
 Sprite::~Sprite()
 {
-  RectangleSystem::GetInstance()->Delete(m_rectangle);
+  RectangleSystem::GetInstance()->Delete(SubspriteRectangle);
 
-  m_animations.clear();
+  Animations.clear();
 }
 
 void Sprite::Draw(AnimationType type, SpriteRenderer &renderer, double deltatime, glm::vec2 position, glm::vec2 size = glm::vec2(10.0f, 10.0f), float rotate = 0.0f, glm::vec3 color = glm::vec3(1.0f))
 {
 
-  if (m_hasAnimation)
+  if (HasAnimation)
   {
-    m_animations[type]->Play(renderer, m_texture, m_rectangle, deltatime, position, size, rotate, color);
+    bool restartAnimation = CurrentAnimationType != type;
+    CurrentAnimationType = type;
+    Animations[type]->Play(renderer, Texture, SubspriteRectangle, deltatime, position, size, rotate, color, restartAnimation);
   }
   else
   {
@@ -42,16 +44,16 @@ void Sprite::Draw(AnimationType type, SpriteRenderer &renderer, double deltatime
 
 void Sprite::AddAnimation(std::string filename, AnimationType type, float speed)
 {
-  m_animations[type] = new Animation(filename, speed);;
-  m_hasAnimation = true;
+  Animations[type] = new Animation(filename, speed);
+  HasAnimation = true;
 }
 
 Texture2D Sprite::GetTexture()
 {
-  return m_texture;
+  return Texture;
 }
 
 glm::vec4 Sprite::GetAttackHitbox(AnimationType type)
 {
-  return m_animations[type]->GetAttackHitbox();
+  return Animations[type]->GetAttackHitbox();
 }

@@ -53,6 +53,9 @@ SpikeEnemy::SpikeEnemy(glm::vec3 pos, glm::vec3 size, Sprite *sprite, float fram
 SpikeEnemy::~SpikeEnemy()
 {
 	AggroCollider->report = nullptr;
+	AggroCollider->active = false;
+	g_PhysicsPtr->DeleteDynamicActor(AggroCollider);
+	AggroCollider = nullptr;
 }
 
 void SpikeEnemy::Render(Shader)
@@ -71,11 +74,11 @@ void SpikeEnemy::Update(float deltaTime, glm::vec4 attackHitbox)
 	else
 	{
 		auto it = std::find_if(
-			AggroCollider->Collisions.begin(),
-			AggroCollider->Collisions.end(),
-			[](const auto &dynamicActor) {
-				return dynamicActor->report && dynamicActor->report->IsPlayer();
-			});
+				AggroCollider->Collisions.begin(),
+				AggroCollider->Collisions.end(),
+				[](const auto &dynamicActor) {
+					return dynamicActor->report && dynamicActor->report->IsPlayer();
+				});
 		if (it == AggroCollider->Collisions.end())
 			SetState(ActorState::IDLE);
 	}
