@@ -2,7 +2,7 @@
 
 #include <utility>
 #include <memory>
-#include <list>
+#include <vector>
 #include <map>
 #include <string>
 #include <glm/glm.hpp>
@@ -80,11 +80,21 @@ void PlayerController::ProcessInput(float deltaTime)
 	{
 		Character->Attack();
 	}
+
+	if (keys[GLFW_KEY_1])
+	{
+		Character->SelectPowerUp(0);
+	}
+
+	if (keys[GLFW_KEY_2])
+	{
+		Character->SelectPowerUp(1);
+	}
 }
 
 void PlayerController::DrawUI(glm::vec3 cameraPosition)
 {
-	std::list<PowerUpType> inventory = Character->GetPowerUps();
+	std::vector<PowerUpType> inventory = Character->GetPowerUps();
 	PowerUpType activePowerUp = Character->GetActivePowerUp();
 
 	unsigned int space = UI_PADDING;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include <vector>
 
 #include <glm/glm.hpp>
 #include "Actor.h"
@@ -29,11 +30,12 @@ public:
 	void Attack();
 	glm::vec4 GetAttackHitbox();
 	void PowerUp(PowerUpType powerUp);
-	std::list<PowerUpType> GetPowerUps();
+	std::vector<PowerUpType> GetPowerUps();
 	PowerUpType GetActivePowerUp();
+	void SelectPowerUp(unsigned int index);
 
 private:
-	std::list<PowerUpType> Inventory;
+	std::vector<PowerUpType> Inventory;
 	AnimationType CurrentAnimation;
 	PowerUpType ActivePowerUp = PowerUpType::SPEAR;
 

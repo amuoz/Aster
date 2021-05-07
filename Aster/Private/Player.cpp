@@ -35,7 +35,7 @@ void Player::Draw(SpriteRenderer &renderer, double deltatime)
 	case PowerUpType::SWORD:
 		CurrentAnimation = GetSwordAnimation();
 		break;
-	
+
 	default:
 		CurrentAnimation = GetDefaultAnimation();
 		break;
@@ -168,8 +168,8 @@ void Player::Attack()
 }
 
 void Player::OnContact(
-			std::shared_ptr<Physics::PhysicActor>,
-			std::shared_ptr<Physics::PhysicActor>)
+		std::shared_ptr<Physics::PhysicActor>,
+		std::shared_ptr<Physics::PhysicActor>)
 {
 	m_position = ActorCollider->pos;
 }
@@ -183,18 +183,16 @@ glm::vec4 Player::GetAttackHitbox()
 {
 	glm::vec4 spriteHitbox = m_sprite->GetAttackHitbox(CurrentAnimation);
 
-	if (spriteHitbox.x == 0 && spriteHitbox.y == 0
-		&& spriteHitbox.z == 0 && spriteHitbox.w == 0)
+	if (spriteHitbox.x == 0 && spriteHitbox.y == 0 && spriteHitbox.z == 0 && spriteHitbox.w == 0)
 	{
 		return glm::vec4(0, 0, 0, 0);
 	}
 
 	return glm::vec4(
-		m_position.x + spriteHitbox.x,
-		m_position.y + spriteHitbox.y,
-		spriteHitbox.z,
-		spriteHitbox.w
-	);
+			m_position.x + spriteHitbox.x,
+			m_position.y + spriteHitbox.y,
+			spriteHitbox.z,
+			spriteHitbox.w);
 }
 
 void Player::PowerUp(PowerUpType powerUp)
@@ -203,7 +201,7 @@ void Player::PowerUp(PowerUpType powerUp)
 	ActivePowerUp = powerUp;
 }
 
-std::list<PowerUpType> Player::GetPowerUps()
+std::vector<PowerUpType> Player::GetPowerUps()
 {
 	return Inventory;
 }
@@ -211,4 +209,9 @@ std::list<PowerUpType> Player::GetPowerUps()
 PowerUpType Player::GetActivePowerUp()
 {
 	return ActivePowerUp;
+}
+
+void Player::SelectPowerUp(unsigned int index)
+{
+	ActivePowerUp = Inventory[index];
 }
