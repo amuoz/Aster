@@ -63,27 +63,26 @@ AnimationType Player::GetDefaultAnimation()
 	case ActorState::IDLE:
 	default:
 		return AnimationType::IDLE;
-		break;
 
 	case ActorState::MOVEMENT_RIGHT:
 	case ActorState::MOVEMENT_LEFT:
 	case ActorState::MOVEMENT_DOWN:
 	case ActorState::MOVEMENT_UP:
 		return AnimationType::WALK;
-		break;
 
 	case ActorState::ATTACK_RIGHT:
 		return AnimationType::ATTACK_RIGHT;
-		break;
 	case ActorState::ATTACK_LEFT:
 		return AnimationType::ATTACK_LEFT;
-		break;
 	case ActorState::ATTACK_DOWN:
 		return AnimationType::ATTACK_DOWN;
-		break;
 	case ActorState::ATTACK_UP:
 		return AnimationType::ATTACK_UP;
-		break;
+
+	case ActorState::DASH:
+		bool isMovingRight = MovementDirection.x > 0 ||
+												 (MovementDirection.x == 0 && LastMovementDirection.x >= 0);
+		return isMovingRight ? AnimationType::DASH_RIGHT : AnimationType::DASH_LEFT;
 	}
 }
 
@@ -94,27 +93,21 @@ AnimationType Player::GetSwordAnimation()
 	case ActorState::IDLE:
 	default:
 		return AnimationType::IDLE;
-		break;
 
 	case ActorState::MOVEMENT_RIGHT:
 	case ActorState::MOVEMENT_LEFT:
 	case ActorState::MOVEMENT_DOWN:
 	case ActorState::MOVEMENT_UP:
 		return AnimationType::WALK;
-		break;
 
 	case ActorState::ATTACK_RIGHT:
 		return AnimationType::SWORD_RIGHT;
-		break;
 	case ActorState::ATTACK_LEFT:
 		return AnimationType::SWORD_LEFT;
-		break;
 	case ActorState::ATTACK_DOWN:
 		return AnimationType::SWORD_DOWN;
-		break;
 	case ActorState::ATTACK_UP:
 		return AnimationType::SWORD_UP;
-		break;
 	}
 }
 
@@ -143,7 +136,7 @@ void Player::Move(float deltaTime, glm::vec3 direction)
 			SetState(ActorState::IDLE);
 
 		MovementDirection = direction;
-		
+
 		if (direction.x != 0 || direction.y != 0)
 		{
 			LastMovementDirection = direction;
@@ -151,7 +144,6 @@ void Player::Move(float deltaTime, glm::vec3 direction)
 
 		Actor::Move(deltaTime, MovementDirection);
 	}
-	
 }
 
 void Player::Dash()

@@ -60,6 +60,8 @@ std::shared_ptr<Player> Game::CreatePlayer(glm::vec3 playerPosition)
 	playerSprite->AddAnimation("sword_right", AnimationType::SWORD_RIGHT, 0.03f);
 	playerSprite->AddAnimation("sword_down", AnimationType::SWORD_DOWN, 0.03f);
 	playerSprite->AddAnimation("sword_left", AnimationType::SWORD_LEFT, 0.03f);
+	playerSprite->AddAnimation("roll_right", AnimationType::DASH_RIGHT, 0.02f);
+	playerSprite->AddAnimation("roll_left", AnimationType::DASH_LEFT, 0.02f);
 
 	std::shared_ptr<Player> player = std::make_shared<Player>(
 			playerPosition, charScale, playerSprite);
