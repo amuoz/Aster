@@ -6,6 +6,8 @@
 
 #include "SpriteRenderer.h"
 
+const float DASH_PERIOD = 0.7;
+
 Player::Player(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, glm::vec3 velocity) : Actor(pos, size, sprite, color, velocity)
 {
 	ActorCollider = g_PhysicsPtr->AddDynamicActor(pos, velocity, size, false, glm::vec3(0.0f), 1.0f);
@@ -24,8 +26,18 @@ void Player::Render(Shader)
 {
 }
 
-void Player::Update(float, glm::vec4)
+void Player::Update(float deltaTime, glm::vec4)
 {
+	if (State == ActorState::DASH)
+	{
+		DashTime += deltaTime;
+
+		if (DashTime > DASH_PERIOD)
+		{
+			DashTime = 0;
+			SetState(ActorState::IDLE);
+		}
+	}
 }
 
 void Player::Draw(SpriteRenderer &renderer, double deltatime)
@@ -113,18 +125,39 @@ void Player::TakeDamage()
 
 void Player::Move(float deltaTime, glm::vec3 direction)
 {
-	if (direction.x > 0)
-		SetState(ActorState::MOVEMENT_RIGHT);
-	else if (direction.x < 0)
-		SetState(ActorState::MOVEMENT_LEFT);
-	else if (direction.y > 0)
-		SetState(ActorState::MOVEMENT_DOWN);
-	else if (direction.y < 0)
-		SetState(ActorState::MOVEMENT_UP);
+	if (State == ActorState::DASH)
+	{
+		Actor::Move(deltaTime, LastMovementDirection);
+	}
 	else
-		SetState(ActorState::IDLE);
+	{
+		if (direction.x > 0)
+			SetState(ActorState::MOVEMENT_RIGHT);
+		else if (direction.x < 0)
+			SetState(ActorState::MOVEMENT_LEFT);
+		else if (direction.y > 0)
+			SetState(ActorState::MOVEMENT_DOWN);
+		else if (direction.y < 0)
+			SetState(ActorState::MOVEMENT_UP);
+		else
+			SetState(ActorState::IDLE);
 
-	Actor::Move(deltaTime, direction);
+		MovementDirection = direction;
+		
+		if (direction.x != 0 || direction.y != 0)
+		{
+			LastMovementDirection = direction;
+		}
+
+		Actor::Move(deltaTime, MovementDirection);
+	}
+	
+}
+
+void Player::Dash()
+{
+	DashTime = 0;
+	SetState(ActorState::DASH);
 }
 
 void Player::Idle()

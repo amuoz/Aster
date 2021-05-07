@@ -43,38 +43,26 @@ PlayerController::~PlayerController()
 
 void PlayerController::ProcessInput(float deltaTime)
 {
-	bool hasMoved = false;
 	glm::vec3 direction(0.0f);
 
 	if (keys[GLFW_KEY_A])
 	{
 		direction += glm::vec3(-1.0f, 0.0f, 0.0f);
-		hasMoved = true;
 	}
 	if (keys[GLFW_KEY_D])
 	{
 		direction += glm::vec3(1.0f, 0.0f, 0.0f);
-		hasMoved = true;
 	}
 	if (keys[GLFW_KEY_W])
 	{
 		direction += glm::vec3(0.0f, -1.0f, 0.0f);
-		hasMoved = true;
 	}
 	if (keys[GLFW_KEY_S])
 	{
 		direction += glm::vec3(0.0f, 1.0f, 0.0f);
-		hasMoved = true;
 	}
 
-	if (hasMoved)
-	{
-		Character->Move(deltaTime, direction);
-	}
-	else
-	{
-		Character->Idle();
-	}
+	Character->Move(deltaTime, direction);
 
 	if (keys[GLFW_KEY_SPACE])
 	{
@@ -89,6 +77,11 @@ void PlayerController::ProcessInput(float deltaTime)
 	if (keys[GLFW_KEY_2])
 	{
 		Character->SelectPowerUp(1);
+	}
+
+	if (keys[GLFW_KEY_C])
+	{
+		Character->Dash();
 	}
 }
 

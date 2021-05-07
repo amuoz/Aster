@@ -21,6 +21,7 @@ public:
 	void Draw(SpriteRenderer &renderer, double deltaTime) override;
 	void TakeDamage() override;
 	void Move(float deltaTime, glm::vec3 direction) override;
+	void Dash();
 	void OnContact(
 			std::shared_ptr<Physics::PhysicActor> external,
 			std::shared_ptr<Physics::PhysicActor> internal) override;
@@ -38,6 +39,9 @@ private:
 	std::vector<PowerUpType> Inventory;
 	AnimationType CurrentAnimation;
 	PowerUpType ActivePowerUp = PowerUpType::SPEAR;
+	float DashTime;
+	glm::vec3 MovementDirection;
+	glm::vec3 LastMovementDirection;
 
 	AnimationType GetDefaultAnimation();
 	AnimationType GetSwordAnimation();
