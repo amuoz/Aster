@@ -1,9 +1,10 @@
 #include "Physics.h"
 
-#include "ICircleContactReport.h"
-
 #include <iostream>
 #include <algorithm>
+#include <utility>
+
+#include "Actor.h"
 
 Physics::Physics(const glm::vec3 &gravity)
 {
@@ -12,48 +13,41 @@ Physics::Physics(const glm::vec3 &gravity)
 
 Physics::~Physics()
 {
-	for (PhysicActor* dynamicActor: m_dynamicActors)
-	{
-		delete dynamicActor;
-	}
-
-	m_dynamicActors.clear();
-	// deallocating the memory
-	std::vector<PhysicActor*>().swap(m_dynamicActors);
+	PhysicsPool.clear();
 }
 
 void Physics::Update(float deltaTime)
 {
-	for (PhysicActor* dynamicActor : m_dynamicActors)
+	for (auto& dynamicActor : PhysicsPool)
 	{
 		// simulate physics
 		if (dynamicActor->bSimulate)
 		{
-			UpdateDymanicPos(*dynamicActor, deltaTime);
+			UpdateDymanicPos(dynamicActor, deltaTime);
 		}
 
 		// check collisions
 		if (dynamicActor->bCheckCollision)
 		{
-			DoCollisions(*dynamicActor);
+			DoCollisions(dynamicActor);
 		}
 	}
 }
 
-void Physics::UpdateDymanicPos(PhysicActor &geom, float deltaTime)
+void Physics::UpdateDymanicPos(std::shared_ptr<PhysicActor> geom, float deltaTime)
 {
 	// F = m * a
 	// a = F / m
 	// V = V0 + a * t
 	// P = Po + V * t
-	geom.vel += m_gravityForce * deltaTime;
-	geom.vel += (geom.accelerationForce / geom.mass) * deltaTime;
-	glm::vec3 prevPos = geom.pos;
-	glm::vec3 newPos = geom.pos + geom.vel * deltaTime;
+	geom->vel += m_gravityForce * deltaTime;
+	geom->vel += (geom->accelerationForce / geom->mass) * deltaTime;
+	glm::vec3 prevPos = geom->pos;
+	glm::vec3 newPos = geom->pos + geom->vel * deltaTime;
 	glm::vec3 desplDir = newPos - prevPos;
 	desplDir = glm::normalize(desplDir);
 
-	geom.pos = newPos;
+	geom->pos = newPos;
 }
 
 bool Physics::CheckCircleCircleCollision(const glm::vec3& circle1Pos, float circle1Radius, const glm::vec3& circle2Pos,
@@ -66,7 +60,7 @@ bool Physics::CheckCircleCircleCollision(const glm::vec3& circle1Pos, float circ
 		normal = circle1Pos - circle2Pos;
 		normal = glm::normalize(normal);
 
-		// Desplazar la esfera A que ha colisionado en la direccion de colision lo suficiente para que los dos radios estén separados
+		// Desplazar la esfera A que ha colisionado en la direccion de colision lo suficiente para que los dos radios estï¿½n separados
 		col = circle2Pos + normal * (circle1Radius + circle2Radius);
 		return true;
 	}
@@ -119,11 +113,11 @@ bool Physics::CheckRectRectCollision(const glm::vec3& rect1Pos, const glm::vec3&
 	return false;
 }
 
-Physics::PhysicActor* Physics::AddDynamicActor(const glm::vec3 &pos, const glm::vec3 &vel, const glm::vec3& size, glm::vec3 force, float mass)
+std::shared_ptr<Physics::PhysicActor> Physics::AddDynamicActor(const glm::vec3 &pos, const glm::vec3 &vel, const glm::vec3& size, bool justReport, glm::vec3 force, float mass)
 {
-	if (m_dynamicActors.size() < MAX_DYNAMICS)
+	if (PhysicsPool.size() < MAX_DYNAMICS)
 	{
-		PhysicActor *geom = new PhysicActor;
+		auto geom = std::make_shared<PhysicActor>();
 		geom->active = false;
 		geom->pos = pos;
 		geom->vel = vel;
@@ -131,51 +125,63 @@ Physics::PhysicActor* Physics::AddDynamicActor(const glm::vec3 &pos, const glm::
 		geom->accelerationForce = force;
 		geom->mass = mass;
 		geom->radius = size.x / 2;
-		m_dynamicActors.push_back(geom);
+		geom->justReport = justReport;
+
+		PhysicsPool.push_back(geom);
+
 		return geom;
 	}
 	return 0;
 }
 
-void Physics::DeleteDynamicActor(PhysicActor *geom)
+void Physics::DeleteDynamicActor(std::shared_ptr<PhysicActor> geom)
 {
-	auto it = std::find(m_dynamicActors.begin(), m_dynamicActors.end(), geom);
-	if (it != m_dynamicActors.end())
+	auto it = std::find(PhysicsPool.begin(), PhysicsPool.end(), geom);
+	if (it != PhysicsPool.end())
 	{ 
-		m_dynamicActors.erase(it);
+		PhysicsPool.erase(it);
 	}
 }
 
-void Physics::DoCollisions(PhysicActor& geom)
+void Physics::DoCollisions(std::shared_ptr<PhysicActor> geom)
 {
 	glm::vec3 col, normal;
-	for (PhysicActor* dynamicActor : m_dynamicActors)
+	for (auto& dynamicActor : PhysicsPool)
 	{
 		//if (&geom != dynamicActor && dynamicActor->active)
-		if (&geom != dynamicActor)
+		if (geom != dynamicActor && (geom->report != dynamicActor->report))
 		{
 			//if (CheckCircleCircleCollision(geom.pos, geom.radius, dynamicActor->pos, dynamicActor->radius, col, normal))
-			if (CheckRectRectCollision(geom.pos, geom.size, dynamicActor->pos, dynamicActor->size, col))
+			if (CheckRectRectCollision(geom->pos, geom->size, dynamicActor->pos, dynamicActor->size, col))
 			{
 				// push actor in normal direction
-				if (geom.ignoreContact && dynamicActor->ignoreContact)
+				if (geom->bounce && dynamicActor->bounce)
 				{
-					geom.vel = normal * glm::length(geom.vel);
+					geom->vel = normal * glm::length(geom->vel);
 					dynamicActor->vel = -normal * glm::length(dynamicActor->vel);
 				}
 
-				geom.pos = col;
+				if (!geom->justReport && !dynamicActor->justReport)
+				{
+					geom->pos = col;
+				}
 
 				// notify collision
-				if (geom.report)
+				if (geom->report)
 				{
-					geom.report->OnContact(dynamicActor);
+					geom->report->OnContact(dynamicActor, geom);
+					geom->Collisions.insert(dynamicActor);
 				}
-				//if (dynamicActor->active && dynamicActor->report)
 				if (dynamicActor->report)
 				{
-					dynamicActor->report->OnContact(&geom);
+					dynamicActor->report->OnContact(geom, dynamicActor);
+					dynamicActor->Collisions.insert(geom);
 				}
+			}
+			else
+			{
+				geom->Collisions.erase(dynamicActor);
+				dynamicActor->Collisions.erase(geom);
 			}
 		}
 	}

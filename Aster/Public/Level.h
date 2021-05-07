@@ -1,12 +1,15 @@
 #pragma once
 
+#include <glm/glm.hpp>
+#include <nlohmann/json.hpp>
 #include <vector>
 #include <list>
+#include <vector>
 #include <utility>
-#include <glm/glm.hpp>
 
 class Actor;
 class SpriteRenderer;
+class Player;
 
 /* Level holds all Tiles as part of a level and 
  * hosts functionality to Load/render levels from the harddisk.
@@ -24,14 +27,24 @@ public:
     void Update(float deltaTime, glm::vec4 playerAttackHitbox);
 
     // render level
-    void Draw(SpriteRenderer &renderer, double deltatime);
+    void Draw(SpriteRenderer &renderer, double deltaTime);
+
+    void Reset();
+
+    glm::vec3 GetPlayerPosition();
+    void AddPlayer(std::shared_ptr<Player> player);
 
 private:
-    // level state
+    nlohmann::json LevelInfo;
+    std::vector<std::vector<int> > Tiles;
+    std::shared_ptr<Player> Character;
     std::list<std::unique_ptr<Actor> > Actors;
 
-    // initialize level from tile data
-    void Init(std::vector<std::vector<int> > &tileData, unsigned int levelWidth, unsigned int levelHeight);
+    void LoadTiles();
+    void InitBlocks(unsigned int levelWidth, unsigned int levelHeight);
     void InitEnemies();
+    void InitSpike(nlohmann::json &enemyInfo);
+    void InitPowerUps();
+    void InitSword(nlohmann::json &powerUpInfo);
     void RemoveFromLevel(std::unique_ptr<Actor> &actor);
 };

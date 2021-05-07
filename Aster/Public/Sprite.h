@@ -25,13 +25,13 @@ public:
 
 	void AddAnimation(std::string filename, AnimationType type, float speed);
 
-  Texture2D GetTexture();
-  glm::vec4 GetAttackHitbox(AnimationType);
+	Texture2D GetTexture();
+	glm::vec4 GetAttackHitbox(AnimationType);
 
 private:
-	Texture2D m_texture;
-	Rectangle m_rectangle;
-  bool m_hasAnimation;
-
-	std::map<AnimationType, Animation*> m_animations;
+	Texture2D Texture;
+	Rectangle SubspriteRectangle;
+	bool HasAnimation;
+	AnimationType CurrentAnimationType = AnimationType::IDLE;
+	std::map<AnimationType, Animation *> Animations;
 };

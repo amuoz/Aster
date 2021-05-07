@@ -9,7 +9,6 @@ std::unique_ptr<Game> g_game;
 
 // GLFW function declarations
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 int main(int, char**)
 {
@@ -38,7 +37,6 @@ int main(int, char**)
 
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	glfwSetKeyCallback(window, key_callback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);	// GLFW to capture our mouse
 
 	// Glad: load OpenGL function pointers
@@ -66,7 +64,7 @@ int main(int, char**)
 	if (g_game != nullptr)
 	{
 		// Initialize game
-		g_game->InitGame();
+		g_game->InitGame(window);
 
 		// deltaTime variables
 		float m_deltaTime = 0.0f;	// Time between current frame and last frame
@@ -117,26 +115,4 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	// make sure the viewport matches the new window dimensions; note that width and 
 	// height will be significantly larger than specified on retina displays.
 	glViewport(0, 0, width, height);
-}
-
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
-{
-	// when a user presses the escape key, we set the WindowShouldClose property to true, closing the application
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-	{
-		glfwSetWindowShouldClose(window, true);
-	}
-
-	if (key >= 0 && key < 1024)
-	{
-		if (action == GLFW_PRESS)
-		{
-			g_game->Keys[key] = true;
-		}
-		else if (action == GLFW_RELEASE)
-		{
-			g_game->Keys[key] = false;
-			g_game->KeysProcessed[key] = false;
-		}
-	}
 }
