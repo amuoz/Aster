@@ -34,6 +34,7 @@ public:
 	
 	inline glm::vec3 GetPosition() { return m_position; }
 	void SetPosition(glm::vec3 pos);
+	bool IsAttacked(glm::vec4 attackHitbox);
 
 	bool IsDestroyable;
 	bool IsDestroyed;
