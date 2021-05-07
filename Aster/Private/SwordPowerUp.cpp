@@ -28,9 +28,6 @@ SwordPowerUp::SwordPowerUp(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::v
 			1.0f);
 	ActorCollider->bCheckCollision = true;
 	ActorCollider->report = this;
-
-	State = ActorState::IDLE;
-	LastState = ActorState::IDLE;
 }
 
 SwordPowerUp::~SwordPowerUp()

@@ -17,6 +17,8 @@ enum class AnimationType {
     SWORD_RIGHT,
     SWORD_DOWN,
     SWORD_LEFT,
+    DASH_RIGHT,
+    DASH_LEFT
 };
 
 enum class ActorState {
@@ -25,6 +27,7 @@ enum class ActorState {
     MOVEMENT_RIGHT,
     MOVEMENT_DOWN,
     MOVEMENT_LEFT,
+    DASH,
 		ATTACK_UP,
 		ATTACK_RIGHT,
 		ATTACK_DOWN,
