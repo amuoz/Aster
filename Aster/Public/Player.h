@@ -22,6 +22,7 @@ public:
 	void TakeDamage() override;
 	void Move(float deltaTime, glm::vec3 direction) override;
 	void Dash();
+	void SetDashSpeed();
 	void OnContact(
 			std::shared_ptr<Physics::PhysicActor> external,
 			std::shared_ptr<Physics::PhysicActor> internal) override;

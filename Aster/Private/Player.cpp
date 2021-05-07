@@ -7,6 +7,7 @@
 #include "SpriteRenderer.h"
 
 const float DASH_PERIOD = 0.7;
+const float BASE_SPEED = 200;
 
 Player::Player(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, glm::vec3 velocity) : Actor(pos, size, sprite, color, velocity)
 {
@@ -16,6 +17,7 @@ Player::Player(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, g
 	State = ActorState::IDLE;
 	LastState = ActorState::IDLE;
 	Inventory.push_back(PowerUpType::SPEAR);
+	Speed = BASE_SPEED;
 }
 
 Player::~Player()
@@ -31,12 +33,17 @@ void Player::Update(float deltaTime, glm::vec4)
 	if (State == ActorState::DASH)
 	{
 		DashTime += deltaTime;
+		SetDashSpeed();
 
 		if (DashTime > DASH_PERIOD)
 		{
 			DashTime = 0;
 			SetState(ActorState::IDLE);
 		}
+	}
+	else
+	{
+		Speed = BASE_SPEED;
 	}
 }
 
@@ -150,6 +157,18 @@ void Player::Dash()
 {
 	DashTime = 0;
 	SetState(ActorState::DASH);
+}
+
+void Player::SetDashSpeed()
+{
+	if (DashTime < DASH_PERIOD / 4 || DashTime > DASH_PERIOD * 3 / 4)
+	{
+		Speed = BASE_SPEED;
+	}
+	else
+	{
+		Speed = 2 * BASE_SPEED;
+	}
 }
 
 void Player::Idle()
