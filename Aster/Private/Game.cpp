@@ -13,25 +13,24 @@
 #include "ResourceManager.h"
 #include "TextRenderer.h"
 #include "SpriteRenderer.h"
+#include "PlayerController.h"
 
 #include <string>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <utility>
+#include <GLFW/glfw3.h>
 
 // externs
 Physics *g_PhysicsPtr;
-//Config* g_Config;
-
-const glm::vec3 PLAYER_SIZE(16.0f, 9.0f, 0.0f);
-const glm::vec3 playerPos = glm::vec3(400.0f, 400.0f, 0.0f);
 
 __inline float Randf(float min, float max)
 {
 	return (float)((float)((rand() & 32767) * (1.0 / 32767.0)) * (max - min) + min);
 }
 
-Game::Game() : State(GameState::GAME_ACTIVE), Keys(), KeysProcessed()
+Game::Game() : State(GameState::GAME_ACTIVE)
 {
 }
 
@@ -39,37 +38,48 @@ Game::~Game()
 {
 	glfwTerminate();
 
-	delete m_camera;
+	delete PlayerCamera;
 }
 
-void Game::InitPlayer()
+std::shared_ptr<Player> Game::CreatePlayer(glm::vec3 playerPosition)
 {
+	const glm::vec3 PLAYER_SIZE(16.0f, 9.0f, 0.0f);
 	glm::vec3 charScale(1.0f, 1.0f, 1.0f);
 	charScale.x = Config::Get()->GetValue(SRC_WIDTH) / PLAYER_SIZE.x;
 	charScale.y = Config::Get()->GetValue(SRC_HEIGHT) / PLAYER_SIZE.y;
+
 	Sprite *playerSprite = new Sprite("player");
+
 	playerSprite->AddAnimation("player_walk", AnimationType::WALK, 0.03f);
 	playerSprite->AddAnimation("player_idle", AnimationType::IDLE, 0.06f);
 	playerSprite->AddAnimation("attack_up", AnimationType::ATTACK_UP, 0.03f);
 	playerSprite->AddAnimation("attack_right", AnimationType::ATTACK_RIGHT, 0.03f);
 	playerSprite->AddAnimation("attack_down", AnimationType::ATTACK_DOWN, 0.03f);
 	playerSprite->AddAnimation("attack_left", AnimationType::ATTACK_LEFT, 0.03f);
-	Character = new Player(playerPos, charScale, playerSprite);
-	m_scene.push_back(Character);
+	playerSprite->AddAnimation("sword_up", AnimationType::SWORD_UP, 0.03f);
+	playerSprite->AddAnimation("sword_right", AnimationType::SWORD_RIGHT, 0.03f);
+	playerSprite->AddAnimation("sword_down", AnimationType::SWORD_DOWN, 0.03f);
+	playerSprite->AddAnimation("sword_left", AnimationType::SWORD_LEFT, 0.03f);
+	playerSprite->AddAnimation("roll_right", AnimationType::DASH_RIGHT, 0.018f);
+	playerSprite->AddAnimation("roll_left", AnimationType::DASH_LEFT, 0.018f);
+
+	std::shared_ptr<Player> player = std::make_shared<Player>(
+			playerPosition, charScale, playerSprite);
+
+	return player;
 }
 
-void Game::InitGame()
+void Game::InitGame(GLFWwindow *window)
 {
 	g_PhysicsPtr = new Physics(glm::vec3(0.0f, 0.0f, 0.0f));
-	m_camera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f));
+	PlayerCamera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f));
 
 	// text renderer with freetype
-	m_text = new TextRenderer(Config::Get()->GetValue(SRC_WIDTH),
+	Text = new TextRenderer(Config::Get()->GetValue(SRC_WIDTH),
 														Config::Get()->GetValue(SRC_HEIGHT));
-	m_text->Load(PROJECT_SOURCE_DIR "/Aster/Fonts/arial.ttf", 24);
+	Text->Load(PROJECT_SOURCE_DIR "/Aster/Fonts/arial.ttf", 24);
 
 	m_gameTime = 0.0f;
-	m_score = 0;
 
 	// Initialize sprite renderer with sprite shader
 	ResourceManager::GetInstance()->LoadShader(PROJECT_SOURCE_DIR "/Aster/Shaders/sprite.vs", PROJECT_SOURCE_DIR "/Aster/Shaders/sprite.fs", nullptr, "sprite");
@@ -86,16 +96,20 @@ void Game::InitGame()
 	// load textures
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/player.png", true, "player");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/spike_enemy.png", true, "spike_enemy");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/bone.png", true, "spear_powerup");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/anvil.png", true, "sword_powerup");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/block.png", false, "block");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/block_solid.png", false, "block_solid");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/grass-background.png", true, "background");
 
-	// Load levels
-	CurrentLevel = std::make_unique<Level>();
-	CurrentLevel->Load(PROJECT_SOURCE_DIR "/Aster/Levels/one.lvl", Config::Get()->GetValue(SRC_WIDTH), Config::Get()->GetValue(SRC_HEIGHT));
+	// level
+	CurrentLevel = ResourceManager::GetInstance()->LoadLevel(PROJECT_SOURCE_DIR "/Aster/Levels/one.json", "one");
+	glm::vec3 playerPosition = CurrentLevel->GetPlayerPosition();
 
 	// Player
-	InitPlayer();
+	std::shared_ptr<Player> player = CreatePlayer(playerPosition);
+	CharacterController = new PlayerController(player, window, Renderer, Text);
+	CurrentLevel->AddPlayer(player);
 }
 
 void Game::Execute(float deltaTime)
@@ -112,38 +126,20 @@ void Game::Update(float deltaTime)
 {
 	if (State == GameState::GAME_ACTIVE)
 	{
-		m_currentBulletFreq += deltaTime;
 		m_gameTime += deltaTime;
 
-		glm::vec4 playerAttackHitbox = Character->GetAttackHitbox();
+		glm::vec4 playerAttackHitbox = CharacterController->GetAttackHitbox();
 
-		// ..:: LOGIC ::..
-		for (std::list<Actor *>::iterator it = m_scene.begin(); it != m_scene.end();)
-		{
-			Actor *actor = (*it);
-			if (actor->IsDestroyed)
-			{
-				actor->GetPhysicsActor()->active = false;
-				it = m_scene.erase(it);
-				delete actor;
-			}
-			else
-			{
-				actor->Update(deltaTime, playerAttackHitbox);
-				it++;
-			}
-		}
-
-		if (!Character->IsActive())
+		if (!CharacterController->IsActive())
 		{
 			SetGameState(GameState::GAME_OVER);
 		}
 
 		// camera/view transformation
-		glm::vec3 cameraPos(Character->GetPosition().x - Config::Get()->GetValue(SRC_WIDTH) / 2,
-												Character->GetPosition().y - Config::Get()->GetValue(SRC_HEIGHT) / 2,
+		glm::vec3 cameraPos(CharacterController->GetPosition().x - Config::Get()->GetValue(SRC_WIDTH) / 2,
+												CharacterController->GetPosition().y - Config::Get()->GetValue(SRC_HEIGHT) / 2,
 												0.0f);
-		m_camera->SetPosition(cameraPos);
+		PlayerCamera->SetPosition(cameraPos);
 
 		// Physics simulation
 		g_PhysicsPtr->Update(deltaTime);
@@ -158,7 +154,7 @@ void Game::Render(float deltaTime)
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Set camera view matrix
-	Renderer->SetViewMatrix(m_camera->GetViewMatrix());
+	Renderer->SetViewMatrix(PlayerCamera->GetViewMatrix());
 
 	// Draw background
 	Texture2D background = ResourceManager::GetInstance()->GetTexture("background");
@@ -167,35 +163,19 @@ void Game::Render(float deltaTime)
 
 	// DebugAttackHitbox(*Renderer);
 
-	// Draw level
 	CurrentLevel->Draw(*Renderer, deltaTime);
 
-	// Render scene
-	for (Actor *actor : m_scene)
-	{
-		if (actor->IsActive())
-		{
-			actor->Draw(*Renderer, deltaTime);
-		}
-	}
-
 	// Render UI
-	RenderUI();
-}
-
-void Game::RenderUI()
-{
-	float screenWidth = Config::Get()->GetValue(SRC_WIDTH);
-	float screenHeight = Config::Get()->GetValue(SRC_HEIGHT);
-
 	if (State == GameState::GAME_OVER)
 	{
-		m_text->RenderText("YOU ARE DEAD", 50, screenHeight / 2, 5.0, glm::vec3(0.7, 0.0, 0.0));
+		CharacterController->DrawPlayerDeath();
 	}
 	else
 	{
-		m_text->RenderText("Kill the Mobs", 650, Config::Get()->GetValue(SRC_HEIGHT) / 10, 1.0, glm::vec3(1.0, 1.0, 1.0));
+		CharacterController->DrawObjectives();
 	}
+
+	CharacterController->DrawUI(PlayerCamera->GetPosition());
 }
 
 void Game::Restart()
@@ -203,24 +183,9 @@ void Game::Restart()
 	// hot-reload config file
 	Config::Get()->Load(CONFIG_FILE);
 
-	for (std::list<Actor *>::iterator it = m_scene.begin(); it != m_scene.end();)
-	{
-		Actor *actor = (*it);
-		if (actor->IsDelete()) // clean runtime deleteable actors
-		{
-			actor->GetPhysicsActor()->active = false;
-			it = m_scene.erase(it);
-			delete actor;
-		}
-		else
-		{
-			actor->Reset();
-			it++;
-		}
-	}
+	CurrentLevel->Reset();
 
 	m_gameTime = 0.0f;
-	m_score = 0;
 	SetGameState(GameState::GAME_ACTIVE);
 }
 
@@ -231,55 +196,18 @@ void Game::ProcessInput(float deltaTime)
 	// Player movement
 	if (State == GameState::GAME_ACTIVE)
 	{
-		bool bMove = false;
-		glm::vec3 direction(0.0f);
-		if (Keys[GLFW_KEY_A])
-		{
-			direction += glm::vec3(-1.0f, 0.0f, 0.0f);
-			bMove = true;
-		}
-		if (Keys[GLFW_KEY_D])
-		{
-			direction += glm::vec3(1.0f, 0.0f, 0.0f);
-			bMove = true;
-		}
-		if (Keys[GLFW_KEY_W])
-		{
-			direction += glm::vec3(0.0f, -1.0f, 0.0f);
-			bMove = true;
-		}
-		if (Keys[GLFW_KEY_S])
-		{
-			direction += glm::vec3(0.0f, 1.0f, 0.0f);
-			bMove = true;
-		}
-
-		// apply character movement if needed
-		if (bMove)
-		{
-			Character->Move(deltaTime, direction);
-		}
-		else
-		{
-			Character->Idle();
-		}
-
-		// attack
-		if (Keys[GLFW_KEY_SPACE])
-		{
-			Character->Attack();
-		}
+		CharacterController->ProcessInput(deltaTime);
 	}
 
-	if (State == GameState::GAME_RESTART)
-	{
-		if (Keys[GLFW_KEY_R] && !KeysProcessed[GLFW_KEY_R])
-		{
-			std::cout << "...RESTART GAME..." << std::endl;
-			KeysProcessed[GLFW_KEY_R] = true;
-			Restart();
-		}
-	}
+	// if (State == GameState::GAME_RESTART)
+	// {
+	// 	if (Keys[GLFW_KEY_R] && !KeysProcessed[GLFW_KEY_R])
+	// 	{
+	// 		std::cout << "...RESTART GAME..." << std::endl;
+	// 		KeysProcessed[GLFW_KEY_R] = true;
+	// 		Restart();
+	// 	}
+	// }
 }
 
 void Game::SetGameState(GameState newState)
@@ -290,7 +218,7 @@ void Game::SetGameState(GameState newState)
 void Game::DebugAttackHitbox(SpriteRenderer &Renderer)
 {
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glm::vec4 playerAttackHitbox = Character->GetAttackHitbox();
+	glm::vec4 playerAttackHitbox = CharacterController->GetAttackHitbox();
 	Texture2D texture = ResourceManager::GetInstance()->GetTexture("block");
 	Renderer.DrawTexture(
 			texture,

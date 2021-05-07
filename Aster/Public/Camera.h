@@ -50,6 +50,7 @@ public:
     float GetZoom() { return Zoom; }
 
     void SetPosition(const glm::vec3& pos);
+    glm::vec3 GetPosition();
 
 private:
     // calculates the front vector from the Camera's (updated) Euler Angles

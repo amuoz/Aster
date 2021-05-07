@@ -36,7 +36,8 @@ include_directories(Aster/Public/
                     Aster/ThirdParty/glfw/include/
                     Aster/ThirdParty/glm/
                     Aster/ThirdParty/stb/
-                    Aster/ThirdParty/freetype/include)
+                    Aster/ThirdParty/freetype/include
+                    Aster/ThirdParty/json/include)
 
 file(GLOB VENDORS_SOURCES Aster/ThirdParty/glad/src/glad.c)
 file(GLOB PROJECT_HEADERS Aster/Public/*.h)

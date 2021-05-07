@@ -5,9 +5,11 @@
 #include <string>
 
 #include <glad/glad.h>
+#include <utility>
 
 #include "Texture2D.h"
 #include "Shader.h"
+#include "Level.h"
 
 // A static singleton ResourceManager class that hosts several
 // functions to load Textures and Shaders. Each loaded texture
@@ -27,6 +29,10 @@ public:
 	// retrieves a stored texture
 	Texture2D GetTexture(std::string name);
 	// properly de-allocates all loaded resources
+	
+	std::shared_ptr<Level> LoadLevel(const char *file, std::string name);
+	std::shared_ptr<Level> GetLevel(std::string name);
+	
 	void Clear();
 
 	static ResourceManager* GetInstance();
@@ -38,14 +44,14 @@ private:
 
 	static ResourceManager* m_instance;
 
-	// loads and generates a shader from file
 	Shader LoadShaderFromFile(const char *vShaderFile, const char *fShaderFile, const char *gShaderFile = nullptr);
-	// loads a single texture from file
 	Texture2D LoadTextureFromFile(const char* file, bool alpha);
+	std::shared_ptr<Level> LoadLevelFromFile(const char* file);
 
 	// resource storage
 	std::map<std::string, Shader> Shaders;
 	std::map<std::string, Texture2D> Textures;
+	std::map<std::string, std::shared_ptr<Level> > Levels;
 };
 
 #endif
