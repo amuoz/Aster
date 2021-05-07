@@ -38,7 +38,6 @@ public:
 	inline bool IsActive() { return m_active; }
 	inline bool IsDelete() { return m_delete; }
 	inline std::shared_ptr<Physics::PhysicActor> GetActorCollider() { return ActorCollider; }
-	inline Mesh *GetMesh() { return m_mesh; }
 
 	inline glm::vec3 GetPosition() { return m_position; }
 	void SetPosition(glm::vec3 pos);
@@ -65,7 +64,6 @@ protected:
 	// physics pointer
 	std::shared_ptr<Physics::PhysicActor> ActorCollider = nullptr;
 
-	Mesh *m_mesh = nullptr;
 	Sprite *m_sprite;
 
 	ActorState State;
