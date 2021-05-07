@@ -7,6 +7,10 @@
 #include "SpriteRenderer.h"
 
 const float DASH_PERIOD = 0.7;
+const float DASH_SPEED_UP_START = DASH_PERIOD / 4;
+const float DASH_SPEED_UP_FINISH = DASH_PERIOD * 3 / 4;
+const float DASH_IFRAMES_START = DASH_PERIOD / 5;
+const float DASH_IFRAMES_FINISH = DASH_PERIOD * 4 / 5;
 const float BASE_SPEED = 200;
 
 Player::Player(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, glm::vec3 velocity) : Actor(pos, size, sprite, color, velocity)
@@ -34,6 +38,7 @@ void Player::Update(float deltaTime, glm::vec4)
 	{
 		DashTime += deltaTime;
 		SetDashSpeed();
+		SetDashIFrames();
 
 		if (DashTime > DASH_PERIOD)
 		{
@@ -49,21 +54,12 @@ void Player::Update(float deltaTime, glm::vec4)
 
 void Player::Draw(SpriteRenderer &renderer, double deltatime)
 {
-	switch (ActivePowerUp)
-	{
-	case PowerUpType::SWORD:
-		CurrentAnimation = GetSwordAnimation();
-		break;
-
-	default:
-		CurrentAnimation = GetDefaultAnimation();
-		break;
-	}
+	CurrentAnimation = GetAnimationFromState();
 
 	m_sprite->Draw(CurrentAnimation, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
 }
 
-AnimationType Player::GetDefaultAnimation()
+AnimationType Player::GetAnimationFromState()
 {
 	switch (State)
 	{
@@ -78,13 +74,41 @@ AnimationType Player::GetDefaultAnimation()
 		return AnimationType::WALK;
 
 	case ActorState::ATTACK_RIGHT:
-		return AnimationType::ATTACK_RIGHT;
+		if (ActivePowerUp == PowerUpType::SWORD)
+		{
+			return AnimationType::SWORD_RIGHT;
+		}
+		else
+		{
+			return AnimationType::ATTACK_RIGHT;
+		}
 	case ActorState::ATTACK_LEFT:
-		return AnimationType::ATTACK_LEFT;
+		if (ActivePowerUp == PowerUpType::SWORD)
+		{
+			return AnimationType::SWORD_LEFT;
+		}
+		else
+		{
+			return AnimationType::ATTACK_LEFT;
+		}
 	case ActorState::ATTACK_DOWN:
-		return AnimationType::ATTACK_DOWN;
+		if (ActivePowerUp == PowerUpType::SWORD)
+		{
+			return AnimationType::SWORD_DOWN;
+		}
+		else
+		{
+			return AnimationType::ATTACK_DOWN;
+		}
 	case ActorState::ATTACK_UP:
-		return AnimationType::ATTACK_UP;
+		if (ActivePowerUp == PowerUpType::SWORD)
+		{
+			return AnimationType::SWORD_UP;
+		}
+		else
+		{
+			return AnimationType::ATTACK_UP;
+		}
 
 	case ActorState::DASH:
 		bool isMovingRight = MovementDirection.x > 0 ||
@@ -93,34 +117,17 @@ AnimationType Player::GetDefaultAnimation()
 	}
 }
 
-AnimationType Player::GetSwordAnimation()
+void Player::TakeDamage()
 {
-	switch (State)
+	if (State != ActorState::DASH || !IsInDashIFrames())
 	{
-	case ActorState::IDLE:
-	default:
-		return AnimationType::IDLE;
-
-	case ActorState::MOVEMENT_RIGHT:
-	case ActorState::MOVEMENT_LEFT:
-	case ActorState::MOVEMENT_DOWN:
-	case ActorState::MOVEMENT_UP:
-		return AnimationType::WALK;
-
-	case ActorState::ATTACK_RIGHT:
-		return AnimationType::SWORD_RIGHT;
-	case ActorState::ATTACK_LEFT:
-		return AnimationType::SWORD_LEFT;
-	case ActorState::ATTACK_DOWN:
-		return AnimationType::SWORD_DOWN;
-	case ActorState::ATTACK_UP:
-		return AnimationType::SWORD_UP;
+		SetActive(false);
 	}
 }
 
-void Player::TakeDamage()
+bool Player::IsInDashIFrames()
 {
-	SetActive(false);
+	return (DashTime > DASH_IFRAMES_START) && (DashTime < DASH_IFRAMES_FINISH);
 }
 
 void Player::Move(float deltaTime, glm::vec3 direction)
@@ -161,13 +168,25 @@ void Player::Dash()
 
 void Player::SetDashSpeed()
 {
-	if (DashTime < DASH_PERIOD / 4 || DashTime > DASH_PERIOD * 3 / 4)
+	if (DashTime < DASH_SPEED_UP_START || DashTime > DASH_SPEED_UP_FINISH)
 	{
 		Speed = BASE_SPEED;
 	}
 	else
 	{
 		Speed = 2 * BASE_SPEED;
+	}
+}
+
+void Player::SetDashIFrames()
+{
+	if (IsInDashIFrames())
+	{
+		ActorCollider->justReport = true;
+	}
+	else
+	{
+		ActorCollider->justReport = false;
 	}
 }
 
