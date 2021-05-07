@@ -213,5 +213,8 @@ PowerUpType Player::GetActivePowerUp()
 
 void Player::SelectPowerUp(unsigned int index)
 {
-	ActivePowerUp = Inventory[index];
+	if (Inventory.size() > index)
+	{
+		ActivePowerUp = Inventory[index];
+	}
 }
