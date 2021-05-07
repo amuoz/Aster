@@ -21,9 +21,9 @@ Animation::Animation()
 }
 
 Animation::Animation(std::string filename, float speed)
-  : m_animationCursor(0),
-  m_spriteIndex(0),
-  m_speed(0.05f)
+    : m_animationCursor(0),
+      m_spriteIndex(0),
+      m_speed(0.05f)
 {
   std::string projectSrcDir = PROJECT_SOURCE_DIR;
 
@@ -37,11 +37,23 @@ Animation::Animation(std::string filename, float speed)
 
 Animation::~Animation()
 {
-
 }
 
-void Animation::Play(SpriteRenderer &renderer, Texture2D& texture, Rectangle& rectangle, double deltatime, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
+void Animation::Play(SpriteRenderer &renderer,
+                     Texture2D &texture,
+                     Rectangle &rectangle,
+                     double deltatime,
+                     glm::vec2 position,
+                     glm::vec2 size,
+                     float rotate,
+                     glm::vec3 color,
+                     bool restartAnimation)
 {
+  if (restartAnimation)
+  {
+    m_spriteIndex = 0;
+  }
+
   m_animationCursor += deltatime;
 
   if (m_animationCursor > m_speed)
@@ -68,13 +80,13 @@ void Animation::Play(SpriteRenderer &renderer, Texture2D& texture, Rectangle& re
   int yExtraPos = frame[3] < 0 ? CELL_HEIGHT / 2 : 0;
 
   float vertices[] = {
-    0.0f,    yCells,   xSpritePos,                ySpritePos + spriteHeight,   //  3  2   //  2  3
-    xCells,  0.0f,     xSpritePos + spriteWidth,  ySpritePos,                  //         //
-    0.0f,    0.0f,     xSpritePos,                ySpritePos,                  //  1      //     1
+      0.0f, yCells, xSpritePos, ySpritePos + spriteHeight, //  3  2   //  2  3
+      xCells, 0.0f, xSpritePos + spriteWidth, ySpritePos,  //         //
+      0.0f, 0.0f, xSpritePos, ySpritePos,                  //  1      //     1
 
-    0.0f,    yCells,   xSpritePos,                ySpritePos + spriteHeight,   //     3   //  3
-    xCells,  yCells,   xSpritePos + spriteWidth,  ySpritePos + spriteHeight,   //         //
-    xCells,  0.0f,     xSpritePos + spriteWidth,  ySpritePos                   //  1  2   //  2  1
+      0.0f, yCells, xSpritePos, ySpritePos + spriteHeight,                 //     3   //  3
+      xCells, yCells, xSpritePos + spriteWidth, ySpritePos + spriteHeight, //         //
+      xCells, 0.0f, xSpritePos + spriteWidth, ySpritePos                   //  1  2   //  2  1
   };
 
   renderer.SetShader(glm::vec2(position.x + xExtraPos, position.y + yExtraPos), size, rotate, color);
@@ -88,8 +100,8 @@ void Animation::Play(SpriteRenderer &renderer, Texture2D& texture, Rectangle& re
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-  
+  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
+
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
   rectangle.Draw();

@@ -3,7 +3,11 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <utility>
 
+#include "Config.h"
+#include "Level.h"
+#include "Common.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -43,6 +47,17 @@ Texture2D ResourceManager::LoadTexture(const char* file, bool alpha, std::string
 Texture2D ResourceManager::GetTexture(std::string name)
 {
 	return Textures[name];
+}
+
+std::shared_ptr<Level> ResourceManager::LoadLevel(const char *file, std::string name)
+{
+	Levels[name] = LoadLevelFromFile(file);
+	return Levels[name];
+}
+
+std::shared_ptr<Level> ResourceManager::GetLevel(std::string name)
+{
+	return Levels[name];
 }
 
 void ResourceManager::Clear()
@@ -125,4 +140,12 @@ Texture2D ResourceManager::LoadTextureFromFile(const char* file, bool alpha)
 	// and finally free image data
 	stbi_image_free(data);
 	return texture;
+}
+
+std::shared_ptr<Level> ResourceManager::LoadLevelFromFile(const char* file)
+{
+	auto level = std::make_shared<Level>();
+	level->Load(file, Config::Get()->GetValue(SRC_WIDTH), Config::Get()->GetValue(SRC_HEIGHT));
+
+	return level;
 }
