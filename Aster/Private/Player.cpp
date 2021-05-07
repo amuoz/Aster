@@ -6,6 +6,9 @@
 
 #include "SpriteRenderer.h"
 
+const float DASH_PERIOD = 0.7;
+const float BASE_SPEED = 200;
+
 Player::Player(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, glm::vec3 velocity) : Actor(pos, size, sprite, color, velocity)
 {
 	ActorCollider = g_PhysicsPtr->AddDynamicActor(pos, velocity, size, false, glm::vec3(0.0f), 1.0f);
@@ -13,6 +16,8 @@ Player::Player(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, g
 	ActorCollider->report = this;
 	State = ActorState::IDLE;
 	LastState = ActorState::IDLE;
+	Inventory.push_back(PowerUpType::SPEAR);
+	Speed = BASE_SPEED;
 }
 
 Player::~Player()
@@ -23,8 +28,23 @@ void Player::Render(Shader)
 {
 }
 
-void Player::Update(float, glm::vec4)
+void Player::Update(float deltaTime, glm::vec4)
 {
+	if (State == ActorState::DASH)
+	{
+		DashTime += deltaTime;
+		SetDashSpeed();
+
+		if (DashTime > DASH_PERIOD)
+		{
+			DashTime = 0;
+			SetState(ActorState::IDLE);
+		}
+	}
+	else
+	{
+		Speed = BASE_SPEED;
+	}
 }
 
 void Player::Draw(SpriteRenderer &renderer, double deltatime)
@@ -34,7 +54,7 @@ void Player::Draw(SpriteRenderer &renderer, double deltatime)
 	case PowerUpType::SWORD:
 		CurrentAnimation = GetSwordAnimation();
 		break;
-	
+
 	default:
 		CurrentAnimation = GetDefaultAnimation();
 		break;
@@ -50,27 +70,26 @@ AnimationType Player::GetDefaultAnimation()
 	case ActorState::IDLE:
 	default:
 		return AnimationType::IDLE;
-		break;
 
 	case ActorState::MOVEMENT_RIGHT:
 	case ActorState::MOVEMENT_LEFT:
 	case ActorState::MOVEMENT_DOWN:
 	case ActorState::MOVEMENT_UP:
 		return AnimationType::WALK;
-		break;
 
 	case ActorState::ATTACK_RIGHT:
 		return AnimationType::ATTACK_RIGHT;
-		break;
 	case ActorState::ATTACK_LEFT:
 		return AnimationType::ATTACK_LEFT;
-		break;
 	case ActorState::ATTACK_DOWN:
 		return AnimationType::ATTACK_DOWN;
-		break;
 	case ActorState::ATTACK_UP:
 		return AnimationType::ATTACK_UP;
-		break;
+
+	case ActorState::DASH:
+		bool isMovingRight = MovementDirection.x > 0 ||
+												 (MovementDirection.x == 0 && LastMovementDirection.x >= 0);
+		return isMovingRight ? AnimationType::DASH_RIGHT : AnimationType::DASH_LEFT;
 	}
 }
 
@@ -81,27 +100,21 @@ AnimationType Player::GetSwordAnimation()
 	case ActorState::IDLE:
 	default:
 		return AnimationType::IDLE;
-		break;
 
 	case ActorState::MOVEMENT_RIGHT:
 	case ActorState::MOVEMENT_LEFT:
 	case ActorState::MOVEMENT_DOWN:
 	case ActorState::MOVEMENT_UP:
 		return AnimationType::WALK;
-		break;
 
 	case ActorState::ATTACK_RIGHT:
 		return AnimationType::SWORD_RIGHT;
-		break;
 	case ActorState::ATTACK_LEFT:
 		return AnimationType::SWORD_LEFT;
-		break;
 	case ActorState::ATTACK_DOWN:
 		return AnimationType::SWORD_DOWN;
-		break;
 	case ActorState::ATTACK_UP:
 		return AnimationType::SWORD_UP;
-		break;
 	}
 }
 
@@ -112,18 +125,50 @@ void Player::TakeDamage()
 
 void Player::Move(float deltaTime, glm::vec3 direction)
 {
-	if (direction.x > 0)
-		SetState(ActorState::MOVEMENT_RIGHT);
-	else if (direction.x < 0)
-		SetState(ActorState::MOVEMENT_LEFT);
-	else if (direction.y > 0)
-		SetState(ActorState::MOVEMENT_DOWN);
-	else if (direction.y < 0)
-		SetState(ActorState::MOVEMENT_UP);
+	if (State == ActorState::DASH)
+	{
+		Actor::Move(deltaTime, LastMovementDirection);
+	}
 	else
-		SetState(ActorState::IDLE);
+	{
+		if (direction.x > 0)
+			SetState(ActorState::MOVEMENT_RIGHT);
+		else if (direction.x < 0)
+			SetState(ActorState::MOVEMENT_LEFT);
+		else if (direction.y > 0)
+			SetState(ActorState::MOVEMENT_DOWN);
+		else if (direction.y < 0)
+			SetState(ActorState::MOVEMENT_UP);
+		else
+			SetState(ActorState::IDLE);
 
-	Actor::Move(deltaTime, direction);
+		MovementDirection = direction;
+
+		if (direction.x != 0 || direction.y != 0)
+		{
+			LastMovementDirection = direction;
+		}
+
+		Actor::Move(deltaTime, MovementDirection);
+	}
+}
+
+void Player::Dash()
+{
+	DashTime = 0;
+	SetState(ActorState::DASH);
+}
+
+void Player::SetDashSpeed()
+{
+	if (DashTime < DASH_PERIOD / 4 || DashTime > DASH_PERIOD * 3 / 4)
+	{
+		Speed = BASE_SPEED;
+	}
+	else
+	{
+		Speed = 2 * BASE_SPEED;
+	}
 }
 
 void Player::Idle()
@@ -167,8 +212,8 @@ void Player::Attack()
 }
 
 void Player::OnContact(
-			std::shared_ptr<Physics::PhysicActor>,
-			std::shared_ptr<Physics::PhysicActor>)
+		std::shared_ptr<Physics::PhysicActor>,
+		std::shared_ptr<Physics::PhysicActor>)
 {
 	m_position = ActorCollider->pos;
 }
@@ -182,21 +227,38 @@ glm::vec4 Player::GetAttackHitbox()
 {
 	glm::vec4 spriteHitbox = m_sprite->GetAttackHitbox(CurrentAnimation);
 
-	if (spriteHitbox.x == 0 && spriteHitbox.y == 0
-		&& spriteHitbox.z == 0 && spriteHitbox.w == 0)
+	if (spriteHitbox.x == 0 && spriteHitbox.y == 0 && spriteHitbox.z == 0 && spriteHitbox.w == 0)
 	{
 		return glm::vec4(0, 0, 0, 0);
 	}
 
 	return glm::vec4(
-		m_position.x + spriteHitbox.x,
-		m_position.y + spriteHitbox.y,
-		spriteHitbox.z,
-		spriteHitbox.w
-	);
+			m_position.x + spriteHitbox.x,
+			m_position.y + spriteHitbox.y,
+			spriteHitbox.z,
+			spriteHitbox.w);
 }
 
 void Player::PowerUp(PowerUpType powerUp)
 {
+	Inventory.push_back(powerUp);
 	ActivePowerUp = powerUp;
+}
+
+std::vector<PowerUpType> Player::GetPowerUps()
+{
+	return Inventory;
+}
+
+PowerUpType Player::GetActivePowerUp()
+{
+	return ActivePowerUp;
+}
+
+void Player::SelectPowerUp(unsigned int index)
+{
+	if (Inventory.size() > index)
+	{
+		ActivePowerUp = Inventory[index];
+	}
 }

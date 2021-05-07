@@ -38,7 +38,7 @@ Game::~Game()
 {
 	glfwTerminate();
 
-	delete m_camera;
+	delete PlayerCamera;
 }
 
 std::shared_ptr<Player> Game::CreatePlayer(glm::vec3 playerPosition)
@@ -60,6 +60,8 @@ std::shared_ptr<Player> Game::CreatePlayer(glm::vec3 playerPosition)
 	playerSprite->AddAnimation("sword_right", AnimationType::SWORD_RIGHT, 0.03f);
 	playerSprite->AddAnimation("sword_down", AnimationType::SWORD_DOWN, 0.03f);
 	playerSprite->AddAnimation("sword_left", AnimationType::SWORD_LEFT, 0.03f);
+	playerSprite->AddAnimation("roll_right", AnimationType::DASH_RIGHT, 0.018f);
+	playerSprite->AddAnimation("roll_left", AnimationType::DASH_LEFT, 0.018f);
 
 	std::shared_ptr<Player> player = std::make_shared<Player>(
 			playerPosition, charScale, playerSprite);
@@ -70,12 +72,12 @@ std::shared_ptr<Player> Game::CreatePlayer(glm::vec3 playerPosition)
 void Game::InitGame(GLFWwindow *window)
 {
 	g_PhysicsPtr = new Physics(glm::vec3(0.0f, 0.0f, 0.0f));
-	m_camera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f));
+	PlayerCamera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f));
 
 	// text renderer with freetype
-	m_text = new TextRenderer(Config::Get()->GetValue(SRC_WIDTH),
+	Text = new TextRenderer(Config::Get()->GetValue(SRC_WIDTH),
 														Config::Get()->GetValue(SRC_HEIGHT));
-	m_text->Load(PROJECT_SOURCE_DIR "/Aster/Fonts/arial.ttf", 24);
+	Text->Load(PROJECT_SOURCE_DIR "/Aster/Fonts/arial.ttf", 24);
 
 	m_gameTime = 0.0f;
 
@@ -94,6 +96,7 @@ void Game::InitGame(GLFWwindow *window)
 	// load textures
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/player.png", true, "player");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/spike_enemy.png", true, "spike_enemy");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/bone.png", true, "spear_powerup");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/anvil.png", true, "sword_powerup");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/block.png", false, "block");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Aster/Textures/block_solid.png", false, "block_solid");
@@ -105,7 +108,7 @@ void Game::InitGame(GLFWwindow *window)
 
 	// Player
 	std::shared_ptr<Player> player = CreatePlayer(playerPosition);
-	CharacterController = new PlayerController(player, window);
+	CharacterController = new PlayerController(player, window, Renderer, Text);
 	CurrentLevel->AddPlayer(player);
 }
 
@@ -136,7 +139,7 @@ void Game::Update(float deltaTime)
 		glm::vec3 cameraPos(CharacterController->GetPosition().x - Config::Get()->GetValue(SRC_WIDTH) / 2,
 												CharacterController->GetPosition().y - Config::Get()->GetValue(SRC_HEIGHT) / 2,
 												0.0f);
-		m_camera->SetPosition(cameraPos);
+		PlayerCamera->SetPosition(cameraPos);
 
 		// Physics simulation
 		g_PhysicsPtr->Update(deltaTime);
@@ -151,7 +154,7 @@ void Game::Render(float deltaTime)
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Set camera view matrix
-	Renderer->SetViewMatrix(m_camera->GetViewMatrix());
+	Renderer->SetViewMatrix(PlayerCamera->GetViewMatrix());
 
 	// Draw background
 	Texture2D background = ResourceManager::GetInstance()->GetTexture("background");
@@ -163,22 +166,16 @@ void Game::Render(float deltaTime)
 	CurrentLevel->Draw(*Renderer, deltaTime);
 
 	// Render UI
-	RenderUI();
-}
-
-void Game::RenderUI()
-{
-	float screenWidth = Config::Get()->GetValue(SRC_WIDTH);
-	float screenHeight = Config::Get()->GetValue(SRC_HEIGHT);
-
 	if (State == GameState::GAME_OVER)
 	{
-		m_text->RenderText("YOU ARE DEAD", 50, screenHeight / 2, 5.0, glm::vec3(0.7, 0.0, 0.0));
+		CharacterController->DrawPlayerDeath();
 	}
 	else
 	{
-		m_text->RenderText("Kill the Mobs", 650, Config::Get()->GetValue(SRC_HEIGHT) / 10, 1.0, glm::vec3(1.0, 1.0, 1.0));
+		CharacterController->DrawObjectives();
 	}
+
+	CharacterController->DrawUI(PlayerCamera->GetPosition());
 }
 
 void Game::Restart()
