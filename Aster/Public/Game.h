@@ -30,12 +30,7 @@ class TextRenderer;
 class SpriteRenderer;
 class Level;
 class Player;
-
-// Represents the current state of the game
-enum class GameState {
-	GAME_ACTIVE,
-	GAME_RESTART
-};
+enum class GameState;
 
 class Game
 {
@@ -84,7 +79,7 @@ private:
 	std::unique_ptr<Level> CurrentLevel;
 	Player* Character;
 
-	GameState m_state;
+	GameState State;
 
 	int m_score;
 

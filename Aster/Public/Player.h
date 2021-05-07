@@ -18,6 +18,7 @@ public:
 	void Render(Shader shader);
 	void Update(float, glm::vec4);
 	void Draw(SpriteRenderer &renderer, double deltaTime);
+	void TakeDamage();
 
 	void Move(float deltaTime, glm::vec3 direction);
 	void Idle();

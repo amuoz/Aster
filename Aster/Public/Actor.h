@@ -22,6 +22,7 @@ public:
 	virtual void Update(float deltaTime, glm::vec4 playerAttackHitbox) = 0;
 	virtual void Reset();
 	virtual void Draw(SpriteRenderer &renderer, double deltatime);
+	virtual void TakeDamage() = 0;
 
 	void SetActive(bool newActive);
 	void SetDelete(bool newDelete);

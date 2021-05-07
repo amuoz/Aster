@@ -60,6 +60,11 @@ void Player::Draw(SpriteRenderer &renderer, double deltatime)
 	m_sprite->Draw(CurrentAnimation, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
 }
 
+void Player::TakeDamage()
+{
+	SetActive(false);
+}
+
 void Player::Move(float deltaTime, glm::vec3 direction)
 {
 	if (direction.x > 0)

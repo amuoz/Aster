@@ -58,6 +58,7 @@ void Actor::Draw(SpriteRenderer& renderer, double)
 void Actor::SetActive(bool newActive)
 {
 	m_physicsActor->active = newActive;
+	m_active = newActive;
 }
 
 void Actor::SetDelete(bool newDelete)
