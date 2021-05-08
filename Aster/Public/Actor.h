@@ -64,10 +64,11 @@ protected:
 	// physics pointer
 	std::shared_ptr<Physics::PhysicActor> ActorCollider = nullptr;
 
-	Sprite *m_sprite;
+	Sprite *ActorSprite;
 
 	ActorState State;
 	ActorState LastState;
+	float AnimationProgress;
 
 	float Speed = 200;
 };

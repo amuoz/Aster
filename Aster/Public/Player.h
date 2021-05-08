@@ -47,4 +47,5 @@ private:
 
 	AnimationType GetAnimationFromState();
 	bool IsInDashIFrames();
+	bool IsAttackAnimationPlaying();
 };
