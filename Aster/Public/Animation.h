@@ -28,6 +28,7 @@ public:
       bool restartAnimation);
 
   glm::vec4 GetAttackHitbox();
+  int GetFramesCount();
 
 private:
   double m_animationCursor;

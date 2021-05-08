@@ -112,3 +112,8 @@ glm::vec4 Animation::GetAttackHitbox()
   std::vector<int> hitbox = HitboxFrames[m_spriteIndex];
   return glm::vec4(hitbox[0], hitbox[1], hitbox[2], hitbox[3]);
 }
+
+int Animation::GetFramesCount()
+{
+  return FramesCount;
+}
