@@ -11,12 +11,6 @@
 #include "Physics.h"
 #include "SpriteRenderer.h"
 
-// TODO: calculate this vvv based on the current animation
-const int ANIMATION_FRAMES = 18;
-const float STILL_CHANCE = 0.3;
-const float CHANGE_DIRECTION_CHANCE = 0.2;
-const float AGGRO_SIZE = 350;
-
 SpearPowerUp::SpearPowerUp(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, glm::vec3 velocity) : Actor(pos, size, sprite, color, velocity)
 {
 	ActorCollider = g_PhysicsPtr->AddDynamicActor(
