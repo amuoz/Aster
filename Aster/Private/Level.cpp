@@ -15,6 +15,7 @@
 #include "Player.h"
 #include "SpikeEnemy.h"
 #include "SwordPowerUp.h"
+#include "SpearPowerUp.h"
 
 Level::Level()
 {
@@ -216,10 +217,15 @@ void Level::InitPowerUps()
 
     for (auto &powerUp : powerUps)
     {
-        std::string powerUpType = powerUp["type"].get<std::string>();
-        if (powerUpType == "Sword")
+        std::string powerUpName = powerUp["type"].get<std::string>();
+            
+        if (powerUpName == "Sword")
         {
             InitSword(powerUp);
+        }
+        if (powerUpName == "Spear")
+        {
+            InitSpear(powerUp);
         }
     }
 }
@@ -235,6 +241,19 @@ void Level::InitSword(nlohmann::json &powerUpInfo)
 
     Actors.push_back(
         std::make_unique<SwordPowerUp>(pos, size, blockSprite, color));
+}
+
+void Level::InitSpear(nlohmann::json &powerUpInfo)
+{
+    const glm::vec3 size(50, 50, 0);
+    glm::vec3 color = glm::vec3(1, 1, 1);
+    auto position = powerUpInfo["position"];
+    glm::vec3 pos(position[0], position[1], 0.0f);
+
+    Sprite *blockSprite = new Sprite("spear_powerup");
+
+    Actors.push_back(
+        std::make_unique<SpearPowerUp>(pos, size, blockSprite, color));
 }
 
 void Level::RemoveFromLevel(std::unique_ptr<Actor> &actor)
