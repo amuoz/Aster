@@ -33,6 +33,8 @@ void Player::Render(Shader)
 
 void Player::Update(float deltaTime, glm::vec4)
 {
+	AnimationProgress += deltaTime;
+
 	if (State == ActorState::DASH)
 	{
 		DashTime += deltaTime;
@@ -55,11 +57,16 @@ void Player::Draw(SpriteRenderer &renderer, double deltatime)
 {
 	CurrentAnimation = GetAnimationFromState();
 
-	m_sprite->Draw(CurrentAnimation, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
+	ActorSprite->Draw(CurrentAnimation, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
 }
 
 AnimationType Player::GetAnimationFromState()
 {
+	if (IsAttackAnimationPlaying())
+	{
+		return ActorSprite->GetAnimationType();
+	}
+
 	switch (State)
 	{
 	case ActorState::IDLE:
@@ -130,6 +137,18 @@ AnimationType Player::GetAnimationFromState()
 												 (MovementDirection.x == 0 && LastMovementDirection.x >= 0);
 		return isMovingRight ? AnimationType::DASH_RIGHT : AnimationType::DASH_LEFT;
 	}
+}
+
+bool Player::IsAttackAnimationPlaying()
+{
+	float animationLength = ActorSprite->GetAnimationLength();
+	bool isAnimationPlaying = animationLength && AnimationProgress < animationLength;
+	bool isTryingToChangeStateFromAttack = LastState == ActorState::ATTACK_UP ||
+																				 LastState == ActorState::ATTACK_RIGHT ||
+																				 LastState == ActorState::ATTACK_DOWN ||
+																				 LastState == ActorState::ATTACK_LEFT;
+
+	return isAnimationPlaying && isTryingToChangeStateFromAttack;
 }
 
 void Player::TakeDamage()
@@ -262,7 +281,7 @@ bool Player::IsPlayer()
 
 glm::vec4 Player::GetAttackHitbox()
 {
-	glm::vec4 spriteHitbox = m_sprite->GetAttackHitbox(CurrentAnimation);
+	glm::vec4 spriteHitbox = ActorSprite->GetAttackHitbox(CurrentAnimation);
 
 	if (spriteHitbox.x == 0 && spriteHitbox.y == 0 && spriteHitbox.z == 0 && spriteHitbox.w == 0)
 	{

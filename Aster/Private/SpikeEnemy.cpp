@@ -122,7 +122,7 @@ void SpikeEnemy::Draw(SpriteRenderer &renderer, double deltatime)
 		break;
 	}
 
-	m_sprite->Draw(
+	ActorSprite->Draw(
 			CurrentAnimation,
 			renderer,
 			deltatime,

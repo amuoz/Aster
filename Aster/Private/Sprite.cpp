@@ -69,3 +69,25 @@ int Sprite::GetFramesCount()
     return 1;
   }
 }
+
+float Sprite::GetAnimationSpeed()
+{
+  if (HasAnimation)
+  {
+    return Animations[CurrentAnimationType]->GetSpeed();
+  }
+  else
+  {
+    return 0;
+  }
+}
+
+AnimationType Sprite::GetAnimationType()
+{
+  return CurrentAnimationType;
+}
+
+float Sprite::GetAnimationLength()
+{
+  return GetFramesCount() * GetAnimationSpeed();
+}

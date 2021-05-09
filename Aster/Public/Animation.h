@@ -29,12 +29,13 @@ public:
 
   glm::vec4 GetAttackHitbox();
   int GetFramesCount();
+  float GetSpeed();
 
 private:
   double m_animationCursor;
-  int m_spriteIndex;
+  int SpriteIndex;
   int FramesCount;
-  float m_speed;
+  float Speed;
 
   std::vector<std::vector<int> > Frames;
   std::vector<std::vector<int> > HitboxFrames;
