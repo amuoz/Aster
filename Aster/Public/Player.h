@@ -23,6 +23,7 @@ public:
 	void Move(float deltaTime, glm::vec3 direction) override;
 	void Dash();
 	void SetDashSpeed();
+	void SetDashIFrames();
 	void OnContact(
 			std::shared_ptr<Physics::PhysicActor> external,
 			std::shared_ptr<Physics::PhysicActor> internal) override;
@@ -44,6 +45,6 @@ private:
 	glm::vec3 MovementDirection;
 	glm::vec3 LastMovementDirection;
 
-	AnimationType GetDefaultAnimation();
-	AnimationType GetSwordAnimation();
+	AnimationType GetAnimationFromState();
+	bool IsInDashIFrames();
 };
