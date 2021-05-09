@@ -7,6 +7,10 @@
 #include "SpriteRenderer.h"
 
 const float DASH_PERIOD = 0.7;
+const float DASH_SPEED_UP_START = DASH_PERIOD / 4;
+const float DASH_SPEED_UP_FINISH = DASH_PERIOD * 3 / 4;
+const float DASH_IFRAMES_START = DASH_PERIOD / 5;
+const float DASH_IFRAMES_FINISH = DASH_PERIOD * 4 / 5;
 const float BASE_SPEED = 200;
 
 Player::Player(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, glm::vec3 velocity) : Actor(pos, size, sprite, color, velocity)
@@ -16,7 +20,6 @@ Player::Player(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, g
 	ActorCollider->report = this;
 	State = ActorState::IDLE;
 	LastState = ActorState::IDLE;
-	Inventory.push_back(PowerUpType::SPEAR);
 	Speed = BASE_SPEED;
 	CurrentAnimation = AnimationType::IDLE;
 }
@@ -31,10 +34,13 @@ void Player::Render(Shader)
 
 void Player::Update(float deltaTime, glm::vec4)
 {
+	AnimationProgress += deltaTime;
+
 	if (State == ActorState::DASH)
 	{
 		DashTime += deltaTime;
 		SetDashSpeed();
+		SetDashIFrames();
 
 		if (DashTime > DASH_PERIOD)
 		{
@@ -50,22 +56,18 @@ void Player::Update(float deltaTime, glm::vec4)
 
 void Player::Draw(SpriteRenderer &renderer, double deltatime)
 {
-	switch (ActivePowerUp)
-	{
-	case PowerUpType::SWORD:
-		CurrentAnimation = GetSwordAnimation();
-		break;
+	CurrentAnimation = GetAnimationFromState();
 
-	default:
-		CurrentAnimation = GetDefaultAnimation();
-		break;
-	}
-
-	m_sprite->Draw(CurrentAnimation, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
+	ActorSprite->Draw(CurrentAnimation, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
 }
 
-AnimationType Player::GetDefaultAnimation()
+AnimationType Player::GetAnimationFromState()
 {
+	if (IsAttackAnimationPlaying())
+	{
+		return ActorSprite->GetAnimationType();
+	}
+
 	switch (State)
 	{
 	case ActorState::IDLE:
@@ -79,13 +81,57 @@ AnimationType Player::GetDefaultAnimation()
 		return AnimationType::WALK;
 
 	case ActorState::ATTACK_RIGHT:
-		return AnimationType::ATTACK_RIGHT;
+		if (ActivePowerUp == PowerUpType::SWORD)
+		{
+			return AnimationType::SWORD_RIGHT;
+		}
+		else if (ActivePowerUp == PowerUpType::SPEAR)
+		{
+			return AnimationType::SPEAR_RIGHT;
+		}
+		else
+		{
+			return AnimationType::IDLE;
+		}
 	case ActorState::ATTACK_LEFT:
-		return AnimationType::ATTACK_LEFT;
+		if (ActivePowerUp == PowerUpType::SWORD)
+		{
+			return AnimationType::SWORD_LEFT;
+		}
+		else if (ActivePowerUp == PowerUpType::SPEAR)
+		{
+			return AnimationType::SPEAR_LEFT;
+		}
+		else
+		{
+			return AnimationType::IDLE;
+		}
 	case ActorState::ATTACK_DOWN:
-		return AnimationType::ATTACK_DOWN;
+		if (ActivePowerUp == PowerUpType::SWORD)
+		{
+			return AnimationType::SWORD_DOWN;
+		}
+		else if (ActivePowerUp == PowerUpType::SPEAR)
+		{
+			return AnimationType::SPEAR_DOWN;
+		}
+		else
+		{
+			return AnimationType::IDLE;
+		}
 	case ActorState::ATTACK_UP:
-		return AnimationType::ATTACK_UP;
+		if (ActivePowerUp == PowerUpType::SWORD)
+		{
+			return AnimationType::SWORD_UP;
+		}
+		else if (ActivePowerUp == PowerUpType::SPEAR)
+		{
+			return AnimationType::SPEAR_UP;
+		}
+		else
+		{
+			return AnimationType::IDLE;
+		}
 
 	case ActorState::DASH:
 		bool isMovingRight = MovementDirection.x > 0 ||
@@ -94,34 +140,29 @@ AnimationType Player::GetDefaultAnimation()
 	}
 }
 
-AnimationType Player::GetSwordAnimation()
+bool Player::IsAttackAnimationPlaying()
 {
-	switch (State)
-	{
-	case ActorState::IDLE:
-	default:
-		return AnimationType::IDLE;
+	float animationLength = ActorSprite->GetAnimationLength();
+	bool isAnimationPlaying = animationLength && AnimationProgress < animationLength;
+	bool isTryingToChangeStateFromAttack = LastState == ActorState::ATTACK_UP ||
+																				 LastState == ActorState::ATTACK_RIGHT ||
+																				 LastState == ActorState::ATTACK_DOWN ||
+																				 LastState == ActorState::ATTACK_LEFT;
 
-	case ActorState::MOVEMENT_RIGHT:
-	case ActorState::MOVEMENT_LEFT:
-	case ActorState::MOVEMENT_DOWN:
-	case ActorState::MOVEMENT_UP:
-		return AnimationType::WALK;
-
-	case ActorState::ATTACK_RIGHT:
-		return AnimationType::SWORD_RIGHT;
-	case ActorState::ATTACK_LEFT:
-		return AnimationType::SWORD_LEFT;
-	case ActorState::ATTACK_DOWN:
-		return AnimationType::SWORD_DOWN;
-	case ActorState::ATTACK_UP:
-		return AnimationType::SWORD_UP;
-	}
+	return isAnimationPlaying && isTryingToChangeStateFromAttack;
 }
 
 void Player::TakeDamage()
 {
-	SetActive(false);
+	if (State != ActorState::DASH || !IsInDashIFrames())
+	{
+		SetActive(false);
+	}
+}
+
+bool Player::IsInDashIFrames()
+{
+	return (DashTime > DASH_IFRAMES_START) && (DashTime < DASH_IFRAMES_FINISH);
 }
 
 void Player::Move(float deltaTime, glm::vec3 direction)
@@ -162,13 +203,25 @@ void Player::Dash()
 
 void Player::SetDashSpeed()
 {
-	if (DashTime < DASH_PERIOD / 4 || DashTime > DASH_PERIOD * 3 / 4)
+	if (DashTime < DASH_SPEED_UP_START || DashTime > DASH_SPEED_UP_FINISH)
 	{
 		Speed = BASE_SPEED;
 	}
 	else
 	{
 		Speed = 2 * BASE_SPEED;
+	}
+}
+
+void Player::SetDashIFrames()
+{
+	if (IsInDashIFrames())
+	{
+		ActorCollider->justReport = true;
+	}
+	else
+	{
+		ActorCollider->justReport = false;
 	}
 }
 
@@ -179,37 +232,40 @@ void Player::Idle()
 
 void Player::Attack()
 {
-	if (State == ActorState::MOVEMENT_RIGHT)
-		SetState(ActorState::ATTACK_RIGHT);
-	else if (State == ActorState::MOVEMENT_LEFT)
-		SetState(ActorState::ATTACK_LEFT);
-	else if (State == ActorState::MOVEMENT_DOWN)
-		SetState(ActorState::ATTACK_DOWN);
-	else if (State == ActorState::MOVEMENT_UP)
-		SetState(ActorState::ATTACK_UP);
-	else if (LastState == ActorState::ATTACK_RIGHT)
-		SetState(ActorState::ATTACK_RIGHT);
-	else if (LastState == ActorState::ATTACK_LEFT)
-		SetState(ActorState::ATTACK_LEFT);
-	else if (LastState == ActorState::ATTACK_DOWN)
-		SetState(ActorState::ATTACK_DOWN);
-	else if (LastState == ActorState::ATTACK_UP)
-		SetState(ActorState::ATTACK_UP);
-	else if (State == ActorState::IDLE)
+	if (ActivePowerUp != PowerUpType::NONE)
 	{
-		if (LastState == ActorState::MOVEMENT_RIGHT)
+		if (State == ActorState::MOVEMENT_RIGHT)
 			SetState(ActorState::ATTACK_RIGHT);
-		else if (LastState == ActorState::MOVEMENT_LEFT)
+		else if (State == ActorState::MOVEMENT_LEFT)
 			SetState(ActorState::ATTACK_LEFT);
-		else if (LastState == ActorState::MOVEMENT_DOWN)
+		else if (State == ActorState::MOVEMENT_DOWN)
 			SetState(ActorState::ATTACK_DOWN);
-		else if (LastState == ActorState::MOVEMENT_UP)
+		else if (State == ActorState::MOVEMENT_UP)
 			SetState(ActorState::ATTACK_UP);
+		else if (LastState == ActorState::ATTACK_RIGHT)
+			SetState(ActorState::ATTACK_RIGHT);
+		else if (LastState == ActorState::ATTACK_LEFT)
+			SetState(ActorState::ATTACK_LEFT);
+		else if (LastState == ActorState::ATTACK_DOWN)
+			SetState(ActorState::ATTACK_DOWN);
+		else if (LastState == ActorState::ATTACK_UP)
+			SetState(ActorState::ATTACK_UP);
+		else if (State == ActorState::IDLE)
+		{
+			if (LastState == ActorState::MOVEMENT_RIGHT)
+				SetState(ActorState::ATTACK_RIGHT);
+			else if (LastState == ActorState::MOVEMENT_LEFT)
+				SetState(ActorState::ATTACK_LEFT);
+			else if (LastState == ActorState::MOVEMENT_DOWN)
+				SetState(ActorState::ATTACK_DOWN);
+			else if (LastState == ActorState::MOVEMENT_UP)
+				SetState(ActorState::ATTACK_UP);
+			else
+				SetState(ActorState::ATTACK_RIGHT);
+		}
 		else
 			SetState(ActorState::ATTACK_RIGHT);
 	}
-	else
-		SetState(ActorState::ATTACK_RIGHT);
 }
 
 void Player::OnContact(
@@ -226,7 +282,7 @@ bool Player::IsPlayer()
 
 glm::vec4 Player::GetAttackHitbox()
 {
-	glm::vec4 spriteHitbox = m_sprite->GetAttackHitbox(CurrentAnimation);
+	glm::vec4 spriteHitbox = ActorSprite->GetAttackHitbox(CurrentAnimation);
 
 	if (spriteHitbox.x == 0 && spriteHitbox.y == 0 && spriteHitbox.z == 0 && spriteHitbox.w == 0)
 	{

@@ -17,13 +17,13 @@
 
 Animation::Animation()
 {
-  m_spriteIndex = 0;
+  SpriteIndex = 0;
 }
 
 Animation::Animation(std::string filename, float speed)
     : m_animationCursor(0),
-      m_spriteIndex(0),
-      m_speed(0.05f)
+      SpriteIndex(0),
+      Speed(0.05f)
 {
   std::string projectSrcDir = PROJECT_SOURCE_DIR;
 
@@ -32,7 +32,7 @@ Animation::Animation(std::string filename, float speed)
 
   ReadFileLines(projectSrcDir + "/Aster/Textures/" + filename + ".hit", HitboxFrames);
 
-  m_speed = speed;
+  Speed = speed;
 }
 
 Animation::~Animation()
@@ -51,18 +51,18 @@ void Animation::Play(SpriteRenderer &renderer,
 {
   if (restartAnimation)
   {
-    m_spriteIndex = 0;
+    SpriteIndex = 0;
   }
 
   m_animationCursor += deltatime;
 
-  if (m_animationCursor > m_speed)
+  if (m_animationCursor > Speed)
   {
-    m_spriteIndex = (m_spriteIndex + 1) % FramesCount;
+    SpriteIndex = (SpriteIndex + 1) % FramesCount;
     m_animationCursor = 0;
   }
 
-  std::vector<int> frame = Frames[m_spriteIndex];
+  std::vector<int> frame = Frames[SpriteIndex];
 
   const int CELL_WIDTH = 128;
   const int CELL_HEIGHT = 128;
@@ -109,6 +109,16 @@ void Animation::Play(SpriteRenderer &renderer,
 
 glm::vec4 Animation::GetAttackHitbox()
 {
-  std::vector<int> hitbox = HitboxFrames[m_spriteIndex];
+  std::vector<int> hitbox = HitboxFrames[SpriteIndex];
   return glm::vec4(hitbox[0], hitbox[1], hitbox[2], hitbox[3]);
+}
+
+int Animation::GetFramesCount()
+{
+  return FramesCount;
+}
+
+float Animation::GetSpeed()
+{
+  return Speed;
 }

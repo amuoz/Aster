@@ -46,4 +46,5 @@ private:
     void InitSpike(nlohmann::json &enemyInfo);
     void InitPowerUps();
     void InitSword(nlohmann::json &powerUpInfo);
+    void InitSpear(nlohmann::json &powerUpInfo);
 };

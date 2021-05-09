@@ -20,6 +20,9 @@ Actor::Actor()
 	m_delete = false;
 	IsDestroyable = false;
 	IsDestroyed = false;
+	AnimationProgress = 0;
+	State = ActorState::IDLE;
+	LastState = ActorState::IDLE;
 }
 
 Actor::Actor(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, glm::vec3 velocity)
@@ -28,7 +31,7 @@ Actor::Actor(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, glm
 	m_scale = size;
 	m_velocity = velocity;
 	m_color = color;
-	m_sprite = sprite;
+	ActorSprite = sprite;
 
 	m_rotAngle = 0.0f;
 	m_radius = size.x / 2;
@@ -38,6 +41,9 @@ Actor::Actor(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, glm
 	m_delete = false;
 	IsDestroyable = false;
 	IsDestroyed = false;
+	AnimationProgress = 0;
+	State = ActorState::IDLE;
+	LastState = ActorState::IDLE;
 }
 
 Actor::~Actor()
@@ -54,7 +60,7 @@ void Actor::Reset()
 
 void Actor::Draw(SpriteRenderer &renderer, double)
 {
-	renderer.DrawSprite(m_sprite, m_position, m_scale, m_rotAngle, m_color);
+	renderer.DrawSprite(ActorSprite, m_position, m_scale, m_rotAngle, m_color);
 }
 
 void Actor::Move(float deltaTime, glm::vec3 direction)
@@ -80,6 +86,7 @@ void Actor::SetState(ActorState state)
 	if (State != state)
 	{
 		LastState = State;
+		AnimationProgress = 0;
 	}
 
 	State = state;
