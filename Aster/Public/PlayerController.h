@@ -5,7 +5,7 @@
 #include <memory>
 
 class Player;
-class GLFWwindow;
+struct GLFWwindow;
 class SpriteRenderer;
 class TextRenderer;
 

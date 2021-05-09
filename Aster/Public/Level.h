@@ -46,5 +46,4 @@ private:
     void InitSpike(nlohmann::json &enemyInfo);
     void InitPowerUps();
     void InitSword(nlohmann::json &powerUpInfo);
-    void RemoveFromLevel(std::unique_ptr<Actor> &actor);
 };

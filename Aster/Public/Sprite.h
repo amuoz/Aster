@@ -30,7 +30,7 @@ public:
 
 private:
 	Texture2D Texture;
-	Rectangle SubspriteRectangle;
+	Aster::Rectangle SubspriteRectangle;
 	bool HasAnimation;
 	AnimationType CurrentAnimationType = AnimationType::IDLE;
 	std::map<AnimationType, Animation *> Animations;

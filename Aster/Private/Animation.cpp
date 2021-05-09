@@ -41,7 +41,7 @@ Animation::~Animation()
 
 void Animation::Play(SpriteRenderer &renderer,
                      Texture2D &texture,
-                     Rectangle &rectangle,
+                     Aster::Rectangle &rectangle,
                      double deltatime,
                      glm::vec2 position,
                      glm::vec2 size,

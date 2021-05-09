@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 project(Aster)
 
+
+
 option(GLFW_BUILD_DOCS OFF)
 option(GLFW_BUILD_EXAMPLES OFF)
 option(GLFW_BUILD_TESTS OFF)
@@ -20,6 +22,8 @@ add_subdirectory(Aster/ThirdParty/bullet)
 
 add_subdirectory(Aster/ThirdParty/freetype)
 
+add_subdirectory(Aster/ThirdParty/json)
+
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 else()
@@ -36,8 +40,8 @@ include_directories(Aster/Public/
                     Aster/ThirdParty/glfw/include/
                     Aster/ThirdParty/glm/
                     Aster/ThirdParty/stb/
-                    Aster/ThirdParty/freetype/include
-                    Aster/ThirdParty/json/include)
+                    Aster/ThirdParty/freetype/include/
+                    Aster/ThirdParty/json/single_include/)
 
 file(GLOB VENDORS_SOURCES Aster/ThirdParty/glad/src/glad.c)
 file(GLOB PROJECT_HEADERS Aster/Public/*.h)
@@ -51,9 +55,12 @@ file(GLOB PROJECT_CONFIGS CMakeLists.txt
                          .gitignore
                          .gitmodules)
 file(GLOB PROJECT_CONFIG Aster/Config/*.conf)
-file(GLOB PROJECT_TEXTURES Aster/Textures/*.png)
+file(GLOB PROJECT_TEXTURES 	Aster/Textures/*.png 
+							Aster/Textures/*.anim 
+							Aster/Textures/*.hit)
 file(GLOB PROJECT_FONTS Aster/Fonts/*.ttf)
-file(GLOB PROJECT_LEVELS Aster/Levels/*.lvl)
+file(GLOB PROJECT_LEVELS 	Aster/Levels/*.lvl
+							Aster/Levels/*.json)
 
 source_group("Public" FILES ${PROJECT_HEADERS})
 source_group("Shaders" FILES ${PROJECT_SHADERS})
@@ -66,10 +73,12 @@ source_group("Levels" FILES ${PROJECT_LEVELS})
 
 add_definitions(-DGLFW_INCLUDE_NONE
                 -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")
+
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS}
                                ${PROJECT_SHADERS} ${PROJECT_CONFIGS}
                                ${VENDORS_SOURCES} 
                                ${PROJECT_CONFIG} ${PROJECT_TEXTURES} ${PROJECT_FONTS} ${PROJECT_LEVELS})
+
 target_link_libraries(${PROJECT_NAME} assimp glfw freetype
                       ${GLFW_LIBRARIES} ${GLAD_LIBRARIES}
                       BulletDynamics BulletCollision LinearMath)

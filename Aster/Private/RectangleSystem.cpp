@@ -10,9 +10,9 @@ RectangleSystem* RectangleSystem::GetInstance()
   return m_instance;
 }
 
-Rectangle RectangleSystem::Generate()
+Aster::Rectangle RectangleSystem::Generate()
 {
-  Rectangle result;
+    Aster::Rectangle result;
 
   float vertices[] = {
     // pos      // tex
@@ -40,7 +40,7 @@ Rectangle RectangleSystem::Generate()
   return result;
 }
 
-void RectangleSystem::Delete(Rectangle& rectangle)
+void RectangleSystem::Delete(Aster::Rectangle& rectangle)
 {
   glDeleteVertexArrays(1, &rectangle.vertexArrayObject);
   glDeleteBuffers(1, &rectangle.vertexBufferObject);
@@ -52,7 +52,7 @@ RectangleSystem::RectangleSystem()
 {
 }
 
-void Rectangle::Draw()
+void Aster::Rectangle::Draw()
 {
   glBindVertexArray(vertexArrayObject);
   glDrawArrays(GL_TRIANGLES, 0, 6);

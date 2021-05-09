@@ -32,7 +32,7 @@ class SpriteRenderer;
 class Level;
 class Player;
 class PlayerController;
-class GLFWwindow;
+struct GLFWwindow;
 enum class GameState;
 
 class Game

@@ -1,12 +1,13 @@
 #pragma once
 
-struct Rectangle;
+#include "AsterTypes.h"
+
 class RectangleSystem
 {
   public:
     static RectangleSystem* GetInstance();
-    Rectangle Generate();
-    void Delete(Rectangle& rectangle);
+    Aster::Rectangle Generate();
+    void Delete(Aster::Rectangle& rectangle);
 
   private:
     RectangleSystem();
