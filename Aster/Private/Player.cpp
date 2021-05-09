@@ -98,19 +98,6 @@ AnimationType Player::GetAnimationFromState()
 		{
 			return AnimationType::IDLE;
 		}
-	case ActorState::ATTACK_DOWN:
-		if (ActivePowerUp == PowerUpType::SWORD)
-		{
-			return AnimationType::SWORD_DOWN;
-		}
-		else if (ActivePowerUp == PowerUpType::SPEAR)
-		{
-			return AnimationType::SPEAR_DOWN;
-		}
-		else
-		{
-			return AnimationType::IDLE;
-		}
 	case ActorState::ATTACK_UP:
 		if (ActivePowerUp == PowerUpType::SWORD)
 		{
