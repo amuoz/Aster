@@ -21,6 +21,7 @@ Player::Player(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, g
 	State = ActorState::IDLE;
 	LastState = ActorState::IDLE;
 	Speed = BASE_SPEED;
+	CurrentAnimation = AnimationType::IDLE;
 }
 
 Player::~Player()

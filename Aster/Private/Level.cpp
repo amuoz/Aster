@@ -87,15 +87,17 @@ void Level::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 
 void Level::Draw(SpriteRenderer &renderer, double deltaTime)
 {
-    for (auto &actor : Actors)
+    auto iterator = Actors.begin();
+    while (iterator != Actors.end())
     {
-        if (actor->IsDestroyed)
+        if ((*iterator)->IsDestroyed)
         {
-            RemoveFromLevel(actor);
+            iterator = Actors.erase(iterator);
         }
         else
         {
-            actor->Draw(renderer, deltaTime);
+            (*iterator)->Draw(renderer, deltaTime);
+            ++iterator;
         }
     }
 
@@ -254,21 +256,4 @@ void Level::InitSpear(nlohmann::json &powerUpInfo)
 
     Actors.push_back(
         std::make_unique<SpearPowerUp>(pos, size, blockSprite, color));
-}
-
-void Level::RemoveFromLevel(std::unique_ptr<Actor> &actor)
-{
-    auto i = Actors.begin();
-    auto end = Actors.end();
-    while (i != end)
-    {
-        if (actor == *i)
-        {
-            i = Actors.erase(i);
-        }
-        else
-        {
-            ++i;
-        }
-    }
 }

@@ -3,22 +3,22 @@
 enum class GameState {
 	GAME_ACTIVE,
 	GAME_RESTART,
-  GAME_OVER
+	GAME_OVER
 };
 
 enum class AnimationType {
-    WALK,
-    IDLE,
-    SWORD_UP,
-    SWORD_RIGHT,
-    SWORD_DOWN,
-    SWORD_LEFT,
+	WALK,
+	IDLE,
+	SWORD_UP,
+	SWORD_RIGHT,
+	SWORD_DOWN,
+	SWORD_LEFT,
     SPEAR_UP,
     SPEAR_RIGHT,
     SPEAR_DOWN,
     SPEAR_LEFT,
-    DASH_RIGHT,
-    DASH_LEFT
+	DASH_RIGHT,
+	DASH_LEFT
 };
 
 enum class ActorState {
@@ -41,12 +41,14 @@ enum class PowerUpType {
   SPEAR
 };
 
-struct Rectangle
-{
-  unsigned int vertexArrayObject;
-  unsigned int vertexBufferObject;
-  unsigned int colorBufferObject;
-  unsigned int uvBufferObject;
+namespace Aster {
+	struct Rectangle
+	{
+		unsigned int vertexArrayObject;
+		unsigned int vertexBufferObject;
+		unsigned int colorBufferObject;
+		unsigned int uvBufferObject;
 
-  void Draw();
-};
+		void Draw();
+	};
+}
