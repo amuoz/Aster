@@ -11,8 +11,6 @@
 #include "Physics.h"
 #include "SpriteRenderer.h"
 
-// TODO: calculate this vvv based on the current animation
-const int ANIMATION_FRAMES = 18;
 const float STILL_CHANCE = 0.3;
 const float CHANGE_DIRECTION_CHANCE = 0.2;
 const float AGGRO_SIZE = 350;
@@ -39,7 +37,8 @@ SpikeEnemy::SpikeEnemy(glm::vec3 pos, glm::vec3 size, Sprite *sprite, float fram
 	AggroCollider->bCheckCollision = true;
 	AggroCollider->report = this;
 
-	AnimationPeriod = framePeriod * ANIMATION_FRAMES;
+	int animationFrames = sprite->GetFramesCount();
+	AnimationPeriod = framePeriod * animationFrames;
 	AnimationProgress = 0.0f;
 	State = ActorState::IDLE;
 	LastState = ActorState::IDLE;
@@ -179,12 +178,12 @@ glm::vec3 SpikeEnemy::GetRandomDirection()
 
 void SpikeEnemy::SetWanderMovement()
 {
-	// 50% still
+	// 30% still
 	if (PassRandomChance(STILL_CHANCE))
 	{
 		Direction = glm::vec3(0, 0, 0);
 	}
-	// 50% moving
+	// 70% moving
 	else
 	{
 		// 20% change direction

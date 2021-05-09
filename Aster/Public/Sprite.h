@@ -27,6 +27,7 @@ public:
 
 	Texture2D GetTexture();
 	glm::vec4 GetAttackHitbox(AnimationType);
+	int GetFramesCount();
 
 private:
 	Texture2D Texture;

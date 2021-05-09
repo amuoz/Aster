@@ -57,3 +57,15 @@ glm::vec4 Sprite::GetAttackHitbox(AnimationType type)
 {
   return Animations[type]->GetAttackHitbox();
 }
+
+int Sprite::GetFramesCount()
+{
+  if (HasAnimation)
+  {
+    return Animations[CurrentAnimationType]->GetFramesCount();
+  }
+  else
+  {
+    return 1;
+  }
+}
