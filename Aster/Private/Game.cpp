@@ -52,10 +52,10 @@ std::shared_ptr<Player> Game::CreatePlayer(glm::vec3 playerPosition)
 
 	playerSprite->AddAnimation("player_walk", AnimationType::WALK, 0.03f);
 	playerSprite->AddAnimation("player_idle", AnimationType::IDLE, 0.06f);
-	playerSprite->AddAnimation("attack_up", AnimationType::ATTACK_UP, 0.03f);
-	playerSprite->AddAnimation("attack_right", AnimationType::ATTACK_RIGHT, 0.03f);
-	playerSprite->AddAnimation("attack_down", AnimationType::ATTACK_DOWN, 0.03f);
-	playerSprite->AddAnimation("attack_left", AnimationType::ATTACK_LEFT, 0.03f);
+	playerSprite->AddAnimation("spear_up", AnimationType::SPEAR_UP, 0.03f);
+	playerSprite->AddAnimation("spear_right", AnimationType::SPEAR_RIGHT, 0.03f);
+	playerSprite->AddAnimation("spear_down", AnimationType::SPEAR_DOWN, 0.03f);
+	playerSprite->AddAnimation("spear_left", AnimationType::SPEAR_LEFT, 0.03f);
 	playerSprite->AddAnimation("sword_up", AnimationType::SWORD_UP, 0.03f);
 	playerSprite->AddAnimation("sword_right", AnimationType::SWORD_RIGHT, 0.03f);
 	playerSprite->AddAnimation("sword_down", AnimationType::SWORD_DOWN, 0.03f);

@@ -9,14 +9,14 @@ enum class GameState {
 enum class AnimationType {
     WALK,
     IDLE,
-    ATTACK_UP,
-    ATTACK_RIGHT,
-    ATTACK_DOWN,
-    ATTACK_LEFT,
     SWORD_UP,
     SWORD_RIGHT,
     SWORD_DOWN,
     SWORD_LEFT,
+    SPEAR_UP,
+    SPEAR_RIGHT,
+    SPEAR_DOWN,
+    SPEAR_LEFT,
     DASH_RIGHT,
     DASH_LEFT
 };

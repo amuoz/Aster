@@ -1,4 +1,4 @@
-#include "SwordPowerUp.h"
+#include "SpearPowerUp.h"
 
 #include <cstdlib>
 #include <time.h>
@@ -11,7 +11,7 @@
 #include "Physics.h"
 #include "SpriteRenderer.h"
 
-SwordPowerUp::SwordPowerUp(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, glm::vec3 velocity) : Actor(pos, size, sprite, color, velocity)
+SpearPowerUp::SpearPowerUp(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::vec3 color, glm::vec3 velocity) : Actor(pos, size, sprite, color, velocity)
 {
 	ActorCollider = g_PhysicsPtr->AddDynamicActor(
 			pos,
@@ -24,29 +24,29 @@ SwordPowerUp::SwordPowerUp(glm::vec3 pos, glm::vec3 size, Sprite *sprite, glm::v
 	ActorCollider->report = this;
 }
 
-SwordPowerUp::~SwordPowerUp()
+SpearPowerUp::~SpearPowerUp()
 {
 }
 
-void SwordPowerUp::Render(Shader)
+void SpearPowerUp::Render(Shader)
 {
 }
 
-void SwordPowerUp::Update(float deltaTime, glm::vec4 attackHitbox)
+void SpearPowerUp::Update(float deltaTime, glm::vec4 attackHitbox)
 {
 }
 
-void SwordPowerUp::TakeDamage()
+void SpearPowerUp::TakeDamage()
 {
 }
 
-void SwordPowerUp::OnContact(
+void SpearPowerUp::OnContact(
 		std::shared_ptr<Physics::PhysicActor> external,
 		std::shared_ptr<Physics::PhysicActor> internal)
 {
 	if (internal == ActorCollider && external->report->IsPlayer())
 	{
 		IsDestroyed = true;
-		((Player*)(external->report))->PowerUp(PowerUpType::SWORD);
+		((Player*)(external->report))->PowerUp(PowerUpType::SPEAR);
 	}
 }
