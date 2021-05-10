@@ -114,7 +114,7 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
                 glm::vec3 pos(unit_width * x, unit_height * y, 0.0f);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
                 auto blockSprite = std::make_unique<Sprite>("block_solid");
-                std::shared_ptr<Actor> blockActor = std::make_unique<Block>(
+                std::shared_ptr<Actor> blockActor = std::make_shared<Block>(
                     pos, size, std::move(blockSprite), glm::vec3(0.8f, 0.8f, 0.7f));
                 blockActor->IsDestroyable = true;
                 Actors.push_back(blockActor);
@@ -134,7 +134,7 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
                 glm::vec3 pos(unit_width * x, unit_height * y, 0.0f);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
                 auto blockSprite = std::make_unique<Sprite>("block");
-                std::shared_ptr<Block> blockPtr = std::make_unique<Block>(pos, size, std::move(blockSprite), color);
+                std::shared_ptr<Block> blockPtr = std::make_shared<Block>(pos, size, std::move(blockSprite), color);
                 Actors.push_back(blockPtr);
             }
         }
@@ -176,7 +176,7 @@ void Level::InitSpike(nlohmann::json &enemyInfo)
     float framePeriod = 0.06f;
     spikeEnemySprite->AddAnimation("spike_enemy_idle", AnimationType::IDLE, framePeriod);
 
-    std::shared_ptr<SpikeEnemy> spikeEnemyPtr = std::make_unique<SpikeEnemy>(pos, charScale, std::move(spikeEnemySprite), framePeriod);
+    std::shared_ptr<SpikeEnemy> spikeEnemyPtr = std::make_shared<SpikeEnemy>(pos, charScale, std::move(spikeEnemySprite), framePeriod);
     Actors.push_back(spikeEnemyPtr);
 }
 
@@ -207,7 +207,7 @@ void Level::InitSword(nlohmann::json &powerUpInfo)
     glm::vec3 pos(position[0], position[1], 0.0f);
 
     auto blockSprite = std::make_unique<Sprite>("sword_powerup");
-    std::shared_ptr<SwordPowerUp> swordPowerUpPtr = std::make_unique<SwordPowerUp>(pos, size, std::move(blockSprite), color);
+    std::shared_ptr<SwordPowerUp> swordPowerUpPtr = std::make_shared<SwordPowerUp>(pos, size, std::move(blockSprite), color);
     Actors.push_back(swordPowerUpPtr);
 }
 
@@ -219,7 +219,7 @@ void Level::InitSpear(nlohmann::json &powerUpInfo)
     glm::vec3 pos(position[0], position[1], 0.0f);
 
     auto blockSprite = std::make_unique<Sprite>("spear_powerup");
-    std::shared_ptr<SpearPowerUp> spearPowerUpPtr = std::make_unique<SpearPowerUp>(pos, size, std::move(blockSprite), color);
+    std::shared_ptr<SpearPowerUp> spearPowerUpPtr = std::make_shared<SpearPowerUp>(pos, size, std::move(blockSprite), color);
     Actors.push_back(spearPowerUpPtr);
 }
 
