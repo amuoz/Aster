@@ -18,8 +18,8 @@ public:
 	void Update(float, glm::vec4) override;
 	void Draw(SpriteRenderer &renderer, double deltaTime) override;
 	void OnContact(
-			std::shared_ptr<Physics::PhysicActor> external,
-			std::shared_ptr<Physics::PhysicActor> internal) override;
+			std::shared_ptr<PhysicActor> external,
+			std::shared_ptr<PhysicActor> internal) override;
 
 private:
 	bool PassRandomChance(float chance);
@@ -38,6 +38,6 @@ private:
 	float AnimationProgress;
 	const float MAX_SPEED = 100.0f;
 
-	std::shared_ptr<Physics::PhysicActor> AggroCollider = nullptr;
+	std::shared_ptr<PhysicActor> AggroCollider = nullptr;
 	glm::vec3 ObjectivePosition;
 };

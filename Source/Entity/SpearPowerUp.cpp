@@ -10,6 +10,7 @@
 #include "Player.h"
 #include "Physics.h"
 #include "SpriteRenderer.h"
+#include "PhysicActor.h"
 
 SpearPowerUp::SpearPowerUp(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color, glm::vec3 velocity) : Actor(pos, size, std::move(sprite), color, velocity)
 {
@@ -18,6 +19,7 @@ SpearPowerUp::SpearPowerUp(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite
 			velocity,
 			size,
 			false,
+			CollisionChannel::DYNAMIC,
 			glm::vec3(0.0f),
 			1.0f);
 	ActorCollider->bCheckCollision = true;
@@ -29,8 +31,8 @@ SpearPowerUp::~SpearPowerUp()
 }
 
 void SpearPowerUp::OnContact(
-		std::shared_ptr<Physics::PhysicActor> external,
-		std::shared_ptr<Physics::PhysicActor> internal)
+		std::shared_ptr<PhysicActor> external,
+		std::shared_ptr<PhysicActor> internal)
 {
 	if (!IsDestroyed && internal == ActorCollider && external->report->IsPlayer())
 	{

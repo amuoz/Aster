@@ -23,8 +23,8 @@ public:
 	void SetDashSpeed();
 	void SetDashIFrames();
 	void OnContact(
-			std::shared_ptr<Physics::PhysicActor> external,
-			std::shared_ptr<Physics::PhysicActor> internal) override;
+			std::shared_ptr<PhysicActor> external,
+			std::shared_ptr<PhysicActor> internal) override;
 	bool IsPlayer() override;
 
 	void Idle();

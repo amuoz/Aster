@@ -1,14 +1,13 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <utility>
 
-#include "Physics.h"
+#include <utility>
+#include <memory>
 
 class SpriteRenderer;
 class Sprite;
+class PhysicActor;
 enum class ActorState;
 
 class Actor
@@ -27,8 +26,8 @@ public:
 	virtual void TakeDamage();
 	virtual void Move(float deltaTime, glm::vec3 direction);
 	virtual void OnContact(
-			std::shared_ptr<Physics::PhysicActor> external,
-			std::shared_ptr<Physics::PhysicActor> internal);
+			std::shared_ptr<PhysicActor> external,
+			std::shared_ptr<PhysicActor> internal);
 	
 	virtual bool IsPlayer();
 
@@ -39,7 +38,7 @@ public:
 
 	inline bool IsActive() { return m_active; }
 	inline bool IsDelete() { return m_delete; }
-	inline std::shared_ptr<Physics::PhysicActor> GetActorCollider() { return ActorCollider; }
+	inline std::shared_ptr<PhysicActor> GetActorCollider() { return ActorCollider; }
 
 	inline glm::vec3 GetPosition() { return m_position; }
 	void SetPosition(glm::vec3 pos);
@@ -64,7 +63,7 @@ protected:
 	bool m_delete;
 
 	// physics pointer
-	std::shared_ptr<Physics::PhysicActor> ActorCollider = nullptr;
+	std::shared_ptr<PhysicActor> ActorCollider = nullptr;
 
 	std::unique_ptr<Sprite> ActorSprite;
 

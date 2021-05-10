@@ -5,6 +5,8 @@
 #include "Common.h"
 #include "SpriteRenderer.h"
 #include "Sprite.h"
+#include "Physics.h"
+#include "PhysicActor.h"
 
 Actor::Actor()
 {
@@ -75,8 +77,8 @@ void Actor::Move(float deltaTime, glm::vec3 direction)
 }
 
 void Actor::OnContact(
-		std::shared_ptr<Physics::PhysicActor> external,
-		std::shared_ptr<Physics::PhysicActor> internal)
+		std::shared_ptr<PhysicActor> external,
+		std::shared_ptr<PhysicActor> internal)
 {
 }
 

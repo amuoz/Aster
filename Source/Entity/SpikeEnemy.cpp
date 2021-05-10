@@ -10,6 +10,7 @@
 #include "Player.h"
 #include "Physics.h"
 #include "SpriteRenderer.h"
+#include "PhysicActor.h"
 
 const float STILL_CHANCE = 0.3;
 const float CHANGE_DIRECTION_CHANCE = 0.2;
@@ -22,6 +23,7 @@ SpikeEnemy::SpikeEnemy(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sp
 			velocity,
 			size,
 			false,
+			CollisionChannel::DYNAMIC,
 			glm::vec3(0.0f),
 			1.0f);
 	ActorCollider->bCheckCollision = true;
@@ -32,6 +34,7 @@ SpikeEnemy::SpikeEnemy(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sp
 			velocity,
 			glm::vec3(AGGRO_SIZE, AGGRO_SIZE, 0),
 			true,
+			CollisionChannel::DYNAMIC,
 			glm::vec3(0.0f),
 			1.0f);
 	AggroCollider->bCheckCollision = true;
@@ -129,8 +132,8 @@ void SpikeEnemy::Draw(SpriteRenderer &renderer, double deltatime)
 }
 
 void SpikeEnemy::OnContact(
-		std::shared_ptr<Physics::PhysicActor> external,
-		std::shared_ptr<Physics::PhysicActor> internal)
+		std::shared_ptr<PhysicActor> external,
+		std::shared_ptr<PhysicActor> internal)
 {
 	if (internal == ActorCollider)
 	{

@@ -45,6 +45,17 @@ enum class PowerUpType {
   SPEAR
 };
 
+enum class CollisionChannel {
+	DYNAMIC,
+	STATIC
+};
+
+enum class CollisionResponse {
+	IGNORE_C,
+	OVERLAP,
+	BLOCK
+};
+
 namespace Aster {
 	struct Rectangle
 	{

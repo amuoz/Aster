@@ -4,10 +4,10 @@
 #include <utility>
 
 #include "Actor.h"
-#include "Physics.h"
 
 enum class AnimationType;
 class Sprite;
+class PhysicActor;
 
 class SpearPowerUp : public Actor
 {
@@ -16,6 +16,6 @@ public:
 	~SpearPowerUp();
 
 	void OnContact(
-			std::shared_ptr<Physics::PhysicActor> external,
-			std::shared_ptr<Physics::PhysicActor> internal) override;
+			std::shared_ptr<PhysicActor> external,
+			std::shared_ptr<PhysicActor> internal) override;
 };
