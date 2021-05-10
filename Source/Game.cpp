@@ -130,7 +130,7 @@ void Game::Render(float deltaTime)
 	Renderer->DrawTexture(background,
 												glm::vec2(0.0f, 0.0f), glm::vec2(Config::Get()->GetValue(SRC_WIDTH), Config::Get()->GetValue(SRC_HEIGHT)), 0.0f);
 
-	DebugAttackHitbox(*Renderer);
+	// DebugAttackHitbox(*Renderer);
 
 	CurrentLevel->Draw(*Renderer, deltaTime);
 
