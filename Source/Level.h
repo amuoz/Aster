@@ -35,7 +35,7 @@ private:
     nlohmann::json LevelInfo;
     std::vector<std::vector<int> > Tiles;
     std::shared_ptr<Player> Character;
-    std::list<std::unique_ptr<Actor> > Actors;
+    std::list<std::shared_ptr<Actor> > Actors;
 
     void LoadTiles();
     void InitBlocks(unsigned int levelWidth, unsigned int levelHeight);

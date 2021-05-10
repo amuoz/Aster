@@ -52,9 +52,12 @@ void Player::Update(float deltaTime, glm::vec4)
 
 void Player::Draw(SpriteRenderer &renderer, double deltatime)
 {
-	CurrentAnimation = GetAnimationFromState();
+	if (IsActive())
+	{
+		CurrentAnimation = GetAnimationFromState();
 
-	ActorSprite->Draw(CurrentAnimation, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
+		ActorSprite->Draw(CurrentAnimation, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
+	}
 }
 
 AnimationType Player::GetAnimationFromState()
