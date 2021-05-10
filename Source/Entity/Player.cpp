@@ -32,7 +32,7 @@ void Player::Update(float deltaTime, glm::vec4)
 {
 	AnimationProgress += deltaTime;
 
-	if (State == ActorState::DASH)
+	if (IsDashState())
 	{
 		DashTime += deltaTime;
 		SetDashSpeed();
@@ -129,7 +129,12 @@ AnimationType Player::GetAnimationFromState()
 			return AnimationType::IDLE;
 		}
 
-	case ActorState::DASH:
+	case ActorState::DASH_RIGHT:
+		return AnimationType::DASH_RIGHT;
+	case ActorState::DASH_LEFT:
+		return AnimationType::DASH_LEFT;
+	case ActorState::DASH_DOWN:
+	case ActorState::DASH_UP:
 		bool isMovingRight = MovementDirection.x > 0 ||
 												 (MovementDirection.x == 0 && LastMovementDirection.x >= 0);
 		return isMovingRight ? AnimationType::DASH_RIGHT : AnimationType::DASH_LEFT;
@@ -150,7 +155,7 @@ bool Player::IsAttackAnimationPlaying()
 
 void Player::TakeDamage()
 {
-	if (State != ActorState::DASH || !IsInDashIFrames())
+	if (!IsDashState() || !IsInDashIFrames())
 	{
 		SetActive(false);
 	}
@@ -163,7 +168,7 @@ bool Player::IsInDashIFrames()
 
 void Player::Move(float deltaTime, glm::vec3 direction)
 {
-	if (State == ActorState::DASH)
+	if (IsDashState())
 	{
 		Actor::Move(deltaTime, LastMovementDirection);
 	}
@@ -191,10 +196,27 @@ void Player::Move(float deltaTime, glm::vec3 direction)
 	}
 }
 
-void Player::Dash()
+void Player::Dash(glm::vec3 direction)
 {
 	DashTime = 0;
-	SetState(ActorState::DASH);
+	if (direction.x > 0 || LastState == ActorState::DASH_RIGHT)
+		SetState(ActorState::DASH_RIGHT);
+	else if (direction.x < 0 || LastState == ActorState::DASH_LEFT)
+		SetState(ActorState::DASH_LEFT);
+	else if (direction.y > 0 || LastState == ActorState::DASH_DOWN)
+		SetState(ActorState::DASH_DOWN);
+	else if (direction.y < 0 || LastState == ActorState::DASH_UP)
+		SetState(ActorState::DASH_UP);
+	else
+		SetState(ActorState::IDLE);
+}
+
+bool Player::IsDashState()
+{
+	return State == ActorState::DASH_UP ||
+				 State == ActorState::DASH_RIGHT ||
+				 State == ActorState::DASH_DOWN ||
+				 State == ActorState::DASH_LEFT;
 }
 
 void Player::SetDashSpeed()
@@ -230,31 +252,35 @@ void Player::Attack()
 {
 	if (ActivePowerUp != PowerUpType::NONE)
 	{
-		if (State == ActorState::MOVEMENT_RIGHT)
+		if (State == ActorState::MOVEMENT_RIGHT ||
+				State == ActorState::DASH_RIGHT ||
+				LastState == ActorState::ATTACK_RIGHT)
 			SetState(ActorState::ATTACK_RIGHT);
-		else if (State == ActorState::MOVEMENT_LEFT)
+		else if (State == ActorState::MOVEMENT_LEFT ||
+						 State == ActorState::DASH_LEFT ||
+						 LastState == ActorState::ATTACK_LEFT)
 			SetState(ActorState::ATTACK_LEFT);
-		else if (State == ActorState::MOVEMENT_DOWN)
+		else if (State == ActorState::MOVEMENT_DOWN ||
+						 State == ActorState::DASH_DOWN ||
+						 LastState == ActorState::ATTACK_DOWN)
 			SetState(ActorState::ATTACK_DOWN);
-		else if (State == ActorState::MOVEMENT_UP)
-			SetState(ActorState::ATTACK_UP);
-		else if (LastState == ActorState::ATTACK_RIGHT)
-			SetState(ActorState::ATTACK_RIGHT);
-		else if (LastState == ActorState::ATTACK_LEFT)
-			SetState(ActorState::ATTACK_LEFT);
-		else if (LastState == ActorState::ATTACK_DOWN)
-			SetState(ActorState::ATTACK_DOWN);
-		else if (LastState == ActorState::ATTACK_UP)
+		else if (State == ActorState::MOVEMENT_UP ||
+						 State == ActorState::DASH_UP ||
+						 LastState == ActorState::ATTACK_UP)
 			SetState(ActorState::ATTACK_UP);
 		else if (State == ActorState::IDLE)
 		{
-			if (LastState == ActorState::MOVEMENT_RIGHT)
+			if (LastState == ActorState::MOVEMENT_RIGHT ||
+					LastState == ActorState::DASH_RIGHT)
 				SetState(ActorState::ATTACK_RIGHT);
-			else if (LastState == ActorState::MOVEMENT_LEFT)
+			else if (LastState == ActorState::MOVEMENT_LEFT ||
+							 LastState == ActorState::DASH_LEFT)
 				SetState(ActorState::ATTACK_LEFT);
-			else if (LastState == ActorState::MOVEMENT_DOWN)
+			else if (LastState == ActorState::MOVEMENT_DOWN ||
+							 LastState == ActorState::DASH_DOWN)
 				SetState(ActorState::ATTACK_DOWN);
-			else if (LastState == ActorState::MOVEMENT_UP)
+			else if (LastState == ActorState::MOVEMENT_UP ||
+							 LastState == ActorState::DASH_UP)
 				SetState(ActorState::ATTACK_UP);
 			else
 				SetState(ActorState::ATTACK_RIGHT);
