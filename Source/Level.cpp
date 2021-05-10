@@ -65,44 +65,30 @@ void Level::LoadTiles()
 
 void Level::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 {
-    for (auto &actor : Actors)
-    {
-        if (!actor->IsDestroyed)
-        {
-            actor->Update(deltaTime, playerAttackHitbox);
-        }
-    }
-
-    if (Character->IsDestroyed)
-    {
-        Character->GetActorCollider()->active = false;
-        Character.reset();
-    }
-    else
-    {
-        Character->Update(deltaTime, playerAttackHitbox);
-    }
-}
-
-void Level::Draw(SpriteRenderer &renderer, double deltaTime)
-{
     auto iterator = Actors.begin();
     while (iterator != Actors.end())
     {
         if ((*iterator)->IsDestroyed)
         {
+            // If actor is only pointed by level list it will be deleted
             iterator = Actors.erase(iterator);
         }
         else
         {
-            (*iterator)->Draw(renderer, deltaTime);
+            (*iterator)->Update(deltaTime, playerAttackHitbox);
             ++iterator;
         }
     }
+}
 
-    if (Character->IsActive())
+void Level::Draw(SpriteRenderer &renderer, double deltaTime)
+{
+    for (auto& actor : Actors)
     {
-        Character->Draw(renderer, deltaTime);
+        if (!actor->IsDestroyed)
+        {
+            actor->Draw(renderer, deltaTime);
+        }
     }
 }
 
@@ -128,10 +114,10 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
                 glm::vec3 pos(unit_width * x, unit_height * y, 0.0f);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
                 auto blockSprite = std::make_unique<Sprite>("block_solid");
-                std::unique_ptr<Actor> blockActor = std::make_unique<Block>(
+                std::shared_ptr<Actor> blockActor = std::make_unique<Block>(
                     pos, size, std::move(blockSprite), glm::vec3(0.8f, 0.8f, 0.7f));
                 blockActor->IsDestroyable = true;
-                Actors.push_back(std::move(blockActor));
+                Actors.push_back(blockActor);
             }
             else if (Tiles[y][x] > 1) // non-destroyable; now determine its color based on level data
             {
@@ -148,8 +134,8 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
                 glm::vec3 pos(unit_width * x, unit_height * y, 0.0f);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
                 auto blockSprite = std::make_unique<Sprite>("block");
-                Actors.push_back(
-                    std::make_unique<Block>(pos, size, std::move(blockSprite), color));
+                std::shared_ptr<Block> blockPtr = std::make_unique<Block>(pos, size, std::move(blockSprite), color);
+                Actors.push_back(blockPtr);
             }
         }
     }
@@ -190,8 +176,8 @@ void Level::InitSpike(nlohmann::json &enemyInfo)
     float framePeriod = 0.06f;
     spikeEnemySprite->AddAnimation("spike_enemy_idle", AnimationType::IDLE, framePeriod);
 
-    Actors.push_back(
-        std::make_unique<SpikeEnemy>(pos, charScale, std::move(spikeEnemySprite), framePeriod));
+    std::shared_ptr<SpikeEnemy> spikeEnemyPtr = std::make_unique<SpikeEnemy>(pos, charScale, std::move(spikeEnemySprite), framePeriod);
+    Actors.push_back(spikeEnemyPtr);
 }
 
 void Level::InitPowerUps()
@@ -221,9 +207,8 @@ void Level::InitSword(nlohmann::json &powerUpInfo)
     glm::vec3 pos(position[0], position[1], 0.0f);
 
     auto blockSprite = std::make_unique<Sprite>("sword_powerup");
-
-    Actors.push_back(
-        std::make_unique<SwordPowerUp>(pos, size, std::move(blockSprite), color));
+    std::shared_ptr<SwordPowerUp> swordPowerUpPtr = std::make_unique<SwordPowerUp>(pos, size, std::move(blockSprite), color);
+    Actors.push_back(swordPowerUpPtr);
 }
 
 void Level::InitSpear(nlohmann::json &powerUpInfo)
@@ -234,9 +219,8 @@ void Level::InitSpear(nlohmann::json &powerUpInfo)
     glm::vec3 pos(position[0], position[1], 0.0f);
 
     auto blockSprite = std::make_unique<Sprite>("spear_powerup");
-
-    Actors.push_back(
-        std::make_unique<SpearPowerUp>(pos, size, std::move(blockSprite), color));
+    std::shared_ptr<SpearPowerUp> spearPowerUpPtr = std::make_unique<SpearPowerUp>(pos, size, std::move(blockSprite), color);
+    Actors.push_back(spearPowerUpPtr);
 }
 
 
@@ -263,4 +247,5 @@ void Level::CreatePlayer(glm::vec3 playerPosition)
     playerSprite->AddAnimation("roll_left", AnimationType::DASH_LEFT, 0.018f);
 
     Character = std::make_shared<Player>(playerPosition, charScale, std::move(playerSprite));
+    Actors.push_back(Character);
 }
