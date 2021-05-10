@@ -19,7 +19,7 @@ public:
 	void Draw(SpriteRenderer &renderer, double deltaTime) override;
 	void TakeDamage() override;
 	void Move(float deltaTime, glm::vec3 direction) override;
-	void Dash();
+	void Dash(glm::vec3 direction);
 	void SetDashSpeed();
 	void SetDashIFrames();
 	void OnContact(
@@ -46,4 +46,5 @@ private:
 	AnimationType GetAnimationFromState();
 	bool IsInDashIFrames();
 	bool IsAttackAnimationPlaying();
+	bool IsDashState();
 };

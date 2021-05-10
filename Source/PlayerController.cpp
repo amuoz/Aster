@@ -46,6 +46,7 @@ void PlayerController::ProcessInput(float deltaTime)
 	if (g_game->GetGameState() == GameState::GAME_ACTIVE)
 	{
 		glm::vec3 direction(0.0f);
+		bool isDash = false;
 
 		if (keys[GLFW_KEY_A])
 		{
@@ -63,8 +64,19 @@ void PlayerController::ProcessInput(float deltaTime)
 		{
 			direction += glm::vec3(0.0f, 1.0f, 0.0f);
 		}
+		if (keys[GLFW_KEY_C])
+		{
+			isDash = true;	
+		}
 
-		Character->Move(deltaTime, direction);
+		if (isDash)
+		{
+			Character->Dash(direction);
+		}
+		else
+		{
+			Character->Move(deltaTime, direction);
+		}
 
 		if (keys[GLFW_KEY_SPACE])
 		{
@@ -79,11 +91,6 @@ void PlayerController::ProcessInput(float deltaTime)
 		if (keys[GLFW_KEY_2])
 		{
 			Character->SelectPowerUp(1);
-		}
-
-		if (keys[GLFW_KEY_C])
-		{
-			Character->Dash();
 		}
 	}
 	
