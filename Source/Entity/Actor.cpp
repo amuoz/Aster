@@ -56,17 +56,16 @@ Actor::~Actor()
 
 void Actor::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 {
-
 }
 
 void Actor::Draw(SpriteRenderer &renderer, double)
 {
-	renderer.DrawSprite(ActorSprite->GetTexture(), m_position, m_scale, m_rotAngle, m_color);
+	Texture2D texture = ActorSprite->GetTexture();
+	renderer.DrawSprite(texture, m_position, m_scale, m_rotAngle, m_color);
 }
 
 void Actor::TakeDamage()
 {
-
 }
 
 void Actor::Move(float deltaTime, glm::vec3 direction)
@@ -79,7 +78,6 @@ void Actor::OnContact(
 		std::shared_ptr<Physics::PhysicActor> external,
 		std::shared_ptr<Physics::PhysicActor> internal)
 {
-
 }
 
 bool Actor::IsPlayer()
