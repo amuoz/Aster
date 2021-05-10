@@ -32,9 +32,9 @@ void SpearPowerUp::OnContact(
 		std::shared_ptr<Physics::PhysicActor> external,
 		std::shared_ptr<Physics::PhysicActor> internal)
 {
-	if (internal == ActorCollider && external->report->IsPlayer())
+	if (!IsDestroyed && internal == ActorCollider && external->report->IsPlayer())
 	{
 		IsDestroyed = true;
-		((Player*)(external->report))->PowerUp(PowerUpType::SPEAR);
+		((Player *)(external->report))->PowerUp(PowerUpType::SPEAR);
 	}
 }
