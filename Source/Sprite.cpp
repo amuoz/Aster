@@ -39,7 +39,8 @@ void Sprite::Draw(AnimationType type, SpriteRenderer &renderer, double deltatime
   }
   else
   {
-    renderer.DrawSprite(GetTexture(), position, size, rotate, color);
+    Texture2D texture = GetTexture();
+    renderer.DrawSprite(texture, position, size, rotate, color);
   }
 }
 
