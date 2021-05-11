@@ -22,6 +22,7 @@ Player::Player(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, gl
 	LastState = ActorState::IDLE;
 	Speed = BASE_SPEED;
 	CurrentAnimation = AnimationType::IDLE;
+	PowerUp(PowerUpType::HAMMER);
 }
 
 Player::~Player()
@@ -88,6 +89,10 @@ AnimationType Player::GetAnimationFromState()
 		{
 			return AnimationType::SPEAR_RIGHT;
 		}
+		else if (ActivePowerUp == PowerUpType::HAMMER)
+		{
+			return AnimationType::HAMMER_RIGHT;
+		}
 		else
 		{
 			return AnimationType::IDLE;
@@ -100,6 +105,10 @@ AnimationType Player::GetAnimationFromState()
 		else if (ActivePowerUp == PowerUpType::SPEAR)
 		{
 			return AnimationType::SPEAR_LEFT;
+		}
+		else if (ActivePowerUp == PowerUpType::HAMMER)
+		{
+			return AnimationType::HAMMER_LEFT;
 		}
 		else
 		{
@@ -114,6 +123,10 @@ AnimationType Player::GetAnimationFromState()
 		{
 			return AnimationType::SPEAR_DOWN;
 		}
+		else if (ActivePowerUp == PowerUpType::HAMMER)
+		{
+			return AnimationType::HAMMER_RIGHT;
+		}
 		else
 		{
 			return AnimationType::IDLE;
@@ -126,6 +139,10 @@ AnimationType Player::GetAnimationFromState()
 		else if (ActivePowerUp == PowerUpType::SPEAR)
 		{
 			return AnimationType::SPEAR_UP;
+		}
+		else if (ActivePowerUp == PowerUpType::HAMMER)
+		{
+			return AnimationType::HAMMER_RIGHT;
 		}
 		else
 		{

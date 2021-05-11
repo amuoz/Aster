@@ -83,7 +83,7 @@ void Level::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 
 void Level::Draw(SpriteRenderer &renderer, double deltaTime)
 {
-    for (auto& actor : Actors)
+    for (auto &actor : Actors)
     {
         if (!actor->IsDestroyed)
         {
@@ -187,7 +187,7 @@ void Level::InitPowerUps()
     for (auto &powerUp : powerUps)
     {
         std::string powerUpName = powerUp["type"].get<std::string>();
-            
+
         if (powerUpName == "Sword")
         {
             InitSword(powerUp);
@@ -223,7 +223,6 @@ void Level::InitSpear(nlohmann::json &powerUpInfo)
     Actors.push_back(spearPowerUpPtr);
 }
 
-
 void Level::CreatePlayer(glm::vec3 playerPosition)
 {
     const glm::vec3 PLAYER_SIZE(16.0f, 9.0f, 0.0f);
@@ -243,6 +242,8 @@ void Level::CreatePlayer(glm::vec3 playerPosition)
     playerSprite->AddAnimation("sword_right", AnimationType::SWORD_RIGHT, 0.03f);
     playerSprite->AddAnimation("sword_down", AnimationType::SWORD_DOWN, 0.03f);
     playerSprite->AddAnimation("sword_left", AnimationType::SWORD_LEFT, 0.03f);
+    playerSprite->AddAnimation("hammer_right", AnimationType::HAMMER_RIGHT, 0.06f);
+    playerSprite->AddAnimation("hammer_left", AnimationType::HAMMER_LEFT, 0.06f);
     playerSprite->AddAnimation("roll_right", AnimationType::DASH_RIGHT, 0.018f);
     playerSprite->AddAnimation("roll_left", AnimationType::DASH_LEFT, 0.018f);
 
