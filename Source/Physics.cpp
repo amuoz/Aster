@@ -150,11 +150,12 @@ void Physics::DoCollisions(std::shared_ptr<PhysicActor> geom)
 	glm::vec3 col, normal;
 	for (auto& dynamicActor : PhysicsPool)
 	{
-		//if (&geom != dynamicActor && dynamicActor->active)
+		//if (geom != dynamicActor && dynamicActor->active)
 		if (geom != dynamicActor && (geom->report != dynamicActor->report))
 		{
 			CollisionResponse myResponse = geom->ChannelResponse[dynamicActor->Channel];
 			CollisionResponse otherResponse = dynamicActor->ChannelResponse[geom->Channel];
+			
 			// If collision ignore then return
 			if (myResponse == CollisionResponse::IGNORE_C || otherResponse == CollisionResponse::IGNORE_C)
 			{
@@ -171,18 +172,23 @@ void Physics::DoCollisions(std::shared_ptr<PhysicActor> geom)
 					dynamicActor->vel = -normal * glm::length(dynamicActor->vel);
 				}
 
+				// If both blocking then resolve collision
 				if (!geom->justReport && !dynamicActor->justReport)
+				//if (myResponse == CollisionResponse::BLOCK && otherResponse == CollisionResponse::BLOCK)
 				{
 					geom->pos = col;
 				}
 
 				// notify collision
-				if (geom->report)
+				//if (geom->report)
+				if(geom->report && myResponse == CollisionResponse::OVERLAP)
 				{
 					geom->report->OnContact(dynamicActor, geom);
 					geom->Collisions.insert(dynamicActor);
 				}
-				if (dynamicActor->report)
+				
+				//if (dynamicActor->report)
+				if (dynamicActor->report && otherResponse == CollisionResponse::OVERLAP)
 				{
 					dynamicActor->report->OnContact(geom, dynamicActor);
 					dynamicActor->Collisions.insert(geom);
