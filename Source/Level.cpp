@@ -17,6 +17,7 @@
 #include "Entity/SpikeEnemy.h"
 #include "Entity/SwordPowerUp.h"
 #include "Entity/SpearPowerUp.h"
+#include "Entity/HammerPowerUp.h"
 
 Level::Level()
 {
@@ -196,6 +197,10 @@ void Level::InitPowerUps()
         {
             InitSpear(powerUp);
         }
+        if (powerUpName == "Hammer")
+        {
+            InitHammer(powerUp);
+        }
     }
 }
 
@@ -221,6 +226,18 @@ void Level::InitSpear(nlohmann::json &powerUpInfo)
     auto blockSprite = std::make_unique<Sprite>("spear_powerup");
     std::shared_ptr<SpearPowerUp> spearPowerUpPtr = std::make_shared<SpearPowerUp>(pos, size, std::move(blockSprite), color);
     Actors.push_back(spearPowerUpPtr);
+}
+
+void Level::InitHammer(nlohmann::json &powerUpInfo)
+{
+    const glm::vec3 size(50, 50, 0);
+    glm::vec3 color = glm::vec3(1, 1, 1);
+    auto position = powerUpInfo["position"];
+    glm::vec3 pos(position[0], position[1], 0.0f);
+
+    auto blockSprite = std::make_unique<Sprite>("hammer_powerup");
+    std::shared_ptr<HammerPowerUp> hammerPowerUpPtr = std::make_shared<HammerPowerUp>(pos, size, std::move(blockSprite), color);
+    Actors.push_back(hammerPowerUpPtr);
 }
 
 void Level::CreatePlayer(glm::vec3 playerPosition)

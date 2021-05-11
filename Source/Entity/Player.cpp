@@ -22,7 +22,6 @@ Player::Player(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, gl
 	LastState = ActorState::IDLE;
 	Speed = BASE_SPEED;
 	CurrentAnimation = AnimationType::IDLE;
-	PowerUp(PowerUpType::HAMMER);
 }
 
 Player::~Player()
