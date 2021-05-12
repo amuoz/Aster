@@ -68,16 +68,15 @@ void Animation::Play(SpriteRenderer &renderer,
   const int CELL_HEIGHT = 128;
 
   // Sprite location in the spritesheet
-  float xSpritePos = (float)frame[0] / texture.Width;
-  float ySpritePos = (float)frame[1] / texture.Height;
-  float spriteWidth = (float)frame[2] / texture.Width;
-  float spriteHeight = (float)frame[3] / texture.Height;
+  float xSpritePos = (float)frame[0] / texture.Width * CELL_WIDTH;
+  float ySpritePos = (float)frame[1] / texture.Height * CELL_HEIGHT;
+  float spriteWidth = (float)frame[2] / texture.Width * CELL_WIDTH;
+  float spriteHeight = (float)frame[3] / texture.Height * CELL_HEIGHT;
+  float xCenter = (float)frame[4] / 2 * CELL_WIDTH;
+  float yCenter = (float)frame[5] / 2 * CELL_HEIGHT;
   // Number of Cells that the sprite occupies
-  float xCells = (float)frame[2] / CELL_WIDTH;
-  float yCells = (float)frame[3] / CELL_HEIGHT;
-  // Position modification when the sprite extends to a negative direction
-  int xExtraPos = frame[2] < 0 ? CELL_WIDTH / 2 : 0;
-  int yExtraPos = frame[3] < 0 ? CELL_HEIGHT / 2 : 0;
+  float xCells = (float)frame[2];
+  float yCells = (float)frame[3];
 
   float vertices[] = {
       0.0f, yCells, xSpritePos, ySpritePos + spriteHeight, //  3  2   //  2  3
@@ -89,7 +88,7 @@ void Animation::Play(SpriteRenderer &renderer,
       xCells, 0.0f, xSpritePos + spriteWidth, ySpritePos                   //  1  2   //  2  1
   };
 
-  renderer.SetShader(glm::vec2(position.x + xExtraPos, position.y + yExtraPos), size, rotate, color);
+  renderer.SetShader(glm::vec2(position.x - xCenter, position.y - yCenter), size, rotate, color);
 
   glActiveTexture(GL_TEXTURE0);
   texture.Bind();

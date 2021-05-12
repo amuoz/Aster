@@ -62,11 +62,6 @@ void Player::Draw(SpriteRenderer &renderer, double deltatime)
 
 AnimationType Player::GetAnimationFromState()
 {
-	if (IsAttackAnimationPlaying())
-	{
-		return ActorSprite->GetAnimationType();
-	}
-
 	switch (State)
 	{
 	case ActorState::IDLE:
@@ -88,6 +83,10 @@ AnimationType Player::GetAnimationFromState()
 		{
 			return AnimationType::SPEAR_RIGHT;
 		}
+		else if (ActivePowerUp == PowerUpType::HAMMER)
+		{
+			return AnimationType::HAMMER_RIGHT;
+		}
 		else
 		{
 			return AnimationType::IDLE;
@@ -100,6 +99,10 @@ AnimationType Player::GetAnimationFromState()
 		else if (ActivePowerUp == PowerUpType::SPEAR)
 		{
 			return AnimationType::SPEAR_LEFT;
+		}
+		else if (ActivePowerUp == PowerUpType::HAMMER)
+		{
+			return AnimationType::HAMMER_LEFT;
 		}
 		else
 		{
@@ -114,6 +117,10 @@ AnimationType Player::GetAnimationFromState()
 		{
 			return AnimationType::SPEAR_DOWN;
 		}
+		else if (ActivePowerUp == PowerUpType::HAMMER)
+		{
+			return AnimationType::HAMMER_RIGHT;
+		}
 		else
 		{
 			return AnimationType::IDLE;
@@ -126,6 +133,10 @@ AnimationType Player::GetAnimationFromState()
 		else if (ActivePowerUp == PowerUpType::SPEAR)
 		{
 			return AnimationType::SPEAR_UP;
+		}
+		else if (ActivePowerUp == PowerUpType::HAMMER)
+		{
+			return AnimationType::HAMMER_RIGHT;
 		}
 		else
 		{
@@ -148,10 +159,10 @@ bool Player::IsAttackAnimationPlaying()
 {
 	float animationLength = ActorSprite->GetAnimationLength();
 	bool isAnimationPlaying = animationLength && AnimationProgress < animationLength;
-	bool isTryingToChangeStateFromAttack = LastState == ActorState::ATTACK_UP ||
-																				 LastState == ActorState::ATTACK_RIGHT ||
-																				 LastState == ActorState::ATTACK_DOWN ||
-																				 LastState == ActorState::ATTACK_LEFT;
+	bool isTryingToChangeStateFromAttack = State == ActorState::ATTACK_UP ||
+																				 State == ActorState::ATTACK_RIGHT ||
+																				 State == ActorState::ATTACK_DOWN ||
+																				 State == ActorState::ATTACK_LEFT;
 
 	return isAnimationPlaying && isTryingToChangeStateFromAttack;
 }
@@ -256,33 +267,33 @@ void Player::Attack()
 	if (ActivePowerUp != PowerUpType::NONE)
 	{
 		if (State == ActorState::MOVEMENT_RIGHT ||
-				State == ActorState::DASH_RIGHT ||
-				LastState == ActorState::ATTACK_RIGHT)
+				State == ActorState::DASH_RIGHT)
 			SetState(ActorState::ATTACK_RIGHT);
 		else if (State == ActorState::MOVEMENT_LEFT ||
-						 State == ActorState::DASH_LEFT ||
-						 LastState == ActorState::ATTACK_LEFT)
+						 State == ActorState::DASH_LEFT)
 			SetState(ActorState::ATTACK_LEFT);
 		else if (State == ActorState::MOVEMENT_DOWN ||
-						 State == ActorState::DASH_DOWN ||
-						 LastState == ActorState::ATTACK_DOWN)
+						 State == ActorState::DASH_DOWN)
 			SetState(ActorState::ATTACK_DOWN);
 		else if (State == ActorState::MOVEMENT_UP ||
-						 State == ActorState::DASH_UP ||
-						 LastState == ActorState::ATTACK_UP)
+						 State == ActorState::DASH_UP)
 			SetState(ActorState::ATTACK_UP);
 		else if (State == ActorState::IDLE)
 		{
-			if (LastState == ActorState::MOVEMENT_RIGHT ||
+			if (LastState == ActorState::ATTACK_RIGHT ||
+					LastState == ActorState::MOVEMENT_RIGHT ||
 					LastState == ActorState::DASH_RIGHT)
 				SetState(ActorState::ATTACK_RIGHT);
-			else if (LastState == ActorState::MOVEMENT_LEFT ||
+			else if (LastState == ActorState::ATTACK_LEFT ||
+							 LastState == ActorState::MOVEMENT_LEFT ||
 							 LastState == ActorState::DASH_LEFT)
 				SetState(ActorState::ATTACK_LEFT);
-			else if (LastState == ActorState::MOVEMENT_DOWN ||
+			else if (LastState == ActorState::ATTACK_DOWN ||
+							 LastState == ActorState::MOVEMENT_DOWN ||
 							 LastState == ActorState::DASH_DOWN)
 				SetState(ActorState::ATTACK_DOWN);
-			else if (LastState == ActorState::MOVEMENT_UP ||
+			else if (LastState == ActorState::ATTACK_UP ||
+							 LastState == ActorState::MOVEMENT_UP ||
 							 LastState == ActorState::DASH_UP)
 				SetState(ActorState::ATTACK_UP);
 			else
@@ -303,6 +314,14 @@ void Player::OnContact(
 bool Player::IsPlayer()
 {
 	return true;
+}
+
+void Player::SetState(ActorState state)
+{
+	if (!IsAttackAnimationPlaying())
+	{
+		Actor::SetState(state);
+	}
 }
 
 glm::vec4 Player::GetAttackHitbox()
