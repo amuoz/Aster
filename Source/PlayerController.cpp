@@ -78,8 +78,9 @@ void PlayerController::ProcessInput(float deltaTime)
 			Character->Move(deltaTime, direction);
 		}
 
-		if (keys[GLFW_KEY_SPACE])
+		if (keys[GLFW_KEY_SPACE] && !keysProcessed[GLFW_KEY_SPACE])
 		{
+			keysProcessed[GLFW_KEY_SPACE] = true;
 			Character->Attack();
 		}
 

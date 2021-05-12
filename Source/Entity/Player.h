@@ -26,6 +26,7 @@ public:
 			std::shared_ptr<Physics::PhysicActor> external,
 			std::shared_ptr<Physics::PhysicActor> internal) override;
 	bool IsPlayer() override;
+	void SetState(ActorState state) override;
 
 	void Idle();
 	void Attack();
