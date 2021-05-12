@@ -58,6 +58,7 @@ Actor::~Actor()
 
 void Actor::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 {
+	m_position = ActorCollider->pos;
 }
 
 void Actor::Draw(SpriteRenderer &renderer, double)

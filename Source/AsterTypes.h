@@ -47,7 +47,8 @@ enum class PowerUpType {
 
 enum class CollisionChannel {
 	DYNAMIC,
-	STATIC
+	STATIC,
+	PLAYER
 };
 
 enum class CollisionResponse {

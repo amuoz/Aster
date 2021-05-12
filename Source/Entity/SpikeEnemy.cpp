@@ -28,6 +28,8 @@ SpikeEnemy::SpikeEnemy(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sp
 			1.0f);
 	ActorCollider->bCheckCollision = true;
 	ActorCollider->report = this;
+	ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::BLOCK;
+	ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::OVERLAP;
 
 	AggroCollider = g_PhysicsPtr->AddDynamicActor(
 			GetAggroPosition(pos, size),
@@ -39,7 +41,9 @@ SpikeEnemy::SpikeEnemy(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sp
 			1.0f);
 	AggroCollider->bCheckCollision = true;
 	AggroCollider->report = this;
-	AggroCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::OVERLAP;
+	AggroCollider->ChannelResponse[CollisionChannel::STATIC] = CollisionResponse::IGNORE_C;
+	AggroCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::IGNORE_C;
+	AggroCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::OVERLAP;
 
 	int animationFrames = ActorSprite->GetFramesCount();
 	AnimationPeriod = framePeriod * animationFrames;

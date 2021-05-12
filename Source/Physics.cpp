@@ -173,22 +173,22 @@ void Physics::DoCollisions(std::shared_ptr<PhysicActor> geom)
 				}
 
 				// If both blocking then resolve collision
-				if (!geom->justReport && !dynamicActor->justReport)
-				//if (myResponse == CollisionResponse::BLOCK && otherResponse == CollisionResponse::BLOCK)
+				//if (!geom->justReport && !dynamicActor->justReport)
+				if (myResponse == CollisionResponse::BLOCK && otherResponse == CollisionResponse::BLOCK)
 				{
 					geom->pos = col;
 				}
 
 				// notify collision
 				//if (geom->report)
-				if(geom->report && myResponse == CollisionResponse::OVERLAP)
+				if(geom->report && myResponse == CollisionResponse::OVERLAP && otherResponse != CollisionResponse::IGNORE_C)
 				{
 					geom->report->OnContact(dynamicActor, geom);
 					geom->Collisions.insert(dynamicActor);
 				}
 				
 				//if (dynamicActor->report)
-				if (dynamicActor->report && otherResponse == CollisionResponse::OVERLAP)
+				if (dynamicActor->report && otherResponse == CollisionResponse::OVERLAP && myResponse != CollisionResponse::IGNORE_C)
 				{
 					dynamicActor->report->OnContact(geom, dynamicActor);
 					dynamicActor->Collisions.insert(geom);

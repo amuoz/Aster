@@ -24,6 +24,9 @@ SpearPowerUp::SpearPowerUp(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite
 			1.0f);
 	ActorCollider->bCheckCollision = true;
 	ActorCollider->report = this;
+	ActorCollider->ChannelResponse[CollisionChannel::STATIC] = CollisionResponse::IGNORE_C;
+	ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::IGNORE_C;
+	ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::OVERLAP;
 }
 
 SpearPowerUp::~SpearPowerUp()
