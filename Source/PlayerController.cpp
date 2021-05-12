@@ -66,7 +66,7 @@ void PlayerController::ProcessInput(float deltaTime)
 		}
 		if (keys[GLFW_KEY_C])
 		{
-			isDash = true;	
+			isDash = true;
 		}
 
 		if (isDash)
@@ -78,8 +78,9 @@ void PlayerController::ProcessInput(float deltaTime)
 			Character->Move(deltaTime, direction);
 		}
 
-		if (keys[GLFW_KEY_SPACE])
+		if (keys[GLFW_KEY_SPACE] && !keysProcessed[GLFW_KEY_SPACE])
 		{
+			keysProcessed[GLFW_KEY_SPACE] = true;
 			Character->Attack();
 		}
 
@@ -93,7 +94,7 @@ void PlayerController::ProcessInput(float deltaTime)
 			Character->SelectPowerUp(1);
 		}
 	}
-	
+
 	// Game restart
 	if (keys[GLFW_KEY_R] && !keysProcessed[GLFW_KEY_R])
 	{
