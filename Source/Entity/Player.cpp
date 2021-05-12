@@ -212,7 +212,11 @@ void Player::Move(float deltaTime, glm::vec3 direction)
 
 void Player::Dash(glm::vec3 direction)
 {
-	DashTime = 0;
+	if (IsDashState())
+	{
+		return;
+	}
+
 	if (direction.x > 0 || LastState == ActorState::DASH_RIGHT)
 		SetState(ActorState::DASH_RIGHT);
 	else if (direction.x < 0 || LastState == ActorState::DASH_LEFT)
