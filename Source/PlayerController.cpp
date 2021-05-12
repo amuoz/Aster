@@ -64,8 +64,9 @@ void PlayerController::ProcessInput(float deltaTime)
 		{
 			direction += glm::vec3(0.0f, 1.0f, 0.0f);
 		}
-		if (keys[GLFW_KEY_C])
+		if (keys[GLFW_KEY_LEFT_SHIFT] && !keysProcessed[GLFW_KEY_LEFT_SHIFT])
 		{
+			keysProcessed[GLFW_KEY_LEFT_SHIFT] = true;
 			isDash = true;	
 		}
 
