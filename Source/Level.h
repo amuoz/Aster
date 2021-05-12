@@ -44,6 +44,7 @@ private:
     void InitPowerUps();
     void InitSword(nlohmann::json &powerUpInfo);
     void InitSpear(nlohmann::json &powerUpInfo);
+    void InitHammer(nlohmann::json &powerUpInfo);
 
     void CreatePlayer(glm::vec3 playerPosition);
     glm::vec3 GetPlayerPosition();

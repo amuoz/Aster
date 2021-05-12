@@ -24,5 +24,8 @@
   }, {
     "type": "Spear",
     "position": [700, 450]
+  }, {
+    "type": "Hammer",
+    "position": [850, 400]
   }]
 }

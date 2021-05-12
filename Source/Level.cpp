@@ -17,6 +17,7 @@
 #include "Entity/SpikeEnemy.h"
 #include "Entity/SwordPowerUp.h"
 #include "Entity/SpearPowerUp.h"
+#include "Entity/HammerPowerUp.h"
 
 Level::Level()
 {
@@ -83,7 +84,7 @@ void Level::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 
 void Level::Draw(SpriteRenderer &renderer, double deltaTime)
 {
-    for (auto& actor : Actors)
+    for (auto &actor : Actors)
     {
         if (!actor->IsDestroyed)
         {
@@ -187,7 +188,7 @@ void Level::InitPowerUps()
     for (auto &powerUp : powerUps)
     {
         std::string powerUpName = powerUp["type"].get<std::string>();
-            
+
         if (powerUpName == "Sword")
         {
             InitSword(powerUp);
@@ -195,6 +196,10 @@ void Level::InitPowerUps()
         if (powerUpName == "Spear")
         {
             InitSpear(powerUp);
+        }
+        if (powerUpName == "Hammer")
+        {
+            InitHammer(powerUp);
         }
     }
 }
@@ -223,6 +228,17 @@ void Level::InitSpear(nlohmann::json &powerUpInfo)
     Actors.push_back(spearPowerUpPtr);
 }
 
+void Level::InitHammer(nlohmann::json &powerUpInfo)
+{
+    const glm::vec3 size(50, 50, 0);
+    glm::vec3 color = glm::vec3(1, 1, 1);
+    auto position = powerUpInfo["position"];
+    glm::vec3 pos(position[0], position[1], 0.0f);
+
+    auto blockSprite = std::make_unique<Sprite>("hammer_powerup");
+    std::shared_ptr<HammerPowerUp> hammerPowerUpPtr = std::make_shared<HammerPowerUp>(pos, size, std::move(blockSprite), color);
+    Actors.push_back(hammerPowerUpPtr);
+}
 
 void Level::CreatePlayer(glm::vec3 playerPosition)
 {
@@ -243,6 +259,8 @@ void Level::CreatePlayer(glm::vec3 playerPosition)
     playerSprite->AddAnimation("sword_right", AnimationType::SWORD_RIGHT, 0.03f);
     playerSprite->AddAnimation("sword_down", AnimationType::SWORD_DOWN, 0.03f);
     playerSprite->AddAnimation("sword_left", AnimationType::SWORD_LEFT, 0.03f);
+    playerSprite->AddAnimation("hammer_right", AnimationType::HAMMER_RIGHT, 0.06f);
+    playerSprite->AddAnimation("hammer_left", AnimationType::HAMMER_LEFT, 0.06f);
     playerSprite->AddAnimation("roll_right", AnimationType::DASH_RIGHT, 0.018f);
     playerSprite->AddAnimation("roll_left", AnimationType::DASH_LEFT, 0.018f);
 
