@@ -114,9 +114,9 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
             {
                 glm::vec3 pos(unit_width * x, unit_height * y, 0.0f);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
-                auto blockSprite = std::make_unique<Sprite>("block_solid");
+                auto blockSprite = std::make_unique<Sprite>("block");
                 std::shared_ptr<Actor> blockActor = std::make_shared<Block>(
-                    pos, size, std::move(blockSprite), glm::vec3(0.8f, 0.8f, 0.7f));
+                    pos, size, std::move(blockSprite), glm::vec3(0.9f, 0.9f, 1.0f));
                 blockActor->IsDestroyable = true;
                 Actors.push_back(blockActor);
             }
