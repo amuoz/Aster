@@ -10,6 +10,7 @@
 class Actor;
 class SpriteRenderer;
 class Player;
+class Sprite;
 
 /* Level holds all Tiles as part of a level and 
  * hosts functionality to Load/render levels from the harddisk.
@@ -45,7 +46,12 @@ private:
     void InitSword(nlohmann::json &powerUpInfo);
     void InitSpear(nlohmann::json &powerUpInfo);
     void InitHammer(nlohmann::json &powerUpInfo);
-
+    
     void CreatePlayer(glm::vec3 playerPosition);
     glm::vec3 GetPlayerPosition();
+    std::unique_ptr<Sprite> GetBlockSprite(int x, int y);
+    std::unique_ptr<Sprite> GetBlockSpriteByPosition(int top, int bottom, int left, int right);
+    void TopBlocks(int &top, int &bottom, int &left, int &right, int x, int y);
+    void BottomBlocks(int &top, int &bottom, int &left, int &right, int x, int y);
+    void MiddleBlocks(int &top, int &bottom, int &left, int &right, int x, int y);
 };

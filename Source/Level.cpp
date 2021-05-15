@@ -134,12 +134,135 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
 
                 glm::vec3 pos(unit_width * x, unit_height * y, 0.0f);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
-                auto blockSprite = std::make_unique<Sprite>("block");
+                auto blockSprite = GetBlockSprite(x, y);
                 std::shared_ptr<Block> blockPtr = std::make_shared<Block>(pos, size, std::move(blockSprite), color);
                 Actors.push_back(blockPtr);
             }
         }
     }
+}
+
+std::unique_ptr<Sprite> Level::GetBlockSprite(int x, int y)
+{
+    int top, bottom, left, right;
+
+    if (y == 0)
+    {
+        TopBlocks(top, bottom, left, right, x, y);
+    }
+    else if (y == Tiles.size() - 1)
+    {
+        BottomBlocks(top, bottom, left, right, x, y);
+    }
+    else
+    {
+        MiddleBlocks(top, bottom, left, right, x, y);
+    }
+
+    return GetBlockSpriteByPosition(top, bottom, left, right);
+}
+
+void Level::TopBlocks(int &top, int &bottom, int &left, int &right, int x, int y)
+{
+    if (x == 0)
+    // left blocks
+    {
+        left = 2;
+        right = Tiles[0][1];
+    }
+    else if (x == Tiles[0].size() - 1)
+    // right blocks
+    {
+        left = Tiles[0][x - 1];
+        right = 2;
+    }
+    else
+    // middle blocks
+    {
+        left = Tiles[0][x - 1];
+        right = Tiles[0][x + 1];
+    }
+
+    top = 2;
+    bottom = Tiles[y + 1][x];
+}
+
+void Level::BottomBlocks(int &top, int &bottom, int &left, int &right, int x, int y)
+{
+    if (x == 0)
+    // left blocks
+    {
+        left = 2;
+        right = Tiles[x][y + 1];
+    }
+    else if (x == Tiles[y].size() - 1)
+    // right blocks
+    {
+        left = Tiles[y][x - 1];
+        right = 2;
+    }
+    else
+    // middle blocks
+    {
+        left = Tiles[y][x - 1];
+        right = Tiles[y][x + 1];
+    }
+
+    top = Tiles[y - 1][x];
+    bottom = 2;
+}
+
+void Level::MiddleBlocks(int &top, int &bottom, int &left, int &right, int x, int y)
+{
+    if (x == 0)
+    // left blocks
+    {
+        left = 2;
+        right = Tiles[y][x + 1];
+    }
+    else if (x == Tiles[y].size() - 1)
+    // right blocks
+    {
+        left = Tiles[y][x - 1];
+        right = 2;
+    }
+    else
+    // middle blocks
+    {
+        left = Tiles[y][x - 1];
+        right = Tiles[y][x + 1];
+    }
+
+    top = Tiles[y - 1][x];
+    bottom = Tiles[y + 1][x];
+}
+
+std::unique_ptr<Sprite> Level::GetBlockSpriteByPosition(int top, int bottom, int left, int right)
+{
+    if (bottom < 2)
+    {
+        if (left < 2)
+        {
+            return std::make_unique<Sprite>("block_corner_left");
+        }
+        if (right < 2)
+        {
+            return std::make_unique<Sprite>("block_corner_right");
+        }
+
+        return std::make_unique<Sprite>("block_bottom");
+    }
+
+    if (left < 2)
+    {
+        return std::make_unique<Sprite>("block_side_left");
+    }
+    if (right < 2)
+    {
+        return std::make_unique<Sprite>("block_side_right");
+    }
+
+    return std::make_unique<Sprite>("block");
 }
 
 glm::vec3 Level::GetPlayerPosition()
