@@ -71,8 +71,8 @@ void Game::InitGame(GLFWwindow *window)
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/bone.png", true, "spear_powerup");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/anvil.png", true, "sword_powerup");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/rock.png", true, "hammer_powerup");
-	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/block.png", false, "block");
-	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/block_bottom.png", false, "block_bottom");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/block.png", true, "block");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/block_bottom.png", true, "block_bottom");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/block_corner_left.png", true, "block_corner_left");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/block_corner_right.png", true, "block_corner_right");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/block_side_left.png", true, "block_side_left");
