@@ -48,4 +48,6 @@ private:
 	bool IsInDashIFrames();
 	bool IsAttackAnimationPlaying();
 	bool IsDashState();
+	bool IsBlockedByHammer();
+	bool IsHammerAttack();
 };
