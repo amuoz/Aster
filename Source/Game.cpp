@@ -129,7 +129,7 @@ void Game::Render(float deltaTime)
 	// Draw background
 	Texture2D background = ResourceManager::GetInstance()->GetTexture("background");
 	Renderer->DrawTexture(background,
-												glm::vec2(0.0f, 0.0f), glm::vec2(Config::Get()->GetValue(SRC_WIDTH), Config::Get()->GetValue(SRC_HEIGHT)), 0.0f);
+												glm::vec2(0.0f, 0.0f), glm::vec2(Config::Get()->GetValue(LVL_WIDTH), Config::Get()->GetValue(LVL_HEIGHT)), 0.0f);
 
 	// DebugAttackHitbox(*Renderer);
 

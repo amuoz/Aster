@@ -124,7 +124,7 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
             {
                 glm::vec3 color = glm::vec3(1.0f); // original: white
                 if (Tiles[y][x] == 2)
-                    color = glm::vec3(0.2f, 0.6f, 1.0f);
+                    color = glm::vec3(1, 1, 1);
                 else if (Tiles[y][x] == 3)
                     color = glm::vec3(0.0f, 0.7f, 0.0f);
                 else if (Tiles[y][x] == 4)
@@ -145,7 +145,9 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
 glm::vec3 Level::GetPlayerPosition()
 {
     auto playerPosition = LevelInfo["player"]["position"];
-    return glm::vec3(playerPosition[0], playerPosition[1], 0);
+    int xPlayer = (int)playerPosition[0] * Config::Get()->GetValue(CELL_WIDTH);
+    int yPlayer = (int)playerPosition[1] * Config::Get()->GetValue(CELL_HEIGHT);
+    return glm::vec3(xPlayer, yPlayer, 0);
 }
 
 void Level::InitEnemies()
