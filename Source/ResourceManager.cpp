@@ -145,7 +145,7 @@ Texture2D ResourceManager::LoadTextureFromFile(const char* file, bool alpha)
 std::shared_ptr<Level> ResourceManager::LoadLevelFromFile(const char* file)
 {
 	auto level = std::make_shared<Level>();
-	level->Load(file, Config::Get()->GetValue(SRC_WIDTH), Config::Get()->GetValue(SRC_HEIGHT));
+	level->Load(file, Config::Get()->GetValue(LVL_WIDTH), Config::Get()->GetValue(LVL_HEIGHT));
 
 	return level;
 }
