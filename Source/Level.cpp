@@ -9,6 +9,7 @@
 #include <utility>
 #include <string>
 
+#include "Common.h"
 #include "Config.h"
 #include "Sprite.h"
 
@@ -18,6 +19,14 @@
 #include "Entity/SwordPowerUp.h"
 #include "Entity/SpearPowerUp.h"
 #include "Entity/HammerPowerUp.h"
+
+std::map<BlockLocation, std::string> BLOCK_SPRITES = {
+    {BlockLocation::BOTTOM_LEFT, "block_corner_left"},
+    {BlockLocation::BOTTOM_RIGHT, "block_corner_right"},
+    {BlockLocation::BOTTOM, "block_bottom"},
+    {BlockLocation::LEFT, "block_side_left"},
+    {BlockLocation::RIGHT, "block_side_right"},
+    {BlockLocation::MIDDLE, "block"}};
 
 Level::Level()
 {
@@ -134,15 +143,16 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
 
                 glm::vec3 pos(unit_width * x, unit_height * y, 0.0f);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
-                auto blockSprite = GetBlockSprite(x, y);
-                std::shared_ptr<Block> blockPtr = std::make_shared<Block>(pos, size, std::move(blockSprite), color);
+                BlockLocation location = GetBlockLocation(x, y);
+                auto blockSprite = GetBlockSprite(location);
+                std::shared_ptr<Block> blockPtr = std::make_shared<Block>(pos, size, std::move(blockSprite), color, location);
                 Actors.push_back(blockPtr);
             }
         }
     }
 }
 
-std::unique_ptr<Sprite> Level::GetBlockSprite(int x, int y)
+BlockLocation Level::GetBlockLocation(int x, int y)
 {
     int top, bottom, left, right;
 
@@ -159,7 +169,7 @@ std::unique_ptr<Sprite> Level::GetBlockSprite(int x, int y)
         MiddleBlocks(top, bottom, left, right, x, y);
     }
 
-    return GetBlockSpriteByPosition(top, bottom, left, right);
+    return GetBlockLocationByNeighbors(top, bottom, left, right);
 }
 
 void Level::TopBlocks(int &top, int &bottom, int &left, int &right, int x, int y)
@@ -237,32 +247,38 @@ void Level::MiddleBlocks(int &top, int &bottom, int &left, int &right, int x, in
     bottom = Tiles[y + 1][x];
 }
 
-std::unique_ptr<Sprite> Level::GetBlockSpriteByPosition(int top, int bottom, int left, int right)
+BlockLocation Level::GetBlockLocationByNeighbors(int top, int bottom, int left, int right)
 {
     if (bottom < 2)
     {
         if (left < 2)
         {
-            return std::make_unique<Sprite>("block_corner_left");
+            return BlockLocation::BOTTOM_LEFT;
         }
         if (right < 2)
         {
-            return std::make_unique<Sprite>("block_corner_right");
+            return BlockLocation::BOTTOM_RIGHT;
         }
 
-        return std::make_unique<Sprite>("block_bottom");
+        return BlockLocation::BOTTOM;
     }
 
     if (left < 2)
     {
-        return std::make_unique<Sprite>("block_side_left");
+        return BlockLocation::LEFT;
     }
     if (right < 2)
     {
-        return std::make_unique<Sprite>("block_side_right");
+        return BlockLocation::RIGHT;
     }
 
-    return std::make_unique<Sprite>("block");
+    return BlockLocation::MIDDLE;
+}
+
+std::unique_ptr<Sprite> Level::GetBlockSprite(BlockLocation location)
+{
+    std::string spriteName = BLOCK_SPRITES[location];
+    return std::make_unique<Sprite>(spriteName); 
 }
 
 glm::vec3 Level::GetPlayerPosition()
