@@ -183,7 +183,7 @@ bool Player::IsInDashIFrames()
 	return (DashTime > DASH_IFRAMES_START) && (DashTime < DASH_IFRAMES_FINISH);
 }
 
-void Player::SetDirection(glm::vec3 direction)
+void Player::SetInputDirection(glm::vec3 direction)
 {
 	InputDirection = direction;
 }

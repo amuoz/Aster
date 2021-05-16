@@ -18,7 +18,7 @@ public:
 	void Update(float, glm::vec4) override;
 	void Draw(SpriteRenderer &renderer, double deltaTime) override;
 	void TakeDamage() override;
-	void SetDirection(glm::vec3 direction);
+	void SetInputDirection(glm::vec3 direction);
 	void Dash(glm::vec3 direction);
 	void SetDashSpeed();
 	void SetDashIFrames();
