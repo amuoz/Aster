@@ -46,7 +46,7 @@ void PlayerController::ProcessInput(float deltaTime)
 	if (g_game->GetGameState() == GameState::GAME_ACTIVE)
 	{
 		glm::vec3 direction(0.0f);
-		bool isDash = false;
+		bool isShiftPressed = false;
 
 		if (keys[GLFW_KEY_A])
 		{
@@ -67,10 +67,10 @@ void PlayerController::ProcessInput(float deltaTime)
 		if (keys[GLFW_KEY_LEFT_SHIFT] && !keysProcessed[GLFW_KEY_LEFT_SHIFT])
 		{
 			keysProcessed[GLFW_KEY_LEFT_SHIFT] = true;
-			isDash = true;	
+			isShiftPressed = true;	
 		}
 
-		if (isDash)
+		if (isShiftPressed)
 		{
 			Character->Dash(direction);
 		}
