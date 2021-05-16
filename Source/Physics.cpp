@@ -115,25 +115,19 @@ bool Physics::CheckRectRectCollision(const glm::vec3& rect1Pos, const glm::vec3&
 	return false;
 }
 
-std::shared_ptr<PhysicActor> Physics::AddDynamicActor(const glm::vec3 &pos, const glm::vec3 &vel, const glm::vec3& size, bool justReport, CollisionChannel channel, glm::vec3 force, float mass)
+std::shared_ptr<PhysicActor> Physics::AddDynamicActor(const glm::vec3 &pos, const glm::vec3 &vel, const glm::vec3& size, CollisionChannel channel, glm::vec3 force, float mass)
 {
-	if (PhysicsPool.size() < MAX_DYNAMICS)
-	{
-		auto geom = std::make_shared<PhysicActor>(channel);
-		geom->active = false;
-		geom->pos = pos;
-		geom->vel = vel;
-		geom->size = size;
-		geom->accelerationForce = force;
-		geom->mass = mass;
-		geom->radius = size.x / 2;
-		geom->justReport = justReport;
+	auto geom = std::make_shared<PhysicActor>(channel);
+	geom->pos = pos;
+	geom->vel = vel;
+	geom->size = size;
+	geom->accelerationForce = force;
+	geom->mass = mass;
+	geom->radius = size.x / 2;
 
-		PhysicsPool.push_back(geom);
+	PhysicsPool.push_back(geom);
 
-		return geom;
-	}
-	return 0;
+	return geom;
 }
 
 void Physics::DeleteDynamicActor(std::shared_ptr<PhysicActor> geom)
@@ -141,8 +135,20 @@ void Physics::DeleteDynamicActor(std::shared_ptr<PhysicActor> geom)
 	auto it = std::find(PhysicsPool.begin(), PhysicsPool.end(), geom);
 	if (it != PhysicsPool.end())
 	{ 
+		(*it)->report.reset();
 		PhysicsPool.erase(it);
 	}
+}
+
+void Physics::DeleteAllDynamics()
+{
+	auto iterator = PhysicsPool.begin();
+	while (iterator != PhysicsPool.end())
+	{
+		(*iterator)->report.reset();
+		iterator = PhysicsPool.erase(iterator);
+	}
+	PhysicsPool.clear();
 }
 
 void Physics::DoCollisions(std::shared_ptr<PhysicActor> geom)
@@ -150,16 +156,15 @@ void Physics::DoCollisions(std::shared_ptr<PhysicActor> geom)
 	glm::vec3 col, normal;
 	for (auto& dynamicActor : PhysicsPool)
 	{
-		//if (geom != dynamicActor && dynamicActor->active)
 		if (geom != dynamicActor && (geom->report != dynamicActor->report))
 		{
 			CollisionResponse myResponse = geom->ChannelResponse[dynamicActor->Channel];
 			CollisionResponse otherResponse = dynamicActor->ChannelResponse[geom->Channel];
 			
-			// If collision ignore then return
+			// If any collision in ignore then continue with next one
 			if (myResponse == CollisionResponse::IGNORE_C || otherResponse == CollisionResponse::IGNORE_C)
 			{
-				return;
+				continue;
 			}
 
 			//if (CheckCircleCircleCollision(geom.pos, geom.radius, dynamicActor->pos, dynamicActor->radius, col, normal))
@@ -173,26 +178,18 @@ void Physics::DoCollisions(std::shared_ptr<PhysicActor> geom)
 				}
 
 				// If both blocking then resolve collision
-				//if (!geom->justReport && !dynamicActor->justReport)
 				if (myResponse == CollisionResponse::BLOCK && otherResponse == CollisionResponse::BLOCK)
 				{
 					geom->pos = col;
 				}
 
-				// notify collision
-				//if (geom->report)
+				// Notify overlap
 				if(geom->report && myResponse == CollisionResponse::OVERLAP && otherResponse != CollisionResponse::IGNORE_C)
 				{
 					geom->report->OnContact(dynamicActor, geom);
 					geom->Collisions.insert(dynamicActor);
 				}
-				
-				//if (dynamicActor->report)
-				if (dynamicActor->report && otherResponse == CollisionResponse::OVERLAP && myResponse != CollisionResponse::IGNORE_C)
-				{
-					dynamicActor->report->OnContact(geom, dynamicActor);
-					dynamicActor->Collisions.insert(geom);
-				}
+				// Each collision will take care of his own overlap
 			}
 			else
 			{

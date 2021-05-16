@@ -15,8 +15,10 @@ public:
 	SpikeEnemy(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, float framePeriod, glm::vec3 color = glm::vec3(1.0f), glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f));
 	~SpikeEnemy();
 
+	void BeginPlay() override;
 	void Update(float, glm::vec4) override;
 	void Draw(SpriteRenderer &renderer, double deltaTime) override;
+	void Destroy() override;
 	void OnContact(
 			std::shared_ptr<PhysicActor> external,
 			std::shared_ptr<PhysicActor> internal) override;

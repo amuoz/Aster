@@ -18,16 +18,9 @@ const float AGGRO_SIZE = 350;
 
 SpikeEnemy::SpikeEnemy(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, float framePeriod, glm::vec3 color, glm::vec3 velocity) : Actor(pos, size, std::move(sprite), color, velocity)
 {
-	ActorCollider = g_PhysicsPtr->AddDynamicActor(
-			pos,
-			velocity,
-			size,
-			false,
-			CollisionChannel::DYNAMIC,
-			glm::vec3(0.0f),
-			1.0f);
+	ActorCollider = g_PhysicsPtr->AddDynamicActor(pos, velocity, size, CollisionChannel::DYNAMIC);
 	ActorCollider->bCheckCollision = true;
-	ActorCollider->report = this;
+	//ActorCollider->report = shared_from_this();
 	ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::BLOCK;
 	ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::OVERLAP;
 
@@ -35,12 +28,9 @@ SpikeEnemy::SpikeEnemy(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sp
 			GetAggroPosition(pos, size),
 			velocity,
 			glm::vec3(AGGRO_SIZE, AGGRO_SIZE, 0),
-			true,
-			CollisionChannel::DYNAMIC,
-			glm::vec3(0.0f),
-			1.0f);
+			CollisionChannel::DYNAMIC);
 	AggroCollider->bCheckCollision = true;
-	AggroCollider->report = this;
+	//AggroCollider->report = shared_from_this();
 	AggroCollider->ChannelResponse[CollisionChannel::STATIC] = CollisionResponse::IGNORE_C;
 	AggroCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::IGNORE_C;
 	AggroCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::OVERLAP;
@@ -59,10 +49,14 @@ SpikeEnemy::SpikeEnemy(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sp
 
 SpikeEnemy::~SpikeEnemy()
 {
-	AggroCollider->report = nullptr;
-	AggroCollider->active = false;
-	g_PhysicsPtr->DeleteDynamicActor(AggroCollider);
-	AggroCollider = nullptr;
+
+}
+
+void SpikeEnemy::BeginPlay()
+{
+	Actor::BeginPlay();
+
+	AggroCollider->report = shared_from_this();
 }
 
 void SpikeEnemy::Update(float deltaTime, glm::vec4 attackHitbox)
@@ -73,7 +67,9 @@ void SpikeEnemy::Update(float deltaTime, glm::vec4 attackHitbox)
 	}
 
 	if (AggroCollider->Collisions.size() == 0)
-		SetState(ActorState::IDLE);
+	{
+		SetState(ActorState::IDLE); 
+	}
 	else
 	{
 		auto it = std::find_if(
@@ -136,19 +132,29 @@ void SpikeEnemy::Draw(SpriteRenderer &renderer, double deltatime)
 			m_color);
 }
 
+void SpikeEnemy::Destroy()
+{
+	g_PhysicsPtr->DeleteDynamicActor(AggroCollider);
+
+	Actor::Destroy();
+}
+
 void SpikeEnemy::OnContact(
 		std::shared_ptr<PhysicActor> external,
 		std::shared_ptr<PhysicActor> internal)
 {
 	if (internal == ActorCollider)
 	{
-		auto *collidedActor = external->report;
-		collidedActor->TakeDamage();
+		if (external->report)
+		{
+			auto collidedActor = external->report;
+			collidedActor->TakeDamage();
+		}
 	}
 
 	if (internal == AggroCollider)
 	{
-		if (external->report->IsPlayer())
+		if (external->report && external->report->IsPlayer())
 		{
 			SetState(ActorState::AGGRO);
 			ObjectivePosition = external->report->GetPosition();

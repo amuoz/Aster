@@ -10,7 +10,7 @@ class Sprite;
 class PhysicActor;
 enum class ActorState;
 
-class Actor
+class Actor: public std::enable_shared_from_this<Actor>
 {
 protected:
 	
@@ -21,10 +21,12 @@ public:
 	
 	virtual ~Actor() = 0;
 
+	virtual void BeginPlay();
 	virtual void Update(float deltaTime, glm::vec4 playerAttackHitbox);
 	virtual void Draw(SpriteRenderer &renderer, double deltatime);
 	virtual void TakeDamage();
 	virtual void Move(float deltaTime, glm::vec3 direction);
+	virtual void Destroy();
 	virtual void OnContact(
 			std::shared_ptr<PhysicActor> external,
 			std::shared_ptr<PhysicActor> internal);

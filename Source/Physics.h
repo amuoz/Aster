@@ -31,9 +31,11 @@ public:
 	bool CheckRectRectCollision(const glm::vec3& rect1Pos, const glm::vec3& rect1Size,
 		const glm::vec3& rect2Pos, const glm::vec3& rect2Size, glm::vec3& col);
 
-	std::shared_ptr<PhysicActor> AddDynamicActor(const glm::vec3 &pos, const glm::vec3 &vel, const glm::vec3& size, bool justReport, CollisionChannel channel, glm::vec3 force = glm::vec3(0.0f), float mass = 1.0f);
+	std::shared_ptr<PhysicActor> AddDynamicActor(const glm::vec3 &pos, const glm::vec3 &vel, const glm::vec3& size, CollisionChannel channel, glm::vec3 force = glm::vec3(0.0f), float mass = 1.0f);
 
 	void DeleteDynamicActor(std::shared_ptr<PhysicActor> geom);
+
+	void DeleteAllDynamics();
 
 private:
 

@@ -152,12 +152,22 @@ void Game::Restart()
 	// hot-reload config file
 	Config::Get()->Load(CONFIG_FILE);
 
+	// reset physics
+	g_PhysicsPtr->DeleteAllDynamics();
+
 	// level
 	CurrentLevel = ResourceManager::GetInstance()->LoadLevel(PROJECT_SOURCE_DIR "/Levels/one.json", "one");
+	CurrentLevel->BeginPlay();
+	
 	CharacterController->Posses(CurrentLevel->GetPlayer());
 
 	m_gameTime = 0.0f;
 	SetGameState(GameState::GAME_ACTIVE);
+}
+
+void Game::BeginPlay()
+{
+	CurrentLevel->BeginPlay();
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly

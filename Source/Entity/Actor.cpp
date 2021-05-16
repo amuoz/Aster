@@ -50,10 +50,15 @@ Actor::Actor(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm:
 
 Actor::~Actor()
 {
-	ActorCollider->report = nullptr;
-	ActorCollider->active = false;
-	g_PhysicsPtr->DeleteDynamicActor(ActorCollider);
-	ActorCollider = nullptr;
+	std::cout << "Actor destroyed" << std::endl;
+}
+
+void Actor::BeginPlay()
+{
+	if (ActorCollider != nullptr)
+	{
+		ActorCollider->report = shared_from_this();
+	}
 }
 
 void Actor::Update(float deltaTime, glm::vec4 playerAttackHitbox)
@@ -75,6 +80,11 @@ void Actor::Move(float deltaTime, glm::vec3 direction)
 {
 	float velocity = Speed * deltaTime;
 	SetPosition(velocity * direction);
+}
+
+void Actor::Destroy()
+{
+	g_PhysicsPtr->DeleteDynamicActor(ActorCollider);
 }
 
 void Actor::OnContact(
@@ -101,7 +111,6 @@ void Actor::SetState(ActorState state)
 
 void Actor::SetActive(bool newActive)
 {
-	ActorCollider->active = newActive;
 	m_active = newActive;
 }
 

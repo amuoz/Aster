@@ -50,6 +50,8 @@ public:
 
 	void Restart();
 
+	void BeginPlay();
+
 private:
 	
 	void ProcessInput(float deltaTime);

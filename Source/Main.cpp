@@ -63,7 +63,7 @@ int main(int, char**)
 	g_game = std::make_unique<Game>();
 	if (g_game != nullptr)
 	{
-		// Initialize game
+		// Load dependencies and construct all objects
 		g_game->InitGame(window);
 
 		// deltaTime variables
@@ -71,6 +71,9 @@ int main(int, char**)
 		float m_lastFrame = 0.0f;	// Time of last frame
 		float TimeStepAccum = 0.0f;
 		float fixedUpdateFreq = 1.0f / 60.0f;	// fixed time step
+
+		// BeginPlay logic with all objects ready
+		g_game->BeginPlay();
 
 		// Game loop
 		while (!glfwWindowShouldClose(window))
