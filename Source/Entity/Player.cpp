@@ -23,6 +23,11 @@ Player::Player(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, gl
 	LastState = ActorState::IDLE;
 	Speed = BASE_SPEED;
 	CurrentAnimation = AnimationType::IDLE;
+	DashTime = 0.0f;
+	ActivePowerUp = PowerUpType::NONE;
+	InputDirection = glm::vec3(0);
+	MovementDirection = glm::vec3(0);
+	LastMovementDirection = glm::vec3(0);
 }
 
 Player::~Player()

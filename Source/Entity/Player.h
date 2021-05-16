@@ -39,7 +39,7 @@ public:
 private:
 	std::vector<PowerUpType> Inventory;
 	AnimationType CurrentAnimation;
-	PowerUpType ActivePowerUp = PowerUpType::NONE;
+	PowerUpType ActivePowerUp;
 	float DashTime;
 	glm::vec3 InputDirection;
 	glm::vec3 MovementDirection;
