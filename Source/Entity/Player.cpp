@@ -28,6 +28,11 @@ Player::Player(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, gl
 	LastState = ActorState::IDLE;
 	Speed = BASE_SPEED;
 	CurrentAnimation = AnimationType::IDLE;
+	DashTime = 0.0f;
+	ActivePowerUp = PowerUpType::NONE;
+	InputDirection = glm::vec3(0);
+	MovementDirection = glm::vec3(0);
+	LastMovementDirection = glm::vec3(0);
 }
 
 Player::~Player()
@@ -51,10 +56,12 @@ void Player::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 			DashTime = 0;
 			SetState(ActorState::IDLE);
 		}
+
+		Actor::Move(deltaTime, LastMovementDirection);
 	}
-	else
+	else if (!IsBlockedByHammer())
 	{
-		Speed = BASE_SPEED;
+		Move(deltaTime, InputDirection);
 	}
 }
 
@@ -188,38 +195,32 @@ bool Player::IsInDashIFrames()
 	return (DashTime > DASH_IFRAMES_START) && (DashTime < DASH_IFRAMES_FINISH);
 }
 
+void Player::SetInputDirection(glm::vec3 direction)
+{
+	InputDirection = direction;
+}
+
 void Player::Move(float deltaTime, glm::vec3 direction)
 {
-	if (IsBlockedByHammer())
-	{
-		return;
-	}
-	else if (IsDashState())
-	{
-		Actor::Move(deltaTime, LastMovementDirection);
-	}
+	if (direction.x > 0)
+		SetState(ActorState::MOVEMENT_RIGHT);
+	else if (direction.x < 0)
+		SetState(ActorState::MOVEMENT_LEFT);
+	else if (direction.y > 0)
+		SetState(ActorState::MOVEMENT_DOWN);
+	else if (direction.y < 0)
+		SetState(ActorState::MOVEMENT_UP);
 	else
+		SetState(ActorState::IDLE);
+
+	MovementDirection = direction;
+
+	if (direction.x != 0 || direction.y != 0)
 	{
-		if (direction.x > 0)
-			SetState(ActorState::MOVEMENT_RIGHT);
-		else if (direction.x < 0)
-			SetState(ActorState::MOVEMENT_LEFT);
-		else if (direction.y > 0)
-			SetState(ActorState::MOVEMENT_DOWN);
-		else if (direction.y < 0)
-			SetState(ActorState::MOVEMENT_UP);
-		else
-			SetState(ActorState::IDLE);
-
-		MovementDirection = direction;
-
-		if (direction.x != 0 || direction.y != 0)
-		{
-			LastMovementDirection = direction;
-		}
-
-		Actor::Move(deltaTime, MovementDirection);
+		LastMovementDirection = direction;
 	}
+
+	Actor::Move(deltaTime, MovementDirection);
 }
 
 void Player::Dash(glm::vec3 direction)

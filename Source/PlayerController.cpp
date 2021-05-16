@@ -64,7 +64,7 @@ void PlayerController::ProcessInput(float deltaTime)
 			direction += glm::vec3(0.0f, 1.0f, 0.0f);
 		}
 
-		Character->Move(deltaTime, direction);
+		Character->SetInputDirection(direction);
 
 		if (keys[GLFW_KEY_LEFT_SHIFT] && !keysProcessed[GLFW_KEY_LEFT_SHIFT])
 		{
