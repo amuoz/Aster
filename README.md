@@ -64,3 +64,19 @@ Disable **bCheckCollision** if you don't want the physics engine to check for co
 Activate **justReport** if you only want to detect non-blocking collision overlaps.
 
 Activate **bSimulate** if you want the movement of the entity to be simulated by physics.
+
+## Animation
+Draws a piece of a texture that change over time
+
+### .anim files
+Each row represents a frame of the animation. The format of the rows is:
+`Sx Sy Sw Sh Ax Ay`
+* **Sx, Sy**: Coordinates of the upper-left corner of the sprite inside the spritesheet (in number of cells)
+* **Sw, Sh**: Width and Height of the sprite (in number of cells)
+* **Ax, Ay**: Coordinates of the actor inside of the sprite (in number of cells)
+
+For example, for the sprite marked in blue in the player spritesheet:
+![anim1](Docs/1.png) ![anim1](Docs/2.png)
+![anim1](Docs/3.png | width=300) ![anim1](Docs/4.png | width=300)
+The row for the frame would be:
+`23 10 4 3 3 1`

@@ -26,6 +26,7 @@ public:
 			std::shared_ptr<PhysicActor> external,
 			std::shared_ptr<PhysicActor> internal) override;
 	bool IsPlayer() override;
+	void SetState(ActorState state) override;
 
 	void Idle();
 	void Attack();
@@ -47,4 +48,6 @@ private:
 	bool IsInDashIFrames();
 	bool IsAttackAnimationPlaying();
 	bool IsDashState();
+	bool IsBlockedByHammer();
+	bool IsHammerAttack();
 };

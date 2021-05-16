@@ -27,9 +27,9 @@ const glm::vec3 UI_ITEM_COLOR = glm::vec3(1);
 const glm::vec3 UI_SELECTED_ITEM_COLOR = glm::vec3(1, 0.5, 0.5);
 
 std::map<PowerUpType, std::string> POWER_UP_SPRITES = {
-		{PowerUpType::NONE, "sword_powerup"},
 		{PowerUpType::SWORD, "sword_powerup"},
-		{PowerUpType::SPEAR, "spear_powerup"}};
+		{PowerUpType::SPEAR, "spear_powerup"},
+		{PowerUpType::HAMMER, "hammer_powerup"}};
 
 PlayerController::PlayerController(GLFWwindow *window, SpriteRenderer *renderer, TextRenderer *text) : Renderer(renderer), Text(text)
 {
@@ -46,7 +46,6 @@ void PlayerController::ProcessInput(float deltaTime)
 	if (g_game->GetGameState() == GameState::GAME_ACTIVE)
 	{
 		glm::vec3 direction(0.0f);
-		bool isDash = false;
 
 		if (keys[GLFW_KEY_A])
 		{
@@ -64,22 +63,18 @@ void PlayerController::ProcessInput(float deltaTime)
 		{
 			direction += glm::vec3(0.0f, 1.0f, 0.0f);
 		}
-		if (keys[GLFW_KEY_C])
-		{
-			isDash = true;	
-		}
 
-		if (isDash)
+		Character->Move(deltaTime, direction);
+
+		if (keys[GLFW_KEY_LEFT_SHIFT] && !keysProcessed[GLFW_KEY_LEFT_SHIFT])
 		{
+			keysProcessed[GLFW_KEY_LEFT_SHIFT] = true;
 			Character->Dash(direction);
 		}
-		else
-		{
-			Character->Move(deltaTime, direction);
-		}
 
-		if (keys[GLFW_KEY_SPACE])
+		if (keys[GLFW_KEY_SPACE] && !keysProcessed[GLFW_KEY_SPACE])
 		{
+			keysProcessed[GLFW_KEY_SPACE] = true;
 			Character->Attack();
 		}
 
@@ -92,8 +87,13 @@ void PlayerController::ProcessInput(float deltaTime)
 		{
 			Character->SelectPowerUp(1);
 		}
+
+		if (keys[GLFW_KEY_3])
+		{
+			Character->SelectPowerUp(2);
+		}
 	}
-	
+
 	// Game restart
 	if (keys[GLFW_KEY_R] && !keysProcessed[GLFW_KEY_R])
 	{
