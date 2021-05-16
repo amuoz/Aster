@@ -12,6 +12,7 @@ const float DASH_SPEED_UP_FINISH = DASH_PERIOD * 3 / 4;
 const float DASH_IFRAMES_START = DASH_PERIOD / 5;
 const float DASH_IFRAMES_FINISH = DASH_PERIOD * 4 / 5;
 const float BASE_SPEED = 200;
+const float HAMMER_BLOCK_RATE = 0.5;
 
 Player::Player(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color, glm::vec3 velocity) : Actor(pos, size, std::move(sprite), color, velocity)
 {
@@ -182,7 +183,11 @@ bool Player::IsInDashIFrames()
 
 void Player::Move(float deltaTime, glm::vec3 direction)
 {
-	if (IsDashState())
+	if (IsBlockedByHammer())
+	{
+		return;
+	}
+	else if (IsDashState())
 	{
 		Actor::Move(deltaTime, LastMovementDirection);
 	}
@@ -231,6 +236,19 @@ bool Player::IsDashState()
 				 State == ActorState::DASH_RIGHT ||
 				 State == ActorState::DASH_DOWN ||
 				 State == ActorState::DASH_LEFT;
+}
+
+bool Player::IsBlockedByHammer()
+{
+	float animationLength = ActorSprite->GetAnimationLength();
+	bool isInHammerBlockingFrames = AnimationProgress < animationLength * HAMMER_BLOCK_RATE;
+
+	return IsHammerAttack() && isInHammerBlockingFrames;
+}
+
+bool Player::IsHammerAttack()
+{
+	return (CurrentAnimation == AnimationType::HAMMER_RIGHT) || (CurrentAnimation == AnimationType::HAMMER_LEFT);
 }
 
 void Player::SetDashSpeed()
