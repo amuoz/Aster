@@ -48,6 +48,12 @@ enum class PowerUpType {
   HAMMER
 };
 
+enum class BlockLocation {
+		TOP_LEFT, 		TOP, 			TOP_RIGHT,
+		LEFT, 				MIDDLE, 	RIGHT,
+		BOTTOM_LEFT, 	BOTTOM, 	BOTTOM_RIGHT
+	};
+
 namespace Aster {
 	struct Rectangle
 	{

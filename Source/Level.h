@@ -7,6 +7,8 @@
 #include <vector>
 #include <utility>
 
+#include "AsterTypes.h"
+
 class Actor;
 class SpriteRenderer;
 class Player;
@@ -49,8 +51,9 @@ private:
     
     void CreatePlayer(glm::vec3 playerPosition);
     glm::vec3 GetPlayerPosition();
-    std::unique_ptr<Sprite> GetBlockSprite(int x, int y);
-    std::unique_ptr<Sprite> GetBlockSpriteByPosition(int top, int bottom, int left, int right);
+    BlockLocation GetBlockLocation(int x, int y);
+    BlockLocation GetBlockLocationByNeighbors(int top, int bottom, int left, int right);
+    std::unique_ptr<Sprite> GetBlockSprite(BlockLocation location);
     void TopBlocks(int &top, int &bottom, int &left, int &right, int x, int y);
     void BottomBlocks(int &top, int &bottom, int &left, int &right, int x, int y);
     void MiddleBlocks(int &top, int &bottom, int &left, int &right, int x, int y);
