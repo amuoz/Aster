@@ -21,7 +21,7 @@ public:
 
 	~Sprite();
 
-	void Draw(AnimationType type, SpriteRenderer &renderer, double deltatime, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color);
+	void Draw(AnimationType type, SpriteRenderer &renderer, double deltatime, glm::vec3 position, glm::vec2 size, float rotate, glm::vec3 color);
 
 	void AddAnimation(std::string filename, AnimationType type, float speed);
 

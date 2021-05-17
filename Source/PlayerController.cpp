@@ -122,7 +122,7 @@ void PlayerController::DrawUI(glm::vec3 cameraPosition)
 		auto texturePosition = glm::vec3(
 				cameraPosition.x + space,
 				cameraPosition.y + UI_PADDING,
-				0);
+				1.0f);
 
 		Texture2D powerUpTexture = ResourceManager::GetInstance()->GetTexture(textureName);
 		Renderer->DrawTexture(powerUpTexture, texturePosition, UI_ITEM_SIZE, 0, color);

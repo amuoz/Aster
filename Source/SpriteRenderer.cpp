@@ -14,12 +14,12 @@ SpriteRenderer::~SpriteRenderer()
     glDeleteVertexArrays(1, &this->quadVAO);
 }
 
-void SpriteRenderer::SetShader(glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
+void SpriteRenderer::SetShader(glm::vec3 position, glm::vec2 size, float rotate, glm::vec3 color)
 {
     // prepare transformations
     this->shader.Use();
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(position, 0.0f));  // first translate (transformations are: scale happens first, then rotation, and then final translation happens; reversed order)
+    model = glm::translate(model, position);  // first translate (transformations are: scale happens first, then rotation, and then final translation happens; reversed order)
 
     model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f)); // move origin of rotation to center of quad
     model = glm::rotate(model, glm::radians(rotate), glm::vec3(0.0f, 0.0f, 1.0f)); // then rotate
@@ -33,7 +33,7 @@ void SpriteRenderer::SetShader(glm::vec2 position, glm::vec2 size, float rotate,
     this->shader.SetVector3f("spriteColor", color);
 }
 
-void SpriteRenderer::DrawTexture(Texture2D& texture, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
+void SpriteRenderer::DrawTexture(Texture2D& texture, glm::vec3 position, glm::vec2 size, float rotate, glm::vec3 color)
 {
     SetShader(position, size, rotate, color);
 
@@ -44,7 +44,7 @@ void SpriteRenderer::DrawTexture(Texture2D& texture, glm::vec2 position, glm::ve
     glBindVertexArray(0);
 }
 
-void SpriteRenderer::DrawSprite(Texture2D& texture, glm::vec2 position, glm::vec2 size, float rotate, glm::vec3 color)
+void SpriteRenderer::DrawSprite(Texture2D& texture, glm::vec3 position, glm::vec2 size, float rotate, glm::vec3 color)
 {
     DrawTexture(texture, position, size, rotate, color);
 }
