@@ -6,7 +6,7 @@
 class ICircleContactReport
 {
 public:
-	virtual void OnContact(Physics::PhysicActor* other) = 0;
+	virtual void OnContact(PhysicActor* other) = 0;
 };
 
 

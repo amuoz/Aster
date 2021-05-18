@@ -10,6 +10,7 @@
 #include "Player.h"
 #include "Physics.h"
 #include "SpriteRenderer.h"
+#include "PhysicActor.h"
 
 const float STILL_CHANCE = 0.3;
 const float CHANGE_DIRECTION_CHANCE = 0.2;
@@ -22,20 +23,27 @@ SpikeEnemy::SpikeEnemy(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sp
 			velocity,
 			size,
 			false,
+			CollisionChannel::DYNAMIC,
 			glm::vec3(0.0f),
 			1.0f);
 	ActorCollider->bCheckCollision = true;
 	ActorCollider->report = this;
+	ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::BLOCK;
+	ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::OVERLAP;
 
 	AggroCollider = g_PhysicsPtr->AddDynamicActor(
 			GetAggroPosition(pos, size),
 			velocity,
 			glm::vec3(AGGRO_SIZE, AGGRO_SIZE, 0),
 			true,
+			CollisionChannel::DYNAMIC,
 			glm::vec3(0.0f),
 			1.0f);
 	AggroCollider->bCheckCollision = true;
 	AggroCollider->report = this;
+	AggroCollider->ChannelResponse[CollisionChannel::STATIC] = CollisionResponse::IGNORE_C;
+	AggroCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::IGNORE_C;
+	AggroCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::OVERLAP;
 
 	int animationFrames = ActorSprite->GetFramesCount();
 	AnimationPeriod = framePeriod * animationFrames;
@@ -129,8 +137,8 @@ void SpikeEnemy::Draw(SpriteRenderer &renderer, double deltatime)
 }
 
 void SpikeEnemy::OnContact(
-		std::shared_ptr<Physics::PhysicActor> external,
-		std::shared_ptr<Physics::PhysicActor> internal)
+		std::shared_ptr<PhysicActor> external,
+		std::shared_ptr<PhysicActor> internal)
 {
 	if (internal == ActorCollider)
 	{
@@ -212,6 +220,6 @@ glm::vec3 SpikeEnemy::GetAggroPosition(glm::vec3 actorPosition, glm::vec3 actorS
 
 	return glm::vec3(
 			actorPosition.x - posCorrectionX,
-			actorPosition.y - posCorrectionY,
+			actorPosition.y + posCorrectionY,
 			0);
 }

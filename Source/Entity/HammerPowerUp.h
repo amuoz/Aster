@@ -8,6 +8,7 @@
 
 enum class AnimationType;
 class Sprite;
+class PhysicActor;
 
 class HammerPowerUp : public Actor
 {
@@ -16,6 +17,6 @@ public:
 	~HammerPowerUp();
 
 	void OnContact(
-			std::shared_ptr<Physics::PhysicActor> external,
-			std::shared_ptr<Physics::PhysicActor> internal) override;
+			std::shared_ptr<PhysicActor> external,
+			std::shared_ptr<PhysicActor> internal) override;
 };

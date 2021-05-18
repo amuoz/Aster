@@ -121,7 +121,7 @@ void PlayerController::DrawUI(glm::vec3 cameraPosition)
 		auto textureName = POWER_UP_SPRITES[powerUp];
 		auto texturePosition = glm::vec3(
 				cameraPosition.x + space,
-				cameraPosition.y + UI_PADDING,
+				cameraPosition.y + UI_PADDING + UI_ITEM_SIZE.y,
 				1.0f);
 
 		Texture2D powerUpTexture = ResourceManager::GetInstance()->GetTexture(textureName);

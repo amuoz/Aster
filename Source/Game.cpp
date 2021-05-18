@@ -48,7 +48,7 @@ void Game::InitGame(GLFWwindow *window)
 
 	// text renderer with freetype
 	Text = new TextRenderer(Config::Get()->GetValue(SRC_WIDTH),
-														Config::Get()->GetValue(SRC_HEIGHT));
+													Config::Get()->GetValue(SRC_HEIGHT));
 	Text->Load(PROJECT_SOURCE_DIR "/Fonts/arial.ttf", 24);
 
 	m_gameTime = 0.0f;
@@ -137,9 +137,12 @@ void Game::Render(float deltaTime)
 	// Draw background
 	Texture2D background = ResourceManager::GetInstance()->GetTexture("background");
 	Renderer->DrawTexture(background,
-												glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(Config::Get()->GetValue(LVL_WIDTH), Config::Get()->GetValue(LVL_HEIGHT)), 0.0f);
+												glm::vec3(0.0f, Config::Get()->GetValue(LVL_HEIGHT), 0.0f),
+												glm::vec2(Config::Get()->GetValue(LVL_WIDTH),
+																	Config::Get()->GetValue(LVL_HEIGHT)),
+												0.0f);
 
-	// DebugAttackHitbox(*Renderer);
+	DebugAttackHitbox(*Renderer);
 
 	CurrentLevel->Draw(*Renderer, deltaTime);
 
