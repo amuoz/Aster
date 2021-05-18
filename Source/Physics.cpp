@@ -82,9 +82,6 @@ bool Physics::CheckRectRectCollision(const glm::vec3& rect1Pos, const glm::vec3&
 	// collision y-axis?
 	float yDist1 = rect1Pos.y - (rect2Pos.y - rect2Size.y);
 	float yDist2 = rect2Pos.y - (rect1Pos.y - rect1Size.y);
-	// float yDist1 = rect1Pos.y + rect1Size.y - rect2Pos.y;
-	// float yDist2 = rect2Pos.y + rect2Size.y - rect1Pos.y;
-	//bool collisionY = rect1Pos.y + rect1Size.y >= rect2Pos.y && rect2Pos.y + rect2Size.y >= rect1Pos.y;
 	//bool collisionY = rect1Pos.y >= rect2Pos.y - rect2Size.y && rect2Pos.y >= rect1Pos.y - rect1Size.y;
 	bool collisionY = yDist1 > 0 && yDist2 > 0;
 
