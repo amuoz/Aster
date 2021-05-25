@@ -27,8 +27,8 @@ SpikeEnemy::SpikeEnemy(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sp
 			glm::vec3(AGGRO_SIZE, AGGRO_SIZE, 0),
 			CollisionChannel::DYNAMIC);
 	AggroCollider->bCheckCollision = true;
-	AggroCollider->ChannelResponse[CollisionChannel::STATIC] = CollisionResponse::IGNORE_C;
-	AggroCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::IGNORE_C;
+	AggroCollider->ChannelResponse[CollisionChannel::STATIC] = CollisionResponse::IGNORED;
+	AggroCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::IGNORED;
 	AggroCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::OVERLAP;
 	// C++ 11 lambda for setting class function to a function ptr
 	AggroCollider->OnBeginOverlapPtr = [=](std::shared_ptr<PhysicActor> other) {

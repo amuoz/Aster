@@ -26,11 +26,15 @@ Inside Visual Studio:
 Base class for all the entities in the game (blocks, enemies, player, power ups, ..).
 
 When crafting a new entity you should override ONLY WHEN NECESSARY the following methods:
+
+**BeginPlay**: First piece of code executed after construction.
 **Update**: Tick logic.
+**Destroy**: Free up resources and execute code before garbage collection.
 **Draw**: Rendering. Override only if special rendering.
 **TakeDamage**: What to do when entity takes damage.
 **Move**: Override only if moving entity.
-**OnContact**: Collision with other entity collider.
+**OnBeginOverlapFunction**: Start collision with other collider.
+**OnEndOverlapFunction**: End collision with other collider.
 
 Unreal engine actor lifecycle:
 https://docs.unrealengine.com/en-US/ProgrammingAndScripting/ProgrammingWithCPP/UnrealArchitecture/Actors/ActorLifecycle/index.html
@@ -55,12 +59,25 @@ User **input** and user **interface**.
 **Posses** takes control of player actor in runtime.
 
 ## Physics engine
-Physics engine simulates **collisions** and resolve them.
 
-To add collisions to an entity call **AddDynamicActor** from entity's constructor. This will create a **PhysicActor** which is the representation of the entity in the physics engine. An entity can have multiple collisions (PhysicActor).
+Add collisions to an entity calling **AddDynamicActor** from constructor. This will create a **PhysicActor** which is the representation of the entity in the physics engine. 
 
-Disable **bCheckCollision** if you don't want the physics engine to check for collisions.
+Enable **bCheckCollision** for the physics engine to check for collisions (default disabled)
 
-Activate **justReport** if you only want to detect non-blocking collision overlaps.
+### Collision types
 
-Activate **bSimulate** if you want the movement of the entity to be simulated by physics.
+A PhysicActor always has a collision channel. Change collision response to shape the behaviour of the entity.
+
+**CollisionChannels**: DYNAMIC, STATIC, PLAYER
+
+**CollisionResponses**: IGNORED, OVERLAP, BLOCK
+
+### Built-in base collision
+
+Actor parent class comes with a built-in base collision **ActorCollider**. 
+
+Override **OnBeginOverlapFunction** and **OnEndOverlapFunction** for gameplay logic.
+
+### Multiple collisions
+
+An entity can have multiple collisions (PhysicActor). Check **SpikeEnemy** for an example.

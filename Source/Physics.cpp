@@ -139,7 +139,7 @@ void Physics::DoCollisions(std::shared_ptr<PhysicActor> geom)
 			CollisionResponse otherResponse = dynamicActor->ChannelResponse[geom->Channel];
 			
 			// If any collision in ignore then continue with next one
-			if (myResponse == CollisionResponse::IGNORE_C || otherResponse == CollisionResponse::IGNORE_C)
+			if (myResponse == CollisionResponse::IGNORED || otherResponse == CollisionResponse::IGNORED)
 			{
 				continue;
 			}
@@ -154,7 +154,7 @@ void Physics::DoCollisions(std::shared_ptr<PhysicActor> geom)
 
 				// Notify overlap
 				// Each collision will take care of his own overlap
-				if(geom->report && myResponse == CollisionResponse::OVERLAP && otherResponse != CollisionResponse::IGNORE_C)
+				if(geom->report && myResponse == CollisionResponse::OVERLAP && otherResponse != CollisionResponse::IGNORED)
 				{
 					// Begin overlap just once
 					auto it = std::find(geom->Collisions.begin(), geom->Collisions.end(), dynamicActor);

@@ -137,10 +137,10 @@ bool Actor::IsAttacked(glm::vec4 attackHitbox)
 
 void Actor::OnBeginOverlapFunction(std::shared_ptr<PhysicActor> other)
 {
-	std::cout << "On Begin Overlap " << std::endl;
+	//std::cout << "On Begin Overlap " << std::endl;
 }
 
 void Actor::OnEndOverlapFunction(std::shared_ptr<PhysicActor> other)
 {
-	std::cout << "On End Overlap" << std::endl;
+	//std::cout << "On End Overlap" << std::endl;
 }

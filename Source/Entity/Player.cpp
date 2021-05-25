@@ -20,7 +20,7 @@ Player::Player(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, gl
 	ActorCollider->bCheckCollision = true;
 	ActorCollider->ChannelResponse[CollisionChannel::STATIC] = CollisionResponse::BLOCK;
 	ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::BLOCK;
-	ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::IGNORE_C;
+	ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::IGNORED;
 
 	State = ActorState::IDLE;
 	LastState = ActorState::IDLE;
@@ -246,7 +246,7 @@ void Player::SetDashIFrames()
 	if (IsInDashIFrames())
 	{
 		//ActorCollider->justReport = true;
-		ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::IGNORE_C;
+		ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::IGNORED;
 	}
 	else
 	{

@@ -52,7 +52,7 @@ enum class CollisionChannel {
 };
 
 enum class CollisionResponse {
-	IGNORE_C,
+	IGNORED,
 	OVERLAP,
 	BLOCK
 };

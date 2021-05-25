@@ -20,5 +20,5 @@ PhysicActor::PhysicActor(CollisionChannel channel)
 
 PhysicActor::~PhysicActor()
 {
-	std::cout << "PhysicActor destroyed" << std::endl;
+	//std::cout << "PhysicActor destroyed" << std::endl;
 }
