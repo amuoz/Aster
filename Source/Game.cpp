@@ -22,8 +22,8 @@
 #include <utility>
 #include <GLFW/glfw3.h>
 
-// externs
-Physics *g_PhysicsPtr;
+// Instantiate static variables
+std::shared_ptr<Game> Game::Instance = nullptr;
 
 __inline float Randf(float min, float max)
 {
@@ -32,6 +32,10 @@ __inline float Randf(float min, float max)
 
 Game::Game() : State(GameState::GAME_ACTIVE)
 {
+	Text = nullptr;
+	Renderer = nullptr;
+	CharacterController = nullptr;
+	PlayerCamera = nullptr;
 }
 
 Game::~Game()
@@ -43,7 +47,6 @@ Game::~Game()
 
 void Game::InitGame(GLFWwindow *window)
 {
-	g_PhysicsPtr = new Physics(glm::vec3(0.0f, 0.0f, 0.0f));
 	PlayerCamera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f));
 
 	// text renderer with freetype
@@ -111,7 +114,7 @@ void Game::Update(float deltaTime)
 		PlayerCamera->SetPosition(cameraPos);
 
 		// Physics simulation
-		g_PhysicsPtr->Update(deltaTime);
+		Physics::Get()->Update(deltaTime);
 
 		CurrentLevel->Update(deltaTime, playerAttackHitbox);
 	}
@@ -153,21 +156,31 @@ void Game::Restart()
 	Config::Get()->Load(CONFIG_FILE);
 
 	// reset physics
-	g_PhysicsPtr->DeleteAllDynamics();
+	Physics::Get()->DeleteAllDynamics();
 
 	// level
 	CurrentLevel = ResourceManager::GetInstance()->LoadLevel(PROJECT_SOURCE_DIR "/Levels/one.json", "one");
-	CurrentLevel->BeginPlay();
 	
 	CharacterController->Posses(CurrentLevel->GetPlayer());
 
 	m_gameTime = 0.0f;
 	SetGameState(GameState::GAME_ACTIVE);
+	
+	BeginPlay();
 }
 
 void Game::BeginPlay()
 {
 	CurrentLevel->BeginPlay();
+}
+
+std::shared_ptr<Game> Game::Get()
+{
+	if (Instance == nullptr)
+	{
+		Instance = std::shared_ptr<Game>(new Game());
+	}
+	return Instance;
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly

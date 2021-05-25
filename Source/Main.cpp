@@ -4,8 +4,10 @@
 #include "Common.h"
 #include "Config.h"
 #include "ResourceManager.h"
+#include <iostream>
 
-std::unique_ptr<Game> g_game;
+#include "Game.h"
+//std::unique_ptr<Game> g_game;
 
 // GLFW function declarations
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -60,49 +62,38 @@ int main(int, char**)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	std::cout << "...INIT GAME..." << std::endl;
-	g_game = std::make_unique<Game>();
-	if (g_game != nullptr)
+
+	// Load dependencies and construct all objects
+	Game::Get()->InitGame(window);
+
+	// BeginPlay logic with all objects ready
+	Game::Get()->BeginPlay();
+
+	// deltaTime variables
+	float m_deltaTime = 0.0f;	// Time between current frame and last frame
+	float m_lastFrame = 0.0f;	// Time of last frame
+	float TimeStepAccum = 0.0f;
+	float fixedUpdateFreq = 1.0f / 60.0f;	// fixed time step
+
+	// Game loop
+	while (!glfwWindowShouldClose(window))
 	{
-		// Load dependencies and construct all objects
-		g_game->InitGame(window);
+		// Calculate delta time
+		float currentFrame = static_cast<float>(glfwGetTime());
+		m_deltaTime = currentFrame - m_lastFrame;
+		m_lastFrame = currentFrame;
 
-		// deltaTime variables
-		float m_deltaTime = 0.0f;	// Time between current frame and last frame
-		float m_lastFrame = 0.0f;	// Time of last frame
-		float TimeStepAccum = 0.0f;
-		float fixedUpdateFreq = 1.0f / 60.0f;	// fixed time step
-
-		// BeginPlay logic with all objects ready
-		g_game->BeginPlay();
-
-		// Game loop
-		while (!glfwWindowShouldClose(window))
+		TimeStepAccum += m_deltaTime;
+		while (TimeStepAccum > fixedUpdateFreq)
 		{
-			// Calculate delta time
-			float currentFrame = static_cast<float>(glfwGetTime());
-			m_deltaTime = currentFrame - m_lastFrame;
-			m_lastFrame = currentFrame;
+			TimeStepAccum -= fixedUpdateFreq;
 
-			TimeStepAccum += m_deltaTime;
-			while (TimeStepAccum > fixedUpdateFreq)
-			{
-				TimeStepAccum -= fixedUpdateFreq;
+			Game::Get()->Execute(fixedUpdateFreq);
 
-				g_game->Execute(fixedUpdateFreq);
-
-				// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-				glfwPollEvents();
-				glfwSwapBuffers(window);
-			}
+			// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+			glfwPollEvents();
+			glfwSwapBuffers(window);
 		}
-
-		// free resources
-		// no need to free resource because smart pointers
-		//delete g_game;
-	}
-	else
-	{
-		std::cout << "ERROR: Something went wrong initializing Game" << std::endl;
 	}
 
 	// delete all resources as loaded using the resource manager

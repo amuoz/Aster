@@ -2,22 +2,21 @@
 
 #include <utility>
 
-#include "Common.h"
 #include "SpriteRenderer.h"
 #include "Sprite.h"
 #include "Physics.h"
 #include "PhysicActor.h"
+#include <iostream>
 
 Actor::Actor()
 {
 	m_position = glm::vec3(0.0f);
 	m_scale = glm::vec3(1.0f);
-	m_velocity = glm::vec3(0.0f);
+	ActorSprite = nullptr;
 	m_color = glm::vec3(1.0f);
+	
 	m_rotAngle = 0.0f;
-	m_radius = 1.0f;
 	m_rotAxis = glm::vec3(0.0f);
-
 	m_active = true;
 	m_delete = false;
 	IsDestroyable = false;
@@ -27,30 +26,17 @@ Actor::Actor()
 	LastState = ActorState::IDLE;
 }
 
-Actor::Actor(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color, glm::vec3 velocity)
+Actor::Actor(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color): Actor()
 {
 	m_position = pos;
 	m_scale = size;
-	m_velocity = velocity;
-	m_color = color;
 	ActorSprite = std::move(sprite);
-
-	m_rotAngle = 0.0f;
-	m_radius = size.x / 2;
-	m_rotAxis = glm::vec3(0.0f);
-
-	m_active = true;
-	m_delete = false;
-	IsDestroyable = false;
-	IsDestroyed = false;
-	AnimationProgress = 0;
-	State = ActorState::IDLE;
-	LastState = ActorState::IDLE;
+	m_color = color;
 }
 
 Actor::~Actor()
 {
-	std::cout << "Actor destroyed" << std::endl;
+	//std::cout << "Actor destroyed" << std::endl;
 }
 
 void Actor::BeginPlay()
@@ -58,6 +44,13 @@ void Actor::BeginPlay()
 	if (ActorCollider != nullptr)
 	{
 		ActorCollider->report = shared_from_this();
+		// C++ 11 lambda for setting class function to a function ptr
+		ActorCollider->OnBeginOverlapPtr = [=](std::shared_ptr<PhysicActor> other) {
+			this->OnBeginOverlapFunction(other);
+		};
+		ActorCollider->OnEndOverlapPtr = [=](std::shared_ptr<PhysicActor> other) {
+			this->OnEndOverlapFunction(other);
+		};
 	}
 }
 
@@ -84,13 +77,7 @@ void Actor::Move(float deltaTime, glm::vec3 direction)
 
 void Actor::Destroy()
 {
-	g_PhysicsPtr->DeleteDynamicActor(ActorCollider);
-}
-
-void Actor::OnContact(
-		std::shared_ptr<PhysicActor> external,
-		std::shared_ptr<PhysicActor> internal)
-{
+	Physics::Get()->DeleteDynamicActor(ActorCollider);
 }
 
 bool Actor::IsPlayer()
@@ -126,12 +113,9 @@ void Actor::SetColor(glm::vec3 color)
 
 void Actor::SetPosition(glm::vec3 pos)
 {
-	if (!ActorCollider->bSimulate)
-	{
-		m_position += pos;
-		// update physics position. Not simulating physics
-		ActorCollider->pos += pos;
-	}
+	m_position += pos;
+	// update physics position. Not simulating physics
+	ActorCollider->pos += pos;
 }
 
 bool Actor::IsAttacked(glm::vec4 attackHitbox)
@@ -149,4 +133,14 @@ bool Actor::IsAttacked(glm::vec4 attackHitbox)
 	bool yCollision = m_position.y + blockHeight >= yHitbox && yHitbox + heightHitbox >= m_position.y;
 
 	return xCollision && yCollision;
+}
+
+void Actor::OnBeginOverlapFunction(std::shared_ptr<PhysicActor> other)
+{
+	std::cout << "On Begin Overlap " << std::endl;
+}
+
+void Actor::OnEndOverlapFunction(std::shared_ptr<PhysicActor> other)
+{
+	std::cout << "On End Overlap" << std::endl;
 }

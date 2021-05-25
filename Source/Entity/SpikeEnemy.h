@@ -12,16 +12,19 @@ class Sprite;
 class SpikeEnemy : public Actor
 {
 public:
-	SpikeEnemy(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, float framePeriod, glm::vec3 color = glm::vec3(1.0f), glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f));
+	SpikeEnemy(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, float framePeriod, glm::vec3 color = glm::vec3(1.0f));
 	~SpikeEnemy();
 
 	void BeginPlay() override;
 	void Update(float, glm::vec4) override;
 	void Draw(SpriteRenderer &renderer, double deltaTime) override;
 	void Destroy() override;
-	void OnContact(
-			std::shared_ptr<PhysicActor> external,
-			std::shared_ptr<PhysicActor> internal) override;
+
+	void OnBeginOverlapFunction(std::shared_ptr<PhysicActor> other) override;
+	void OnEndOverlapFunction(std::shared_ptr<PhysicActor> other) override;
+
+	void OnBeginOverlapAggro(std::shared_ptr<PhysicActor> other);
+	void OnEndOverlapAggro(std::shared_ptr<PhysicActor> other);
 
 private:
 	bool PassRandomChance(float chance);
@@ -41,5 +44,6 @@ private:
 	const float MAX_SPEED = 100.0f;
 
 	std::shared_ptr<PhysicActor> AggroCollider = nullptr;
-	glm::vec3 ObjectivePosition;
+
+	std::shared_ptr<Actor> AggroedActor = nullptr;
 };

@@ -8,13 +8,14 @@
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
 
-#include "Common.h"
 #include "Entity/Player.h"
 #include "Config.h"
 #include "SpriteRenderer.h"
 #include "TextRenderer.h"
 #include "Texture2D.h"
 #include "ResourceManager.h"
+#include "Common.h"
+#include "Game.h"
 
 bool keys[1024];
 bool keysProcessed[1024];
@@ -43,7 +44,7 @@ PlayerController::~PlayerController()
 
 void PlayerController::ProcessInput(float deltaTime)
 {
-	if (g_game->GetGameState() == GameState::GAME_ACTIVE)
+	if (Game::Get()->GetGameState() == GameState::GAME_ACTIVE)
 	{
 		glm::vec3 direction(0.0f);
 		bool isDash = false;
@@ -98,7 +99,7 @@ void PlayerController::ProcessInput(float deltaTime)
 	if (keys[GLFW_KEY_R] && !keysProcessed[GLFW_KEY_R])
 	{
 		keysProcessed[GLFW_KEY_R] = true;
-		g_game->Restart();
+		Game::Get()->Restart();
 	}
 
 	// when a user presses the escape key, we set the WindowShouldClose property to true, closing the application

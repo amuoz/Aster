@@ -4,8 +4,12 @@
 #include <map>
 #include <set>
 #include <memory>
+#include <functional>
 
 #include "AsterTypes.h"
+
+using OnBeginOverlapFunction = std::function<void(std::shared_ptr<class PhysicActor>)>;
+using OnEndOverlapFunction = std::function<void(std::shared_ptr<class PhysicActor>)>;
 
 class Actor;
 
@@ -18,17 +22,10 @@ public:
 
 public:
 
-	bool bSimulate;
 	bool bCheckCollision;
 
-	glm::vec3 vel;
 	glm::vec3 pos;
 	glm::vec3 size;
-
-	float mass;
-	glm::vec3 accelerationForce;
-	float radius;
-	bool bounce;
 
 	std::shared_ptr<Actor> report;
 
@@ -37,4 +34,7 @@ public:
 	// Collision channels
 	CollisionChannel Channel;
 	std::map<CollisionChannel, CollisionResponse> ChannelResponse;
+
+	OnBeginOverlapFunction OnBeginOverlapPtr;
+	OnEndOverlapFunction OnEndOverlapPtr;
 };

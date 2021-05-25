@@ -9,6 +9,7 @@
 #include <utility>
 #include <string>
 
+#include "Common.h"
 #include "Config.h"
 #include "Sprite.h"
 

@@ -1,6 +1,5 @@
 #include "Player.h"
 
-#include "Common.h"
 #include "Sprite.h"
 #include "Animation.h"
 
@@ -15,11 +14,10 @@ const float DASH_IFRAMES_START = DASH_PERIOD / 5;
 const float DASH_IFRAMES_FINISH = DASH_PERIOD * 4 / 5;
 const float BASE_SPEED = 200;
 
-Player::Player(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color, glm::vec3 velocity) : Actor(pos, size, std::move(sprite), color, velocity)
+Player::Player(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color) : Actor(pos, size, std::move(sprite), color)
 {
-	ActorCollider = g_PhysicsPtr->AddDynamicActor(pos, velocity, size, CollisionChannel::PLAYER);
+	ActorCollider = Physics::Get()->AddDynamicActor(pos, size, CollisionChannel::PLAYER);
 	ActorCollider->bCheckCollision = true;
-	//ActorCollider->report = shared_from_this();
 	ActorCollider->ChannelResponse[CollisionChannel::STATIC] = CollisionResponse::BLOCK;
 	ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::BLOCK;
 	ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::IGNORE_C;
@@ -32,6 +30,7 @@ Player::Player(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, gl
 
 Player::~Player()
 {
+	//std::cout << "Player destroyed" << std::endl;
 }
 
 void Player::Update(float deltaTime, glm::vec4 playerAttackHitbox)
@@ -301,13 +300,6 @@ void Player::Attack()
 		else
 			SetState(ActorState::ATTACK_RIGHT);
 	}
-}
-
-void Player::OnContact(
-		std::shared_ptr<PhysicActor>,
-		std::shared_ptr<PhysicActor>)
-{
-	//m_position = ActorCollider->pos;
 }
 
 bool Player::IsPlayer()

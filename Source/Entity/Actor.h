@@ -14,8 +14,7 @@ class Actor: public std::enable_shared_from_this<Actor>
 {
 protected:
 	
-	Actor();
-	Actor(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color = glm::vec3(1.0f), glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f));
+	Actor(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color = glm::vec3(1.0f));
 
 public:
 	
@@ -27,10 +26,7 @@ public:
 	virtual void TakeDamage();
 	virtual void Move(float deltaTime, glm::vec3 direction);
 	virtual void Destroy();
-	virtual void OnContact(
-			std::shared_ptr<PhysicActor> external,
-			std::shared_ptr<PhysicActor> internal);
-	
+
 	virtual bool IsPlayer();
 
 	void SetState(ActorState state);
@@ -46,17 +42,23 @@ public:
 	void SetPosition(glm::vec3 pos);
 	bool IsAttacked(glm::vec4 attackHitbox);
 
+	virtual void OnBeginOverlapFunction(std::shared_ptr<PhysicActor> other);
+
+	virtual void OnEndOverlapFunction(std::shared_ptr<PhysicActor> other);
+
 	bool IsDestroyable;
 	bool IsDestroyed;
+
+private:
+
+	Actor();
 
 protected:
 	// actor state
 	glm::vec3 m_position;
 	glm::vec3 m_scale;
-	glm::vec3 m_velocity;
 	float m_rotAngle;
 	glm::vec3 m_rotAxis;
-	float m_radius;
 	glm::vec3 m_color;
 
 	bool m_active;
