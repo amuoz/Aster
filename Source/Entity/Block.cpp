@@ -20,7 +20,7 @@
 const float OFFSET_X = 0.66f;
 const float OFFSET_Y = 0.5f;
 
-Block::Block(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color): Actor(pos, size, std::move(sprite), color)
+Block::Block(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color, BlockLocation location): Actor(pos, size, std::move(sprite), color)
 {
 	glm::vec3 physicsPosition = GetPhysicsPosition(pos, size, location);
 	glm::vec3 physicsSize = GetPhysicsSize(size, location);

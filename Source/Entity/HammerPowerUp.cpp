@@ -10,31 +10,33 @@
 #include "Player.h"
 #include "Physics.h"
 #include "SpriteRenderer.h"
+#include "PhysicActor.h"
 
-HammerPowerUp::HammerPowerUp(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color, glm::vec3 velocity) : Actor(pos, size, std::move(sprite), color, velocity)
+HammerPowerUp::HammerPowerUp(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color, glm::vec3 velocity) : Actor(pos, size, std::move(sprite), color)
 {
-	ActorCollider = g_PhysicsPtr->AddDynamicActor(
-			pos,
-			velocity,
-			size,
-			false,
-			glm::vec3(0.0f),
-			1.0f);
+	ActorCollider = Physics::Get()->AddDynamicActor(pos, size, CollisionChannel::DYNAMIC);
 	ActorCollider->bCheckCollision = true;
-	ActorCollider->report = this;
+	ActorCollider->ChannelResponse[CollisionChannel::STATIC] = CollisionResponse::IGNORED;
+	ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::IGNORED;
+	ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::OVERLAP;
 }
 
 HammerPowerUp::~HammerPowerUp()
 {
+	//std::cout << "HammerPowerUp destroyed" << std::endl;
 }
 
-void HammerPowerUp::OnContact(
-		std::shared_ptr<Physics::PhysicActor> external,
-		std::shared_ptr<Physics::PhysicActor> internal)
+void HammerPowerUp::OnBeginOverlapFunction(std::shared_ptr<PhysicActor> other)
 {
-	if (!IsDestroyed && internal == ActorCollider && external->report->IsPlayer())
+	if (!IsDestroyed && other->report->IsPlayer())
 	{
 		IsDestroyed = true;
-		((Player *)(external->report))->PowerUp(PowerUpType::HAMMER);
+		std::shared_ptr<Player> player = std::dynamic_pointer_cast<Player>(other->report);
+		player->PowerUp(PowerUpType::HAMMER);
 	}
+}
+
+void HammerPowerUp::OnEndOverlapFunction(std::shared_ptr<PhysicActor> other)
+{
+
 }
