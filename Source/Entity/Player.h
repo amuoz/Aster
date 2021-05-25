@@ -50,5 +50,6 @@ private:
 	bool IsDashState();
 	bool IsBlockedByHammer();
 	bool IsHammerAttack();
+	bool IsAttackPossible();
 
 };

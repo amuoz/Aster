@@ -26,7 +26,10 @@ std::map<BlockLocation, std::string> BLOCK_SPRITES = {
     {BlockLocation::BOTTOM, "block_bottom"},
     {BlockLocation::LEFT, "block_side_left"},
     {BlockLocation::RIGHT, "block_side_right"},
-    {BlockLocation::MIDDLE, "block"}};
+    {BlockLocation::MIDDLE, "block"},
+    {BlockLocation::TOP_LEFT, "block_top_left"},
+    {BlockLocation::TOP_RIGHT, "block_top_right"},
+    {BlockLocation::TOP, "block_top"}};
 
 Level::Level()
 {
@@ -270,6 +273,20 @@ BlockLocation Level::GetBlockLocationByNeighbors(int top, int bottom, int left, 
         }
 
         return BlockLocation::BOTTOM;
+    }
+
+    if (top < 2)
+    {
+        if (left < 2)
+        {
+            return BlockLocation::TOP_LEFT;
+        }
+        if (right < 2)
+        {
+            return BlockLocation::TOP_RIGHT;
+        }
+
+        return BlockLocation::TOP;
     }
 
     if (left < 2)

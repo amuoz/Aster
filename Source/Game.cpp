@@ -51,7 +51,7 @@ void Game::InitGame(GLFWwindow *window)
 
 	// text renderer with freetype
 	Text = new TextRenderer(Config::Get()->GetValue(SRC_WIDTH),
-														Config::Get()->GetValue(SRC_HEIGHT));
+													Config::Get()->GetValue(SRC_HEIGHT));
 	Text->Load(PROJECT_SOURCE_DIR "/Fonts/arial.ttf", 24);
 
 	m_gameTime = 0.0f;
@@ -80,6 +80,9 @@ void Game::InitGame(GLFWwindow *window)
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/block_corner_right.png", true, "block_corner_right");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/block_side_left.png", true, "block_side_left");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/block_side_right.png", true, "block_side_right");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/block_corner_top_right.png", true, "block_top_right");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/block_corner_top_left.png", true, "block_top_left");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/block_top.png", true, "block_top");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/block_solid.png", false, "block_solid");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/grass-background.png", true, "background");
 
@@ -137,7 +140,10 @@ void Game::Render(float deltaTime)
 	// Draw background
 	Texture2D background = ResourceManager::GetInstance()->GetTexture("background");
 	Renderer->DrawTexture(background,
-												glm::vec2(0.0f, 0.0f), glm::vec2(Config::Get()->GetValue(LVL_WIDTH), Config::Get()->GetValue(LVL_HEIGHT)), 0.0f);
+												glm::vec2(0.0f, Config::Get()->GetValue(LVL_HEIGHT)),
+												glm::vec2(Config::Get()->GetValue(LVL_WIDTH),
+																	Config::Get()->GetValue(LVL_HEIGHT)),
+												0.0f);
 
 	// DebugAttackHitbox(*Renderer);
 
