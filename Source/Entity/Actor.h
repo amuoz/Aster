@@ -29,7 +29,7 @@ public:
 
 	virtual bool IsPlayer();
 
-	void SetState(ActorState state);
+	virtual void SetState(ActorState state);
 	void SetActive(bool newActive);
 	void SetDelete(bool newDelete);
 	void SetColor(glm::vec3 color);

@@ -18,12 +18,13 @@ public:
 	void Update(float, glm::vec4) override;
 	void Draw(SpriteRenderer &renderer, double deltaTime) override;
 	void TakeDamage() override;
-	void Move(float deltaTime, glm::vec3 direction) override;
+	void SetInputDirection(glm::vec3 direction);
 	void Dash(glm::vec3 direction);
 	void SetDashSpeed();
 	void SetDashIFrames();
 
 	bool IsPlayer() override;
+	void SetState(ActorState state) override;
 
 	void Idle();
 	void Attack();
@@ -36,13 +37,18 @@ public:
 private:
 	std::vector<PowerUpType> Inventory;
 	AnimationType CurrentAnimation;
-	PowerUpType ActivePowerUp = PowerUpType::NONE;
+	PowerUpType ActivePowerUp;
 	float DashTime;
+	glm::vec3 InputDirection;
 	glm::vec3 MovementDirection;
 	glm::vec3 LastMovementDirection;
 
+	void Move(float deltaTime, glm::vec3 direction) override;
 	AnimationType GetAnimationFromState();
 	bool IsInDashIFrames();
 	bool IsAttackAnimationPlaying();
 	bool IsDashState();
+	bool IsBlockedByHammer();
+	bool IsHammerAttack();
+
 };

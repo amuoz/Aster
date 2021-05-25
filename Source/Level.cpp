@@ -18,6 +18,15 @@
 #include "Entity/SpikeEnemy.h"
 #include "Entity/SwordPowerUp.h"
 #include "Entity/SpearPowerUp.h"
+#include "Entity/HammerPowerUp.h"
+
+std::map<BlockLocation, std::string> BLOCK_SPRITES = {
+    {BlockLocation::BOTTOM_LEFT, "block_corner_left"},
+    {BlockLocation::BOTTOM_RIGHT, "block_corner_right"},
+    {BlockLocation::BOTTOM, "block_bottom"},
+    {BlockLocation::LEFT, "block_side_left"},
+    {BlockLocation::RIGHT, "block_side_right"},
+    {BlockLocation::MIDDLE, "block"}};
 
 Level::Level()
 {
@@ -85,7 +94,7 @@ void Level::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 
 void Level::Draw(SpriteRenderer &renderer, double deltaTime)
 {
-    for (auto& actor : Actors)
+    for (auto &actor : Actors)
     {
         if (!actor->IsDestroyed)
         {
@@ -123,9 +132,9 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
             {
                 glm::vec3 pos(unit_width * x, unit_height * y, 0.0f);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
-                auto blockSprite = std::make_unique<Sprite>("block_solid");
+                auto blockSprite = std::make_unique<Sprite>("block");
                 std::shared_ptr<Actor> blockActor = std::make_shared<Block>(
-                    pos, size, std::move(blockSprite), glm::vec3(0.8f, 0.8f, 0.7f));
+                    pos, size, std::move(blockSprite), glm::vec3(0.9f, 0.9f, 1.0f));
                 blockActor->IsDestroyable = true;
                 Actors.push_back(blockActor);
             }
@@ -133,7 +142,7 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
             {
                 glm::vec3 color = glm::vec3(1.0f); // original: white
                 if (Tiles[y][x] == 2)
-                    color = glm::vec3(0.2f, 0.6f, 1.0f);
+                    color = glm::vec3(1, 1, 1);
                 else if (Tiles[y][x] == 3)
                     color = glm::vec3(0.0f, 0.7f, 0.0f);
                 else if (Tiles[y][x] == 4)
@@ -143,18 +152,150 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
 
                 glm::vec3 pos(unit_width * x, unit_height * y, 0.0f);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
-                auto blockSprite = std::make_unique<Sprite>("block");
-                std::shared_ptr<Block> blockPtr = std::make_shared<Block>(pos, size, std::move(blockSprite), color);
+                BlockLocation location = GetBlockLocation(x, y);
+                auto blockSprite = GetBlockSprite(location);
+                std::shared_ptr<Block> blockPtr = std::make_shared<Block>(pos, size, std::move(blockSprite), color, location);
                 Actors.push_back(blockPtr);
             }
         }
     }
 }
 
+BlockLocation Level::GetBlockLocation(int x, int y)
+{
+    int top, bottom, left, right;
+
+    if (y == 0)
+    {
+        TopBlocks(top, bottom, left, right, x, y);
+    }
+    else if (y == Tiles.size() - 1)
+    {
+        BottomBlocks(top, bottom, left, right, x, y);
+    }
+    else
+    {
+        MiddleBlocks(top, bottom, left, right, x, y);
+    }
+
+    return GetBlockLocationByNeighbors(top, bottom, left, right);
+}
+
+void Level::TopBlocks(int &top, int &bottom, int &left, int &right, int x, int y)
+{
+    if (x == 0)
+    // left blocks
+    {
+        left = 2;
+        right = Tiles[0][1];
+    }
+    else if (x == Tiles[0].size() - 1)
+    // right blocks
+    {
+        left = Tiles[0][x - 1];
+        right = 2;
+    }
+    else
+    // middle blocks
+    {
+        left = Tiles[0][x - 1];
+        right = Tiles[0][x + 1];
+    }
+
+    top = 2;
+    bottom = Tiles[y + 1][x];
+}
+
+void Level::BottomBlocks(int &top, int &bottom, int &left, int &right, int x, int y)
+{
+    if (x == 0)
+    // left blocks
+    {
+        left = 2;
+        right = Tiles[x][y + 1];
+    }
+    else if (x == Tiles[y].size() - 1)
+    // right blocks
+    {
+        left = Tiles[y][x - 1];
+        right = 2;
+    }
+    else
+    // middle blocks
+    {
+        left = Tiles[y][x - 1];
+        right = Tiles[y][x + 1];
+    }
+
+    top = Tiles[y - 1][x];
+    bottom = 2;
+}
+
+void Level::MiddleBlocks(int &top, int &bottom, int &left, int &right, int x, int y)
+{
+    if (x == 0)
+    // left blocks
+    {
+        left = 2;
+        right = Tiles[y][x + 1];
+    }
+    else if (x == Tiles[y].size() - 1)
+    // right blocks
+    {
+        left = Tiles[y][x - 1];
+        right = 2;
+    }
+    else
+    // middle blocks
+    {
+        left = Tiles[y][x - 1];
+        right = Tiles[y][x + 1];
+    }
+
+    top = Tiles[y - 1][x];
+    bottom = Tiles[y + 1][x];
+}
+
+BlockLocation Level::GetBlockLocationByNeighbors(int top, int bottom, int left, int right)
+{
+    if (bottom < 2)
+    {
+        if (left < 2)
+        {
+            return BlockLocation::BOTTOM_LEFT;
+        }
+        if (right < 2)
+        {
+            return BlockLocation::BOTTOM_RIGHT;
+        }
+
+        return BlockLocation::BOTTOM;
+    }
+
+    if (left < 2)
+    {
+        return BlockLocation::LEFT;
+    }
+    if (right < 2)
+    {
+        return BlockLocation::RIGHT;
+    }
+
+    return BlockLocation::MIDDLE;
+}
+
+std::unique_ptr<Sprite> Level::GetBlockSprite(BlockLocation location)
+{
+    std::string spriteName = BLOCK_SPRITES[location];
+    return std::make_unique<Sprite>(spriteName); 
+}
+
 glm::vec3 Level::GetPlayerPosition()
 {
     auto playerPosition = LevelInfo["player"]["position"];
-    return glm::vec3(playerPosition[0], playerPosition[1], 0);
+    int xPlayer = (int)playerPosition[0] * Config::Get()->GetValue(CELL_WIDTH);
+    int yPlayer = (int)playerPosition[1] * Config::Get()->GetValue(CELL_HEIGHT);
+    return glm::vec3(xPlayer, yPlayer, 0);
 }
 
 void Level::InitEnemies()
@@ -197,7 +338,7 @@ void Level::InitPowerUps()
     for (auto &powerUp : powerUps)
     {
         std::string powerUpName = powerUp["type"].get<std::string>();
-            
+
         if (powerUpName == "Sword")
         {
             InitSword(powerUp);
@@ -205,6 +346,10 @@ void Level::InitPowerUps()
         if (powerUpName == "Spear")
         {
             InitSpear(powerUp);
+        }
+        if (powerUpName == "Hammer")
+        {
+            InitHammer(powerUp);
         }
     }
 }
@@ -233,6 +378,17 @@ void Level::InitSpear(nlohmann::json &powerUpInfo)
     Actors.push_back(spearPowerUpPtr);
 }
 
+void Level::InitHammer(nlohmann::json &powerUpInfo)
+{
+    const glm::vec3 size(50, 50, 0);
+    glm::vec3 color = glm::vec3(1, 1, 1);
+    auto position = powerUpInfo["position"];
+    glm::vec3 pos(position[0], position[1], 0.0f);
+
+    auto blockSprite = std::make_unique<Sprite>("hammer_powerup");
+    std::shared_ptr<HammerPowerUp> hammerPowerUpPtr = std::make_shared<HammerPowerUp>(pos, size, std::move(blockSprite), color);
+    Actors.push_back(hammerPowerUpPtr);
+}
 
 void Level::CreatePlayer(glm::vec3 playerPosition)
 {
@@ -253,6 +409,8 @@ void Level::CreatePlayer(glm::vec3 playerPosition)
     playerSprite->AddAnimation("sword_right", AnimationType::SWORD_RIGHT, 0.03f);
     playerSprite->AddAnimation("sword_down", AnimationType::SWORD_DOWN, 0.03f);
     playerSprite->AddAnimation("sword_left", AnimationType::SWORD_LEFT, 0.03f);
+    playerSprite->AddAnimation("hammer_right", AnimationType::HAMMER_RIGHT, 0.06f);
+    playerSprite->AddAnimation("hammer_left", AnimationType::HAMMER_LEFT, 0.06f);
     playerSprite->AddAnimation("roll_right", AnimationType::DASH_RIGHT, 0.018f);
     playerSprite->AddAnimation("roll_left", AnimationType::DASH_LEFT, 0.018f);
 

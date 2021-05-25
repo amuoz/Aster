@@ -16,6 +16,8 @@ enum class AnimationType {
 	SPEAR_RIGHT,
 	SPEAR_DOWN,
 	SPEAR_LEFT,
+	HAMMER_RIGHT,
+	HAMMER_LEFT,
 	DASH_UP,
 	DASH_RIGHT,
 	DASH_DOWN,
@@ -42,8 +44,15 @@ enum class ActorState {
 enum class PowerUpType {
   NONE,
   SWORD,
-  SPEAR
+  SPEAR,
+  HAMMER
 };
+
+enum class BlockLocation {
+		TOP_LEFT, 		TOP, 			TOP_RIGHT,
+		LEFT, 				MIDDLE, 	RIGHT,
+		BOTTOM_LEFT, 	BOTTOM, 	BOTTOM_RIGHT
+	};
 
 enum class CollisionChannel {
 	DYNAMIC,

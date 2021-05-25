@@ -13,6 +13,7 @@ const float DASH_SPEED_UP_FINISH = DASH_PERIOD * 3 / 4;
 const float DASH_IFRAMES_START = DASH_PERIOD / 5;
 const float DASH_IFRAMES_FINISH = DASH_PERIOD * 4 / 5;
 const float BASE_SPEED = 200;
+const float HAMMER_BLOCK_RATE = 0.5;
 
 Player::Player(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color) : Actor(pos, size, std::move(sprite), color)
 {
@@ -26,6 +27,11 @@ Player::Player(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, gl
 	LastState = ActorState::IDLE;
 	Speed = BASE_SPEED;
 	CurrentAnimation = AnimationType::IDLE;
+	DashTime = 0.0f;
+	ActivePowerUp = PowerUpType::NONE;
+	InputDirection = glm::vec3(0);
+	MovementDirection = glm::vec3(0);
+	LastMovementDirection = glm::vec3(0);
 }
 
 Player::~Player()
@@ -50,10 +56,12 @@ void Player::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 			DashTime = 0;
 			SetState(ActorState::IDLE);
 		}
+
+		Actor::Move(deltaTime, LastMovementDirection);
 	}
-	else
+	else if (!IsBlockedByHammer())
 	{
-		Speed = BASE_SPEED;
+		Move(deltaTime, InputDirection);
 	}
 }
 
@@ -69,11 +77,6 @@ void Player::Draw(SpriteRenderer &renderer, double deltatime)
 
 AnimationType Player::GetAnimationFromState()
 {
-	if (IsAttackAnimationPlaying())
-	{
-		return ActorSprite->GetAnimationType();
-	}
-
 	switch (State)
 	{
 	case ActorState::IDLE:
@@ -95,6 +98,10 @@ AnimationType Player::GetAnimationFromState()
 		{
 			return AnimationType::SPEAR_RIGHT;
 		}
+		else if (ActivePowerUp == PowerUpType::HAMMER)
+		{
+			return AnimationType::HAMMER_RIGHT;
+		}
 		else
 		{
 			return AnimationType::IDLE;
@@ -107,6 +114,10 @@ AnimationType Player::GetAnimationFromState()
 		else if (ActivePowerUp == PowerUpType::SPEAR)
 		{
 			return AnimationType::SPEAR_LEFT;
+		}
+		else if (ActivePowerUp == PowerUpType::HAMMER)
+		{
+			return AnimationType::HAMMER_LEFT;
 		}
 		else
 		{
@@ -121,6 +132,10 @@ AnimationType Player::GetAnimationFromState()
 		{
 			return AnimationType::SPEAR_DOWN;
 		}
+		else if (ActivePowerUp == PowerUpType::HAMMER)
+		{
+			return AnimationType::HAMMER_RIGHT;
+		}
 		else
 		{
 			return AnimationType::IDLE;
@@ -133,6 +148,10 @@ AnimationType Player::GetAnimationFromState()
 		else if (ActivePowerUp == PowerUpType::SPEAR)
 		{
 			return AnimationType::SPEAR_UP;
+		}
+		else if (ActivePowerUp == PowerUpType::HAMMER)
+		{
+			return AnimationType::HAMMER_RIGHT;
 		}
 		else
 		{
@@ -155,10 +174,10 @@ bool Player::IsAttackAnimationPlaying()
 {
 	float animationLength = ActorSprite->GetAnimationLength();
 	bool isAnimationPlaying = animationLength && AnimationProgress < animationLength;
-	bool isTryingToChangeStateFromAttack = LastState == ActorState::ATTACK_UP ||
-																				 LastState == ActorState::ATTACK_RIGHT ||
-																				 LastState == ActorState::ATTACK_DOWN ||
-																				 LastState == ActorState::ATTACK_LEFT;
+	bool isTryingToChangeStateFromAttack = State == ActorState::ATTACK_UP ||
+																				 State == ActorState::ATTACK_RIGHT ||
+																				 State == ActorState::ATTACK_DOWN ||
+																				 State == ActorState::ATTACK_LEFT;
 
 	return isAnimationPlaying && isTryingToChangeStateFromAttack;
 }
@@ -176,39 +195,41 @@ bool Player::IsInDashIFrames()
 	return (DashTime > DASH_IFRAMES_START) && (DashTime < DASH_IFRAMES_FINISH);
 }
 
+void Player::SetInputDirection(glm::vec3 direction)
+{
+	InputDirection = direction;
+}
+
 void Player::Move(float deltaTime, glm::vec3 direction)
 {
-	if (IsDashState())
-	{
-		Actor::Move(deltaTime, LastMovementDirection);
-	}
+	if (direction.x > 0)
+		SetState(ActorState::MOVEMENT_RIGHT);
+	else if (direction.x < 0)
+		SetState(ActorState::MOVEMENT_LEFT);
+	else if (direction.y > 0)
+		SetState(ActorState::MOVEMENT_DOWN);
+	else if (direction.y < 0)
+		SetState(ActorState::MOVEMENT_UP);
 	else
+		SetState(ActorState::IDLE);
+
+	MovementDirection = direction;
+
+	if (direction.x != 0 || direction.y != 0)
 	{
-		if (direction.x > 0)
-			SetState(ActorState::MOVEMENT_RIGHT);
-		else if (direction.x < 0)
-			SetState(ActorState::MOVEMENT_LEFT);
-		else if (direction.y > 0)
-			SetState(ActorState::MOVEMENT_DOWN);
-		else if (direction.y < 0)
-			SetState(ActorState::MOVEMENT_UP);
-		else
-			SetState(ActorState::IDLE);
-
-		MovementDirection = direction;
-
-		if (direction.x != 0 || direction.y != 0)
-		{
-			LastMovementDirection = direction;
-		}
-
-		Actor::Move(deltaTime, MovementDirection);
+		LastMovementDirection = direction;
 	}
+
+	Actor::Move(deltaTime, MovementDirection);
 }
 
 void Player::Dash(glm::vec3 direction)
 {
-	DashTime = 0;
+	if (IsDashState())
+	{
+		return;
+	}
+
 	if (direction.x > 0 || LastState == ActorState::DASH_RIGHT)
 		SetState(ActorState::DASH_RIGHT);
 	else if (direction.x < 0 || LastState == ActorState::DASH_LEFT)
@@ -227,6 +248,19 @@ bool Player::IsDashState()
 				 State == ActorState::DASH_RIGHT ||
 				 State == ActorState::DASH_DOWN ||
 				 State == ActorState::DASH_LEFT;
+}
+
+bool Player::IsBlockedByHammer()
+{
+	float animationLength = ActorSprite->GetAnimationLength();
+	bool isInHammerBlockingFrames = AnimationProgress < animationLength * HAMMER_BLOCK_RATE;
+
+	return IsHammerAttack() && isInHammerBlockingFrames;
+}
+
+bool Player::IsHammerAttack()
+{
+	return (CurrentAnimation == AnimationType::HAMMER_RIGHT) || (CurrentAnimation == AnimationType::HAMMER_LEFT);
 }
 
 void Player::SetDashSpeed()
@@ -265,33 +299,33 @@ void Player::Attack()
 	if (ActivePowerUp != PowerUpType::NONE)
 	{
 		if (State == ActorState::MOVEMENT_RIGHT ||
-				State == ActorState::DASH_RIGHT ||
-				LastState == ActorState::ATTACK_RIGHT)
+				State == ActorState::DASH_RIGHT)
 			SetState(ActorState::ATTACK_RIGHT);
 		else if (State == ActorState::MOVEMENT_LEFT ||
-						 State == ActorState::DASH_LEFT ||
-						 LastState == ActorState::ATTACK_LEFT)
+						 State == ActorState::DASH_LEFT)
 			SetState(ActorState::ATTACK_LEFT);
 		else if (State == ActorState::MOVEMENT_DOWN ||
-						 State == ActorState::DASH_DOWN ||
-						 LastState == ActorState::ATTACK_DOWN)
+						 State == ActorState::DASH_DOWN)
 			SetState(ActorState::ATTACK_DOWN);
 		else if (State == ActorState::MOVEMENT_UP ||
-						 State == ActorState::DASH_UP ||
-						 LastState == ActorState::ATTACK_UP)
+						 State == ActorState::DASH_UP)
 			SetState(ActorState::ATTACK_UP);
 		else if (State == ActorState::IDLE)
 		{
-			if (LastState == ActorState::MOVEMENT_RIGHT ||
+			if (LastState == ActorState::ATTACK_RIGHT ||
+					LastState == ActorState::MOVEMENT_RIGHT ||
 					LastState == ActorState::DASH_RIGHT)
 				SetState(ActorState::ATTACK_RIGHT);
-			else if (LastState == ActorState::MOVEMENT_LEFT ||
+			else if (LastState == ActorState::ATTACK_LEFT ||
+							 LastState == ActorState::MOVEMENT_LEFT ||
 							 LastState == ActorState::DASH_LEFT)
 				SetState(ActorState::ATTACK_LEFT);
-			else if (LastState == ActorState::MOVEMENT_DOWN ||
+			else if (LastState == ActorState::ATTACK_DOWN ||
+							 LastState == ActorState::MOVEMENT_DOWN ||
 							 LastState == ActorState::DASH_DOWN)
 				SetState(ActorState::ATTACK_DOWN);
-			else if (LastState == ActorState::MOVEMENT_UP ||
+			else if (LastState == ActorState::ATTACK_UP ||
+							 LastState == ActorState::MOVEMENT_UP ||
 							 LastState == ActorState::DASH_UP)
 				SetState(ActorState::ATTACK_UP);
 			else
@@ -305,6 +339,14 @@ void Player::Attack()
 bool Player::IsPlayer()
 {
 	return true;
+}
+
+void Player::SetState(ActorState state)
+{
+	if (!IsAttackAnimationPlaying())
+	{
+		Actor::SetState(state);
+	}
 }
 
 glm::vec4 Player::GetAttackHitbox()
