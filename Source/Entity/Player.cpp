@@ -296,7 +296,7 @@ void Player::Idle()
 
 void Player::Attack()
 {
-	if (ActivePowerUp != PowerUpType::NONE)
+	if (IsAttackPossible())
 	{
 		if (State == ActorState::MOVEMENT_RIGHT ||
 				State == ActorState::DASH_RIGHT)
@@ -334,6 +334,12 @@ void Player::Attack()
 		else
 			SetState(ActorState::ATTACK_RIGHT);
 	}
+}
+
+bool Player::IsAttackPossible()
+{
+	return (ActivePowerUp != PowerUpType::NONE) &&
+				 !IsDashState();
 }
 
 void Player::OnContact(

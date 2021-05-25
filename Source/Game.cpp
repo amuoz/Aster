@@ -142,7 +142,7 @@ void Game::Render(float deltaTime)
 																	Config::Get()->GetValue(LVL_HEIGHT)),
 												0.0f);
 
-	DebugAttackHitbox(*Renderer);
+	// DebugAttackHitbox(*Renderer);
 
 	CurrentLevel->Draw(*Renderer, deltaTime);
 
