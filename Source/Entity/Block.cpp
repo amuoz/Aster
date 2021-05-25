@@ -23,10 +23,15 @@ const float OFFSET_Y = 0.5f;
 
 Block::Block(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color, BlockLocation location, glm::vec3 velocity) : Actor(pos, size, std::move(sprite), color, velocity)
 {
-	glm::vec3 physicsPosition = GetPhysicsPosition(pos, size, location);
-	glm::vec3 physicsSize = GetPhysicsSize(size, location);
-	ActorCollider = g_PhysicsPtr->AddDynamicActor(physicsPosition, velocity, physicsSize, false, CollisionChannel::STATIC, glm::vec3(0.0f), 1.0f);
-	ActorCollider->report = this;
+	Location = location;
+
+	if (!IsTopLocation())
+	{
+		glm::vec3 physicsPosition = GetPhysicsPosition(pos, size, location);
+		glm::vec3 physicsSize = GetPhysicsSize(size, location);
+		ActorCollider = g_PhysicsPtr->AddDynamicActor(physicsPosition, velocity, physicsSize, false, CollisionChannel::STATIC, glm::vec3(0.0f), 1.0f);
+		ActorCollider->report = this;
+	}
 }
 
 Block::~Block()
@@ -67,8 +72,6 @@ glm::vec3 Block::GetPhysicsSize(glm::vec3 size, BlockLocation location)
 {
 	switch (location)
 	{
-	case BlockLocation::TOP_LEFT:
-	case BlockLocation::TOP_RIGHT:
 	case BlockLocation::BOTTOM_LEFT:
 	case BlockLocation::BOTTOM_RIGHT:
 		return glm::vec3(size.x * OFFSET_X, size.y * OFFSET_Y, size.z);
@@ -82,4 +85,11 @@ glm::vec3 Block::GetPhysicsSize(glm::vec3 size, BlockLocation location)
 	default:
 		return size;
 	}
+}
+
+bool Block::IsTopLocation()
+{
+	return Location == BlockLocation::TOP ||
+				 Location == BlockLocation::TOP_RIGHT ||
+				 Location == BlockLocation::TOP_LEFT;
 }

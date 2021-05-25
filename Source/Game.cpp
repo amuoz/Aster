@@ -77,6 +77,9 @@ void Game::InitGame(GLFWwindow *window)
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/block_corner_right.png", true, "block_corner_right");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/block_side_left.png", true, "block_side_left");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/block_side_right.png", true, "block_side_right");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/block_corner_top_right.png", true, "block_top_right");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/block_corner_top_left.png", true, "block_top_left");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/block_top.png", true, "block_top");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/block_solid.png", false, "block_solid");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/grass-background.png", true, "background");
 
