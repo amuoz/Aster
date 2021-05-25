@@ -3,7 +3,8 @@
 #include <string>
 #include <vector>
 
-#include "Common.h"
+#include "AsterTypes.h"
+#include <glm/glm.hpp>
 
 class Texture2D;
 struct Rectangle;

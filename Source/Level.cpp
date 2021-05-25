@@ -84,6 +84,7 @@ void Level::Update(float deltaTime, glm::vec4 playerAttackHitbox)
         if ((*iterator)->IsDestroyed)
         {
             // If actor is only pointed by level list it will be deleted
+            (*iterator)->Destroy();
             iterator = Actors.erase(iterator);
         }
         else
@@ -102,6 +103,14 @@ void Level::Draw(SpriteRenderer &renderer, double deltaTime)
         {
             actor->Draw(renderer, deltaTime);
         }
+    }
+}
+
+void Level::BeginPlay()
+{
+    for (auto& actor : Actors)
+    {
+        actor->BeginPlay();
     }
 }
 

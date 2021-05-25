@@ -12,7 +12,7 @@ class Sprite;
 class Player : public Actor
 {
 public:
-	Player(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color = glm::vec3(1.0f), glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f));
+	Player(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color = glm::vec3(1.0f));
 	~Player();
 
 	void Update(float, glm::vec4) override;
@@ -22,9 +22,7 @@ public:
 	void Dash(glm::vec3 direction);
 	void SetDashSpeed();
 	void SetDashIFrames();
-	void OnContact(
-			std::shared_ptr<PhysicActor> external,
-			std::shared_ptr<PhysicActor> internal) override;
+
 	bool IsPlayer() override;
 	void SetState(ActorState state) override;
 

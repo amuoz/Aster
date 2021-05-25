@@ -12,12 +12,14 @@
 #include "ResourceManager.h"
 #include "Files.h"
 #include "RectangleSystem.h"
-#include "Common.h"
 #include "SpriteRenderer.h"
 
 Animation::Animation()
 {
-  SpriteIndex = 0;
+    SpriteIndex = 0;
+    m_animationCursor = 0.0f;
+    Speed = 0.0f;
+    FramesCount = 0;
 }
 
 Animation::Animation(std::string filename, float speed)
