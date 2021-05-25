@@ -2,7 +2,6 @@
 
 #include <string>
 
-#include "Common.h"
 #include "Animation.h"
 #include "Texture2D.h"
 #include "RectangleSystem.h"

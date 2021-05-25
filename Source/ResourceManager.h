@@ -38,7 +38,8 @@ public:
 	static ResourceManager* GetInstance();
 
 private:
-	// private constructor, that is we do not want any actual resource manager objects. Its members and functions should be publicly available (static).
+	// private constructor, that is we do not want any actual resource manager objects. 
+	// Its members and functions should be publicly available (static).
 	ResourceManager();
 	~ResourceManager();
 

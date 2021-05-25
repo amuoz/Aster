@@ -32,6 +32,9 @@ public:
     // render level
     void Draw(SpriteRenderer &renderer, double deltaTime);
 
+    // BeginPlay event
+    void BeginPlay();
+
     std::shared_ptr<Player> GetPlayer();
 
 private:

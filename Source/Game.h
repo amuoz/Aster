@@ -21,9 +21,9 @@
 #include <list>
 #include <map>
 #include <utility>
+#include <memory>
 
 // Forwards
-class Physics;
 class Camera;
 class AsteroidMgr;
 class Actor;
@@ -38,7 +38,7 @@ enum class GameState;
 class Game
 {
 public:
-	Game();
+
 	virtual ~Game();
 
 	void Execute(float deltaTime);
@@ -50,8 +50,16 @@ public:
 
 	void Restart();
 
+	void BeginPlay();
+
+	static std::shared_ptr<Game> Get();
+
 private:
 	
+	Game();
+
+	static std::shared_ptr<Game> Instance;
+
 	void ProcessInput(float deltaTime);
 	void Update(float deltaTime);
 	void Render(float deltaTime);

@@ -1,9 +1,9 @@
 #include "Block.h"
 
-#include "Common.h"
 #include "Sprite.h"
 #include "Physics.h"
 #include "PhysicActor.h"
+#include <iostream>
 
 //  PhysicsActor pos & size
 //
@@ -21,7 +21,7 @@
 const float OFFSET_X = 0.33f;
 const float OFFSET_Y = 0.5f;
 
-Block::Block(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color, BlockLocation location, glm::vec3 velocity) : Actor(pos, size, std::move(sprite), color, velocity)
+Block::Block(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color, BlockLocation location): Actor(pos, size, std::move(sprite), color)
 {
 	Location = location;
 
@@ -29,19 +29,18 @@ Block::Block(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm:
 	{
 		glm::vec3 physicsPosition = GetPhysicsPosition(pos, size, location);
 		glm::vec3 physicsSize = GetPhysicsSize(size, location);
-		ActorCollider = g_PhysicsPtr->AddDynamicActor(physicsPosition, velocity, physicsSize, false, CollisionChannel::STATIC, glm::vec3(0.0f), 1.0f);
-		ActorCollider->report = this;
+		ActorCollider = Physics::Get()->AddDynamicActor(physicsPosition, physicsSize, CollisionChannel::STATIC);
 	}
 }
 
 Block::~Block()
 {
+	//std::cout << "Block destroyed" << std::endl;
 }
 
 void Block::Update(float, glm::vec4 attackHitbox)
 {
-	if (IsDestroyable && IsAttacked(attackHitbox))
-	{
+	if (IsDestroyable && IsAttacked(attackHitbox)) {
 		IsDestroyed = true;
 	}
 }

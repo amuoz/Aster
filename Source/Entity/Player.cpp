@@ -1,6 +1,5 @@
 #include "Player.h"
 
-#include "Common.h"
 #include "Sprite.h"
 #include "Animation.h"
 
@@ -16,14 +15,14 @@ const float DASH_IFRAMES_FINISH = DASH_PERIOD * 4 / 5;
 const float BASE_SPEED = 200;
 const float HAMMER_BLOCK_RATE = 0.5;
 
-Player::Player(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color, glm::vec3 velocity) : Actor(pos, size, std::move(sprite), color, velocity)
+Player::Player(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color) : Actor(pos, size, std::move(sprite), color)
 {
-	ActorCollider = g_PhysicsPtr->AddDynamicActor(pos, velocity, size, false, CollisionChannel::PLAYER, glm::vec3(0.0f), 1.0f);
+	ActorCollider = Physics::Get()->AddDynamicActor(pos, size, CollisionChannel::PLAYER);
 	ActorCollider->bCheckCollision = true;
-	ActorCollider->report = this;
 	ActorCollider->ChannelResponse[CollisionChannel::STATIC] = CollisionResponse::BLOCK;
 	ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::BLOCK;
-	ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::IGNORE_C;
+	ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::IGNORED;
+
 	State = ActorState::IDLE;
 	LastState = ActorState::IDLE;
 	Speed = BASE_SPEED;
@@ -37,6 +36,7 @@ Player::Player(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, gl
 
 Player::~Player()
 {
+	//std::cout << "Player destroyed" << std::endl;
 }
 
 void Player::Update(float deltaTime, glm::vec4 playerAttackHitbox)
@@ -280,7 +280,7 @@ void Player::SetDashIFrames()
 	if (IsInDashIFrames())
 	{
 		//ActorCollider->justReport = true;
-		ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::IGNORE_C;
+		ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::IGNORED;
 	}
 	else
 	{
@@ -296,7 +296,7 @@ void Player::Idle()
 
 void Player::Attack()
 {
-	if (ActivePowerUp != PowerUpType::NONE)
+	if (IsAttackPossible())
 	{
 		if (State == ActorState::MOVEMENT_RIGHT ||
 				State == ActorState::DASH_RIGHT)
@@ -336,11 +336,10 @@ void Player::Attack()
 	}
 }
 
-void Player::OnContact(
-		std::shared_ptr<PhysicActor>,
-		std::shared_ptr<PhysicActor>)
+bool Player::IsAttackPossible()
 {
-	//m_position = ActorCollider->pos;
+	return (ActivePowerUp != PowerUpType::NONE) &&
+				 !IsDashState();
 }
 
 bool Player::IsPlayer()

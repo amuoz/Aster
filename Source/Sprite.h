@@ -2,8 +2,8 @@
 
 #include <string>
 #include <map>
+#include <memory>
 
-#include "Common.h"
 #include "Texture2D.h"
 #include "RectangleSystem.h"
 #include "Animation.h"

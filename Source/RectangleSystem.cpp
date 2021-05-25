@@ -1,6 +1,6 @@
 #include "RectangleSystem.h"
 
-#include "Common.h"
+#include <glad/glad.h>
 
 RectangleSystem* RectangleSystem::m_instance = nullptr;
 
