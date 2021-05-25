@@ -220,6 +220,6 @@ glm::vec3 SpikeEnemy::GetAggroPosition(glm::vec3 actorPosition, glm::vec3 actorS
 
 	return glm::vec3(
 			actorPosition.x - posCorrectionX,
-			actorPosition.y - posCorrectionY,
+			actorPosition.y + posCorrectionY,
 			0);
 }
