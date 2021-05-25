@@ -3,8 +3,10 @@
 #include <iostream>
 #include <algorithm>
 #include <utility>
+#include <memory>
 
 #include "Entity/Actor.h"
+#include "PhysicActor.h"
 
 Physics::Physics(const glm::vec3 &gravity)
 {
@@ -113,11 +115,11 @@ bool Physics::CheckRectRectCollision(const glm::vec3& rect1Pos, const glm::vec3&
 	return false;
 }
 
-std::shared_ptr<Physics::PhysicActor> Physics::AddDynamicActor(const glm::vec3 &pos, const glm::vec3 &vel, const glm::vec3& size, bool justReport, glm::vec3 force, float mass)
+std::shared_ptr<PhysicActor> Physics::AddDynamicActor(const glm::vec3 &pos, const glm::vec3 &vel, const glm::vec3& size, bool justReport, CollisionChannel channel, glm::vec3 force, float mass)
 {
 	if (PhysicsPool.size() < MAX_DYNAMICS)
 	{
-		auto geom = std::make_shared<PhysicActor>();
+		auto geom = std::make_shared<PhysicActor>(channel);
 		geom->active = false;
 		geom->pos = pos;
 		geom->vel = vel;
@@ -148,9 +150,18 @@ void Physics::DoCollisions(std::shared_ptr<PhysicActor> geom)
 	glm::vec3 col, normal;
 	for (auto& dynamicActor : PhysicsPool)
 	{
-		//if (&geom != dynamicActor && dynamicActor->active)
+		//if (geom != dynamicActor && dynamicActor->active)
 		if (geom != dynamicActor && (geom->report != dynamicActor->report))
 		{
+			CollisionResponse myResponse = geom->ChannelResponse[dynamicActor->Channel];
+			CollisionResponse otherResponse = dynamicActor->ChannelResponse[geom->Channel];
+			
+			// If collision ignore then return
+			if (myResponse == CollisionResponse::IGNORE_C || otherResponse == CollisionResponse::IGNORE_C)
+			{
+				return;
+			}
+
 			//if (CheckCircleCircleCollision(geom.pos, geom.radius, dynamicActor->pos, dynamicActor->radius, col, normal))
 			if (CheckRectRectCollision(geom->pos, geom->size, dynamicActor->pos, dynamicActor->size, col))
 			{
@@ -161,18 +172,23 @@ void Physics::DoCollisions(std::shared_ptr<PhysicActor> geom)
 					dynamicActor->vel = -normal * glm::length(dynamicActor->vel);
 				}
 
-				if (!geom->justReport && !dynamicActor->justReport)
+				// If both blocking then resolve collision
+				//if (!geom->justReport && !dynamicActor->justReport)
+				if (myResponse == CollisionResponse::BLOCK && otherResponse == CollisionResponse::BLOCK)
 				{
 					geom->pos = col;
 				}
 
 				// notify collision
-				if (geom->report)
+				//if (geom->report)
+				if(geom->report && myResponse == CollisionResponse::OVERLAP && otherResponse != CollisionResponse::IGNORE_C)
 				{
 					geom->report->OnContact(dynamicActor, geom);
 					geom->Collisions.insert(dynamicActor);
 				}
-				if (dynamicActor->report)
+				
+				//if (dynamicActor->report)
+				if (dynamicActor->report && otherResponse == CollisionResponse::OVERLAP && myResponse != CollisionResponse::IGNORE_C)
 				{
 					dynamicActor->report->OnContact(geom, dynamicActor);
 					dynamicActor->Collisions.insert(geom);

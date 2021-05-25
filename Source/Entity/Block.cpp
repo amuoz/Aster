@@ -2,6 +2,8 @@
 
 #include "Common.h"
 #include "Sprite.h"
+#include "Physics.h"
+#include "PhysicActor.h"
 
 //  PhysicsActor pos & size
 //   __________________  ^
@@ -26,7 +28,7 @@ Block::Block(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm:
 	{
 		glm::vec3 physicsPosition = GetPhysicsPosition(pos, size, location);
 		glm::vec3 physicsSize = GetPhysicsSize(size, location);
-		ActorCollider = g_PhysicsPtr->AddDynamicActor(physicsPosition, velocity, physicsSize, false, glm::vec3(0.0f), 1.0f);
+		ActorCollider = g_PhysicsPtr->AddDynamicActor(physicsPosition, velocity, physicsSize, false, CollisionChannel::STATIC, glm::vec3(0.0f), 1.0f);
 		ActorCollider->report = this;
 	}
 }

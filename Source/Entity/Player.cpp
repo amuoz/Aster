@@ -5,6 +5,8 @@
 #include "Animation.h"
 
 #include "SpriteRenderer.h"
+#include "Physics.h"
+#include "PhysicActor.h"
 
 const float DASH_PERIOD = 0.7f;
 const float DASH_SPEED_UP_START = DASH_PERIOD / 4;
@@ -16,9 +18,12 @@ const float HAMMER_BLOCK_RATE = 0.5;
 
 Player::Player(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color, glm::vec3 velocity) : Actor(pos, size, std::move(sprite), color, velocity)
 {
-	ActorCollider = g_PhysicsPtr->AddDynamicActor(pos, velocity, size, false, glm::vec3(0.0f), 1.0f);
+	ActorCollider = g_PhysicsPtr->AddDynamicActor(pos, velocity, size, false, CollisionChannel::PLAYER, glm::vec3(0.0f), 1.0f);
 	ActorCollider->bCheckCollision = true;
 	ActorCollider->report = this;
+	ActorCollider->ChannelResponse[CollisionChannel::STATIC] = CollisionResponse::BLOCK;
+	ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::BLOCK;
+	ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::IGNORE_C;
 	State = ActorState::IDLE;
 	LastState = ActorState::IDLE;
 	Speed = BASE_SPEED;
@@ -34,8 +39,10 @@ Player::~Player()
 {
 }
 
-void Player::Update(float deltaTime, glm::vec4)
+void Player::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 {
+	Actor::Update(deltaTime, playerAttackHitbox);
+
 	AnimationProgress += deltaTime;
 
 	if (IsDashState())
@@ -272,11 +279,13 @@ void Player::SetDashIFrames()
 {
 	if (IsInDashIFrames())
 	{
-		ActorCollider->justReport = true;
+		//ActorCollider->justReport = true;
+		ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::IGNORE_C;
 	}
 	else
 	{
-		ActorCollider->justReport = false;
+		//ActorCollider->justReport = false;
+		ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::BLOCK;
 	}
 }
 
@@ -328,10 +337,10 @@ void Player::Attack()
 }
 
 void Player::OnContact(
-		std::shared_ptr<Physics::PhysicActor>,
-		std::shared_ptr<Physics::PhysicActor>)
+		std::shared_ptr<PhysicActor>,
+		std::shared_ptr<PhysicActor>)
 {
-	m_position = ActorCollider->pos;
+	//m_position = ActorCollider->pos;
 }
 
 bool Player::IsPlayer()

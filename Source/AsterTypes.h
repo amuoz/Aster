@@ -54,6 +54,18 @@ enum class BlockLocation {
 		BOTTOM_LEFT, 	BOTTOM, 	BOTTOM_RIGHT
 	};
 
+enum class CollisionChannel {
+	DYNAMIC,
+	STATIC,
+	PLAYER
+};
+
+enum class CollisionResponse {
+	IGNORE_C,
+	OVERLAP,
+	BLOCK
+};
+
 namespace Aster {
 	struct Rectangle
 	{
