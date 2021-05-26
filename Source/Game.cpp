@@ -132,7 +132,7 @@ void Game::Update(float deltaTime)
 void Game::Render(float deltaTime)
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Set camera view matrix
 	Renderer->SetViewMatrix(PlayerCamera->GetViewMatrix());
@@ -140,10 +140,9 @@ void Game::Render(float deltaTime)
 	// Draw background
 	Texture2D background = ResourceManager::GetInstance()->GetTexture("background");
 	Renderer->DrawTexture(background,
-												glm::vec2(0.0f, Config::Get()->GetValue(LVL_HEIGHT)),
+												glm::vec3(0.0f, Config::Get()->GetValue(LVL_HEIGHT), 0.0f),
 												glm::vec2(Config::Get()->GetValue(LVL_WIDTH),
-																	Config::Get()->GetValue(LVL_HEIGHT)),
-												0.0f);
+																	Config::Get()->GetValue(LVL_HEIGHT)));
 
 	// DebugAttackHitbox(*Renderer);
 
@@ -219,7 +218,7 @@ void Game::DebugAttackHitbox(SpriteRenderer &Renderer)
 	Texture2D texture = ResourceManager::GetInstance()->GetTexture("block");
 	Renderer.DrawTexture(
 			texture,
-			glm::vec2(playerAttackHitbox.x, playerAttackHitbox.y),
+			glm::vec3(playerAttackHitbox.x, playerAttackHitbox.y, 9999.9f),
 			glm::vec2(playerAttackHitbox.z, playerAttackHitbox.w),
 			0.0f,
 			glm::vec3(0.8f, 0.0f, 0.2f));

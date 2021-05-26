@@ -10,7 +10,8 @@
 
 Actor::Actor()
 {
-	m_position = glm::vec3(0.0f);
+	Position = glm::vec2(0.0f);
+	ZIndex = 0.5f;
 	m_scale = glm::vec3(1.0f);
 	ActorSprite = nullptr;
 	m_color = glm::vec3(1.0f);
@@ -26,9 +27,10 @@ Actor::Actor()
 	LastState = ActorState::IDLE;
 }
 
-Actor::Actor(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color): Actor()
+Actor::Actor(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color): Actor()
 {
-	m_position = pos;
+	Position = pos;
+	ZIndex = 0.5f;
 	m_scale = size;
 	ActorSprite = std::move(sprite);
 	m_color = color;
@@ -56,20 +58,21 @@ void Actor::BeginPlay()
 
 void Actor::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 {
-	m_position = ActorCollider->pos;
+	Position = ActorCollider->pos;
 }
 
 void Actor::Draw(SpriteRenderer &renderer, double)
 {
 	Texture2D texture = ActorSprite->GetTexture();
-	renderer.DrawSprite(texture, m_position, m_scale, m_rotAngle, m_color);
+	glm::vec3 spritePosition(Position, ZIndex);
+	renderer.DrawTexture(texture, spritePosition, m_scale, m_rotAngle, m_color);
 }
 
 void Actor::TakeDamage()
 {
 }
 
-void Actor::Move(float deltaTime, glm::vec3 direction)
+void Actor::Move(float deltaTime, glm::vec2 direction)
 {
 	float velocity = Speed * deltaTime;
 	SetPosition(velocity * direction);
@@ -111,9 +114,9 @@ void Actor::SetColor(glm::vec3 color)
 	m_color = color;
 }
 
-void Actor::SetPosition(glm::vec3 pos)
+void Actor::SetPosition(glm::vec2 pos)
 {
-	m_position += pos;
+	Position += pos;
 	// update physics position. Not simulating physics
 	ActorCollider->pos += pos;
 }
@@ -128,9 +131,9 @@ bool Actor::IsAttacked(glm::vec4 attackHitbox)
 	float blockWidth = m_scale.x;
 	float blockHeight = m_scale.y;
 
-	bool xCollision = m_position.x + blockWidth >= xHitbox && xHitbox + widthHitbox >= m_position.x;
+	bool xCollision = Position.x + blockWidth >= xHitbox && xHitbox + widthHitbox >= Position.x;
 
-	bool yCollision = m_position.y + blockHeight >= yHitbox && yHitbox + heightHitbox >= m_position.y;
+	bool yCollision = Position.y + blockHeight >= yHitbox && yHitbox + heightHitbox >= Position.y;
 
 	return xCollision && yCollision;
 }

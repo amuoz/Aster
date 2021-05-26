@@ -49,10 +49,10 @@ void Level::Load(std::string file, unsigned int levelWidth, unsigned int levelHe
 
     LoadTiles();
     InitBlocks(levelWidth, levelHeight);
-    InitEnemies();
-    InitPowerUps();
     // Create player and add it to shared reference
     CreatePlayer(GetPlayerPosition());
+    InitPowerUps();
+    InitEnemies();
 }
 
 void Level::LoadTiles()
@@ -108,7 +108,7 @@ void Level::Draw(SpriteRenderer &renderer, double deltaTime)
 
 void Level::BeginPlay()
 {
-    for (auto& actor : Actors)
+    for (auto &actor : Actors)
     {
         actor->BeginPlay();
     }
@@ -133,7 +133,7 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
             // check block type from level data (2D level array)
             if (Tiles[y][x] == 1) // destroyable
             {
-                glm::vec3 pos(unit_width * x, unit_height * y, 0.0f);
+                glm::vec2 pos(unit_width * x, unit_height * y);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
                 auto blockSprite = std::make_unique<Sprite>("block");
                 std::shared_ptr<Actor> blockActor = std::make_shared<Block>(
@@ -153,11 +153,12 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
                 else if (Tiles[y][x] == 5)
                     color = glm::vec3(1.0f, 0.5f, 0.0f);
 
-                glm::vec3 pos(unit_width * x, unit_height * y, 0.0f);
+                glm::vec2 pos(unit_width * x, unit_height * y);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
                 BlockLocation location = GetBlockLocation(x, y);
                 auto blockSprite = GetBlockSprite(location);
-                std::shared_ptr<Block> blockPtr = std::make_shared<Block>(pos, size, std::move(blockSprite), color, location);
+                std::shared_ptr<Block> blockPtr = std::make_shared<Block>(
+                    pos, size, std::move(blockSprite), color, location);
                 Actors.push_back(blockPtr);
             }
         }
@@ -304,15 +305,15 @@ BlockLocation Level::GetBlockLocationByNeighbors(int top, int bottom, int left, 
 std::unique_ptr<Sprite> Level::GetBlockSprite(BlockLocation location)
 {
     std::string spriteName = BLOCK_SPRITES[location];
-    return std::make_unique<Sprite>(spriteName); 
+    return std::make_unique<Sprite>(spriteName);
 }
 
-glm::vec3 Level::GetPlayerPosition()
+glm::vec2 Level::GetPlayerPosition()
 {
     auto playerPosition = LevelInfo["player"]["position"];
     int xPlayer = (int)playerPosition[0] * Config::Get()->GetValue(CELL_WIDTH);
     int yPlayer = (int)playerPosition[1] * Config::Get()->GetValue(CELL_HEIGHT);
-    return glm::vec3(xPlayer, yPlayer, 0);
+    return glm::vec2(xPlayer, yPlayer);
 }
 
 void Level::InitEnemies()
@@ -334,7 +335,7 @@ void Level::InitSpike(nlohmann::json &enemyInfo)
     const glm::vec3 ENEMY_SIZE(16.0f, 9.0f, 0.0f);
 
     auto position = enemyInfo["position"];
-    const glm::vec3 pos = glm::vec3(position[0], position[1], 0.0f);
+    const glm::vec2 pos(position[0], position[1]);
 
     glm::vec3 charScale(1.0f, 1.0f, 1.0f);
     charScale.x = Config::Get()->GetValue(SRC_WIDTH) / ENEMY_SIZE.x;
@@ -376,7 +377,7 @@ void Level::InitSword(nlohmann::json &powerUpInfo)
     const glm::vec3 size(50, 50, 0);
     glm::vec3 color = glm::vec3(1, 1, 1);
     auto position = powerUpInfo["position"];
-    glm::vec3 pos(position[0], position[1], 0.0f);
+    glm::vec2 pos(position[0], position[1]);
 
     auto blockSprite = std::make_unique<Sprite>("sword_powerup");
     std::shared_ptr<SwordPowerUp> swordPowerUpPtr = std::make_shared<SwordPowerUp>(pos, size, std::move(blockSprite), color);
@@ -388,7 +389,7 @@ void Level::InitSpear(nlohmann::json &powerUpInfo)
     const glm::vec3 size(50, 50, 0);
     glm::vec3 color = glm::vec3(1, 1, 1);
     auto position = powerUpInfo["position"];
-    glm::vec3 pos(position[0], position[1], 0.0f);
+    glm::vec2 pos(position[0], position[1]);
 
     auto blockSprite = std::make_unique<Sprite>("spear_powerup");
     std::shared_ptr<SpearPowerUp> spearPowerUpPtr = std::make_shared<SpearPowerUp>(pos, size, std::move(blockSprite), color);
@@ -400,14 +401,14 @@ void Level::InitHammer(nlohmann::json &powerUpInfo)
     const glm::vec3 size(50, 50, 0);
     glm::vec3 color = glm::vec3(1, 1, 1);
     auto position = powerUpInfo["position"];
-    glm::vec3 pos(position[0], position[1], 0.0f);
+    glm::vec2 pos(position[0], position[1]);
 
     auto blockSprite = std::make_unique<Sprite>("hammer_powerup");
     std::shared_ptr<HammerPowerUp> hammerPowerUpPtr = std::make_shared<HammerPowerUp>(pos, size, std::move(blockSprite), color);
     Actors.push_back(hammerPowerUpPtr);
 }
 
-void Level::CreatePlayer(glm::vec3 playerPosition)
+void Level::CreatePlayer(glm::vec2 playerPosition)
 {
     const glm::vec3 PLAYER_SIZE(16.0f, 9.0f, 0.0f);
     glm::vec3 charScale(1.0f, 1.0f, 1.0f);

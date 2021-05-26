@@ -52,8 +52,8 @@ private:
     void InitSpear(nlohmann::json &powerUpInfo);
     void InitHammer(nlohmann::json &powerUpInfo);
     
-    void CreatePlayer(glm::vec3 playerPosition);
-    glm::vec3 GetPlayerPosition();
+    void CreatePlayer(glm::vec2 playerPosition);
+    glm::vec2 GetPlayerPosition();
     BlockLocation GetBlockLocation(int x, int y);
     BlockLocation GetBlockLocationByNeighbors(int top, int bottom, int left, int right);
     std::unique_ptr<Sprite> GetBlockSprite(BlockLocation location);

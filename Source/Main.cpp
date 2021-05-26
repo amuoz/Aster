@@ -57,7 +57,7 @@ int main(int, char**)
 		GLsizei(Config::Get()->GetValue(SRC_HEIGHT))
 	);
 
-	//glEnable(GL_DEPTH_TEST);	// depth testing not needed in 2D game
+	glEnable(GL_DEPTH_TEST);	// depth testing used for sprite priority rendering
 	glEnable(GL_BLEND);			// for alpha render
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

@@ -16,11 +16,11 @@ public:
 	~PlayerController();
 
 	void ProcessInput(float deltaTime);
-	void DrawUI(glm::vec3 position);
+	void DrawUI(glm::vec3 cameraPosition);
 	void DrawPlayerDeath();
 	void DrawObjectives();
 	glm::vec4 GetAttackHitbox();
-	glm::vec3 GetPosition();
+	glm::vec2 GetPosition();
 	bool IsActive();
 
 	// Player posession on runtime

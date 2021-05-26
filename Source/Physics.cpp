@@ -32,8 +32,8 @@ void Physics::Update(float deltaTime)
 	}
 }
 
-bool Physics::CheckRectRectCollision(const glm::vec3& rect1Pos, const glm::vec3& rect1Size, 
-	const glm::vec3& rect2Pos, const glm::vec3& rect2Size, glm::vec3& col) // AABB - AABB collision
+bool Physics::CheckRectRectCollision(const glm::vec2& rect1Pos, const glm::vec3& rect1Size, 
+	const glm::vec2& rect2Pos, const glm::vec3& rect2Size, glm::vec2& col) // AABB - AABB collision
 {
 	// collision x-axis?
 	float xDist1 = rect1Pos.x + rect1Size.x - rect2Pos.x;
@@ -77,7 +77,7 @@ bool Physics::CheckRectRectCollision(const glm::vec3& rect1Pos, const glm::vec3&
 	return false;
 }
 
-std::shared_ptr<PhysicActor> Physics::AddDynamicActor(const glm::vec3 &pos, const glm::vec3& size, CollisionChannel channel)
+std::shared_ptr<PhysicActor> Physics::AddDynamicActor(const glm::vec2 &pos, const glm::vec3& size, CollisionChannel channel)
 {
 	auto geom = std::make_shared<PhysicActor>(channel);
 	geom->pos = pos;
@@ -130,7 +130,7 @@ std::shared_ptr<Physics> Physics::Get()
 
 void Physics::DoCollisions(std::shared_ptr<PhysicActor> geom)
 {
-	glm::vec3 col, normal;
+	glm::vec2 col;
 	for (auto& dynamicActor : PhysicsPool)
 	{
 		if (geom != dynamicActor && (geom->report != dynamicActor->report))

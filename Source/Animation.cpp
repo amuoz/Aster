@@ -45,7 +45,7 @@ void Animation::Play(SpriteRenderer &renderer,
                      Texture2D &texture,
                      Aster::Rectangle &rectangle,
                      double deltatime,
-                     glm::vec2 position,
+                     glm::vec3 position,
                      glm::vec2 size,
                      float rotate,
                      glm::vec3 color,
@@ -90,7 +90,7 @@ void Animation::Play(SpriteRenderer &renderer,
       xCells, 0.0f, xSpritePos + spriteWidth, ySpritePos                   //  1  2   //  2  1
   };
 
-  renderer.SetShader(glm::vec2(position.x - xCenter, position.y - yCenter), size, rotate, color);
+  renderer.SetShader(glm::vec3(position.x - xCenter, position.y - yCenter, position.z), size, rotate, color);
 
   glActiveTexture(GL_TEXTURE0);
   texture.Bind();
