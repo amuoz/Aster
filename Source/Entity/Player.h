@@ -12,14 +12,14 @@ class Sprite;
 class Player : public Actor
 {
 public:
-	Player(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color = glm::vec3(1.0f));
+	Player(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color = glm::vec3(1.0f));
 	~Player();
 
 	void Update(float, glm::vec4) override;
 	void Draw(SpriteRenderer &renderer, double deltaTime) override;
 	void TakeDamage() override;
-	void SetInputDirection(glm::vec3 direction);
-	void Dash(glm::vec3 direction);
+	void SetInputDirection(glm::vec2 direction);
+	void Dash(glm::vec2 direction);
 	void SetDashSpeed();
 	void SetDashIFrames();
 
@@ -39,11 +39,11 @@ private:
 	AnimationType CurrentAnimation;
 	PowerUpType ActivePowerUp;
 	float DashTime;
-	glm::vec3 InputDirection;
-	glm::vec3 MovementDirection;
-	glm::vec3 LastMovementDirection;
+	glm::vec2 InputDirection;
+	glm::vec2 MovementDirection;
+	glm::vec2 LastMovementDirection;
 
-	void Move(float deltaTime, glm::vec3 direction) override;
+	void Move(float deltaTime, glm::vec2 direction) override;
 	AnimationType GetAnimationFromState();
 	bool IsInDashIFrames();
 	bool IsAttackAnimationPlaying();

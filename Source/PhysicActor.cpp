@@ -12,7 +12,7 @@ PhysicActor::PhysicActor(CollisionChannel channel)
 
 	bCheckCollision = false;
 
-	pos = glm::vec3(0.0f);
+	pos = glm::vec2(0.0f);
 	size = glm::vec3(0.0f);
 
 	report = nullptr;

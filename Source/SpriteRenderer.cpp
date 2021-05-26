@@ -2,6 +2,7 @@
 
 #include "Texture2D.h"
 #include "Sprite.h"
+#include "Config.h"
 
 SpriteRenderer::SpriteRenderer(Shader& shader)
 {
@@ -23,7 +24,7 @@ void SpriteRenderer::SetShader(glm::vec3 position, glm::vec2 size, float rotate,
 
     model = glm::translate(model, glm::vec3(0.5f * size.x, -0.5f * size.y, 0.0f)); // move origin of rotation to center of quad
     model = glm::rotate(model, glm::radians(rotate), glm::vec3(0.0f, 0.0f, 1.0f)); // then rotate
-    model = glm::translate(model, glm::vec3(-0.5f * size.x, 0.5f * size.y, 0.0f)); // move origin back
+    model = glm::translate(model, glm::vec3(-0.5f * size.x, 0.5f * size.y, 0.0f)); // move origin back to bottom left
 
     model = glm::scale(model, glm::vec3(size, 1.0f)); // last scale
 
@@ -36,17 +37,16 @@ void SpriteRenderer::SetShader(glm::vec3 position, glm::vec2 size, float rotate,
 void SpriteRenderer::DrawTexture(Texture2D& texture, glm::vec3 position, glm::vec2 size, float rotate, glm::vec3 color)
 {
     SetShader(position, size, rotate, color);
+    BindTexture(texture);
+}
 
+void SpriteRenderer::BindTexture(Texture2D& texture)
+{
     texture.Bind();
 
     glBindVertexArray(this->quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
-}
-
-void SpriteRenderer::DrawSprite(Texture2D& texture, glm::vec3 position, glm::vec2 size, float rotate, glm::vec3 color)
-{
-    DrawTexture(texture, position, size, rotate, color);
 }
 
 void SpriteRenderer::SetViewMatrix(glm::mat4 viewMatrix)

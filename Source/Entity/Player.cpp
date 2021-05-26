@@ -15,7 +15,7 @@ const float DASH_IFRAMES_FINISH = DASH_PERIOD * 4 / 5;
 const float BASE_SPEED = 200;
 const float HAMMER_BLOCK_RATE = 0.5;
 
-Player::Player(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color) : Actor(pos, size, std::move(sprite), color)
+Player::Player(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color) : Actor(pos, size, std::move(sprite), color)
 {
 	ActorCollider = Physics::Get()->AddDynamicActor(pos, size, CollisionChannel::PLAYER);
 	ActorCollider->bCheckCollision = true;
@@ -29,9 +29,10 @@ Player::Player(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, gl
 	CurrentAnimation = AnimationType::IDLE;
 	DashTime = 0.0f;
 	ActivePowerUp = PowerUpType::NONE;
-	InputDirection = glm::vec3(0);
-	MovementDirection = glm::vec3(0);
-	LastMovementDirection = glm::vec3(0);
+	InputDirection = glm::vec2(0);
+	MovementDirection = glm::vec2(0);
+	LastMovementDirection = glm::vec2(0);
+	ZIndex = 0.6f;
 }
 
 Player::~Player()
@@ -70,8 +71,8 @@ void Player::Draw(SpriteRenderer &renderer, double deltatime)
 	if (IsActive())
 	{
 		CurrentAnimation = GetAnimationFromState();
-
-		ActorSprite->Draw(CurrentAnimation, renderer, deltatime, m_position, m_scale, m_rotAngle, m_color);
+		glm::vec3 spritePosition(Position, ZIndex);
+		ActorSprite->Draw(CurrentAnimation, renderer, deltatime, spritePosition, m_scale, m_rotAngle, m_color);
 	}
 }
 
@@ -195,12 +196,12 @@ bool Player::IsInDashIFrames()
 	return (DashTime > DASH_IFRAMES_START) && (DashTime < DASH_IFRAMES_FINISH);
 }
 
-void Player::SetInputDirection(glm::vec3 direction)
+void Player::SetInputDirection(glm::vec2 direction)
 {
 	InputDirection = direction;
 }
 
-void Player::Move(float deltaTime, glm::vec3 direction)
+void Player::Move(float deltaTime, glm::vec2 direction)
 {
 	if (direction.x > 0)
 		SetState(ActorState::MOVEMENT_RIGHT);
@@ -223,7 +224,7 @@ void Player::Move(float deltaTime, glm::vec3 direction)
 	Actor::Move(deltaTime, MovementDirection);
 }
 
-void Player::Dash(glm::vec3 direction)
+void Player::Dash(glm::vec2 direction)
 {
 	if (IsDashState())
 	{
@@ -365,8 +366,8 @@ glm::vec4 Player::GetAttackHitbox()
 	}
 
 	return glm::vec4(
-			m_position.x + spriteHitbox.x,
-			m_position.y + spriteHitbox.y,
+			Position.x + spriteHitbox.x,
+			Position.y + spriteHitbox.y,
 			spriteHitbox.z,
 			spriteHitbox.w);
 }

@@ -7,29 +7,31 @@
 
 //  PhysicsActor pos & size
 //
-//               OFFSET_X
+//               SIZE_RATIO_X
 //              <------->
 //   __________________  ^
 //  |           |      | |
-//  |   Physics Actor  | | OFFSET_Y
+//  |   Physics Actor  | | SIZE_RATIO_Y
 //  |           |      | |
 //  |           |______| v
 //  |                  |
 //  |   Actor Sprite   |
 //  |__________________|
 
-const float OFFSET_X = 0.33f;
-const float OFFSET_Y = 0.5f;
+const float SIZE_RATIO_X = 0.33f;
+const float SIZE_RATIO_Y = 0.5f;
 
-Block::Block(glm::vec3 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color, BlockLocation location): Actor(pos, size, std::move(sprite), color)
+Block::Block(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color, BlockLocation location): Actor(pos, size, std::move(sprite), color)
 {
 	Location = location;
+	ZIndex = 0.9f;
 
 	if (!IsTopLocation())
 	{
-		glm::vec3 physicsPosition = GetPhysicsPosition(pos, size, location);
+		glm::vec2 physicsPosition = GetPhysicsPosition(pos, size, location);
 		glm::vec3 physicsSize = GetPhysicsSize(size, location);
 		ActorCollider = Physics::Get()->AddDynamicActor(physicsPosition, physicsSize, CollisionChannel::STATIC);
+		ZIndex = 0.1f;
 	}
 }
 
@@ -45,21 +47,21 @@ void Block::Update(float, glm::vec4 attackHitbox)
 	}
 }
 
-glm::vec3 Block::GetPhysicsPosition(glm::vec3 pos, glm::vec3 size, BlockLocation location)
+glm::vec2 Block::GetPhysicsPosition(glm::vec2 pos, glm::vec3 size, BlockLocation location)
 {
 	switch (location)
 	{
 	case BlockLocation::LEFT:
-		return glm::vec3(pos.x + size.x * (1 - OFFSET_X), pos.y, pos.z);
+		return glm::vec2(pos.x + size.x * (1 - SIZE_RATIO_X), pos.y);
 	case BlockLocation::MIDDLE:
 	case BlockLocation::RIGHT:
 	default:
 		return pos;
 	case BlockLocation::BOTTOM_LEFT:
-		return glm::vec3(pos.x + size.x * (1 - OFFSET_X), pos.y - size.y * (1 - OFFSET_Y), pos.z);
+		return glm::vec2(pos.x + size.x * (1 - SIZE_RATIO_X), pos.y - size.y * (1 - SIZE_RATIO_Y));
 	case BlockLocation::BOTTOM:
 	case BlockLocation::BOTTOM_RIGHT:
-		return glm::vec3(pos.x, pos.y - size.y * (1 - OFFSET_Y), pos.z);
+		return glm::vec2(pos.x, pos.y - size.y * (1 - SIZE_RATIO_Y));
 	}
 }
 
@@ -69,15 +71,15 @@ glm::vec3 Block::GetPhysicsSize(glm::vec3 size, BlockLocation location)
 	{
 	case BlockLocation::LEFT:
 	case BlockLocation::RIGHT:
-		return glm::vec3(size.x * OFFSET_X, size.y, size.z);
+		return glm::vec3(size.x * SIZE_RATIO_X, size.y, size.z);
 	case BlockLocation::MIDDLE:
 	default:
 		return size;
 	case BlockLocation::BOTTOM_LEFT:
 	case BlockLocation::BOTTOM_RIGHT:
-		return glm::vec3(size.x * OFFSET_X, size.y * OFFSET_Y, size.z);
+		return glm::vec3(size.x * SIZE_RATIO_X, size.y * SIZE_RATIO_Y, size.z);
 	case BlockLocation::BOTTOM:
-		return glm::vec3(size.x, size.y * OFFSET_Y, size.z);
+		return glm::vec3(size.x, size.y * SIZE_RATIO_Y, size.z);
 	}
 }
 

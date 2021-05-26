@@ -46,23 +46,23 @@ void PlayerController::ProcessInput(float deltaTime)
 {
 	if (Game::Get()->GetGameState() == GameState::GAME_ACTIVE)
 	{
-		glm::vec3 direction(0.0f);
+		glm::vec2 direction(0.0f);
 
 		if (keys[GLFW_KEY_A])
 		{
-			direction += glm::vec3(-1.0f, 0.0f, 0.0f);
+			direction += glm::vec2(-1.0f, 0.0f);
 		}
 		if (keys[GLFW_KEY_D])
 		{
-			direction += glm::vec3(1.0f, 0.0f, 0.0f);
+			direction += glm::vec2(1.0f, 0.0f);
 		}
 		if (keys[GLFW_KEY_W])
 		{
-			direction += glm::vec3(0.0f, -1.0f, 0.0f);
+			direction += glm::vec2(0.0f, -1.0f);
 		}
 		if (keys[GLFW_KEY_S])
 		{
-			direction += glm::vec3(0.0f, 1.0f, 0.0f);
+			direction += glm::vec2(0.0f, 1.0f);
 		}
 
 		Character->SetInputDirection(direction);
@@ -152,7 +152,7 @@ glm::vec4 PlayerController::GetAttackHitbox()
 	return Character->GetAttackHitbox();
 }
 
-glm::vec3 PlayerController::GetPosition()
+glm::vec2 PlayerController::GetPosition()
 {
 	return Character->GetPosition();
 }
