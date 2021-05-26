@@ -13,13 +13,12 @@
 #include "Common.h"
 #include "Config.h"
 #include "Sprite.h"
+#include "AsterTypes.h"
 
 #include "Entity/Block.h"
 #include "Entity/Player.h"
 #include "Entity/SpikeEnemy.h"
-#include "Entity/SwordPowerUp.h"
-#include "Entity/SpearPowerUp.h"
-#include "Entity/HammerPowerUp.h"
+#include "Entity/PowerUp.h"
 
 Level::Level()
 {
@@ -98,8 +97,7 @@ void Level::Draw(SpriteRenderer &renderer, double deltaTime)
 
 void Level::BeginPlay()
 {
-    auto sortByZIndex = [](std::shared_ptr<Actor> a, std::shared_ptr<Actor> b)
-    {
+    auto sortByZIndex = [](std::shared_ptr<Actor> a, std::shared_ptr<Actor> b) {
         return a->ZIndex < b->ZIndex;
     };
     // Sort sprites by z-index
@@ -377,7 +375,8 @@ void Level::InitSword(nlohmann::json &powerUpInfo)
     glm::vec2 pos(position[0], position[1]);
 
     auto blockSprite = std::make_unique<Sprite>("sword_powerup");
-    std::shared_ptr<SwordPowerUp> swordPowerUpPtr = std::make_shared<SwordPowerUp>(pos, size, std::move(blockSprite), color);
+    std::shared_ptr<PowerUp> swordPowerUpPtr = std::make_shared<PowerUp>(
+        PowerUpType::SWORD, pos, size, std::move(blockSprite), color);
     Actors.push_back(swordPowerUpPtr);
 }
 
@@ -389,7 +388,8 @@ void Level::InitSpear(nlohmann::json &powerUpInfo)
     glm::vec2 pos(position[0], position[1]);
 
     auto blockSprite = std::make_unique<Sprite>("spear_powerup");
-    std::shared_ptr<SpearPowerUp> spearPowerUpPtr = std::make_shared<SpearPowerUp>(pos, size, std::move(blockSprite), color);
+    std::shared_ptr<PowerUp> spearPowerUpPtr = std::make_shared<PowerUp>(
+        PowerUpType::SPEAR, pos, size, std::move(blockSprite), color);
     Actors.push_back(spearPowerUpPtr);
 }
 
@@ -401,7 +401,8 @@ void Level::InitHammer(nlohmann::json &powerUpInfo)
     glm::vec2 pos(position[0], position[1]);
 
     auto blockSprite = std::make_unique<Sprite>("hammer_powerup");
-    std::shared_ptr<HammerPowerUp> hammerPowerUpPtr = std::make_shared<HammerPowerUp>(pos, size, std::move(blockSprite), color);
+    std::shared_ptr<PowerUp> hammerPowerUpPtr = std::make_shared<PowerUp>(
+        PowerUpType::HAMMER, pos, size, std::move(blockSprite), color);
     Actors.push_back(hammerPowerUpPtr);
 }
 
