@@ -132,7 +132,8 @@ void Game::Update(float deltaTime)
 void Game::Render(float deltaTime)
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Depth buffer not enabled
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Set camera view matrix
 	Renderer->SetViewMatrix(PlayerCamera->GetViewMatrix());
