@@ -8,6 +8,7 @@
 #include <list>
 #include <utility>
 #include <string>
+#include <algorithm>
 
 #include "Common.h"
 #include "Config.h"
@@ -108,6 +109,11 @@ void Level::Draw(SpriteRenderer &renderer, double deltaTime)
 
 void Level::BeginPlay()
 {
+    // Sort sprites by z-index
+    Actors.sort([](std::shared_ptr<Actor> a, std::shared_ptr<Actor> b) {
+        return a->ZIndex < b->ZIndex;
+    });
+
     for (auto &actor : Actors)
     {
         actor->BeginPlay();
