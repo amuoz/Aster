@@ -109,10 +109,12 @@ void Level::Draw(SpriteRenderer &renderer, double deltaTime)
 
 void Level::BeginPlay()
 {
-    // Sort sprites by z-index
-    Actors.sort([](std::shared_ptr<Actor> a, std::shared_ptr<Actor> b) {
+    auto sortByZIndex = [](std::shared_ptr<Actor> a, std::shared_ptr<Actor> b)
+    {
         return a->ZIndex < b->ZIndex;
-    });
+    };
+    // Sort sprites by z-index
+    Actors.sort(sortByZIndex);
 
     for (auto &actor : Actors)
     {
