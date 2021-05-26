@@ -17,6 +17,9 @@ public:
 	void Update(float deltaTime, glm::vec4 playerAttackHitbox) override;
 
 private:
+	float SizeRatioX;
+	float SizeRatioY;
+
 	BlockLocation Location;
 
 	glm::vec2 GetPhysicsPosition(glm::vec2 pos, glm::vec3 size, BlockLocation location);

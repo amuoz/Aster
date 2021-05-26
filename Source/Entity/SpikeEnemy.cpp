@@ -5,18 +5,20 @@
 #include <iostream>
 #include <glm/glm.hpp>
 
+#include "Common.h"
+#include "Config.h"
 #include "Sprite.h"
 #include "Player.h"
 #include "Physics.h"
 #include "SpriteRenderer.h"
 #include "PhysicActor.h"
 
-const float STILL_CHANCE = 0.3;
-const float CHANGE_DIRECTION_CHANCE = 0.2;
-const float AGGRO_SIZE = 350;
-
 SpikeEnemy::SpikeEnemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, float framePeriod, glm::vec3 color) : Actor(pos, size, std::move(sprite), color)
 {
+	StillChance = Config::Get()->GetValue(STILL_CHANCE);
+	ChangeDirectionChance = Config::Get()->GetValue(CHANGE_DIRECTION_CHANCE);
+	AggroSize = Config::Get()->GetValue(AGGRO_SIZE);
+
 	ActorCollider = Physics::Get()->AddDynamicActor(pos, size, CollisionChannel::DYNAMIC);
 	ActorCollider->bCheckCollision = true;
 	ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::BLOCK;
@@ -24,7 +26,7 @@ SpikeEnemy::SpikeEnemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sp
 
 	AggroCollider = Physics::Get()->AddDynamicActor(
 			GetAggroPosition(pos, size),
-			glm::vec3(AGGRO_SIZE, AGGRO_SIZE, 0),
+			glm::vec3(AggroSize, AggroSize, 0),
 			CollisionChannel::DYNAMIC);
 	AggroCollider->bCheckCollision = true;
 	AggroCollider->ChannelResponse[CollisionChannel::STATIC] = CollisionResponse::IGNORED;
@@ -151,7 +153,7 @@ glm::vec2 SpikeEnemy::GetRandomDirection()
 void SpikeEnemy::SetWanderMovement()
 {
 	// 30% still
-	if (PassRandomChance(STILL_CHANCE))
+	if (PassRandomChance(StillChance))
 	{
 		Direction = glm::vec2(0, 0);
 	}
@@ -159,7 +161,7 @@ void SpikeEnemy::SetWanderMovement()
 	else
 	{
 		// 20% change direction
-		if (PassRandomChance(CHANGE_DIRECTION_CHANCE))
+		if (PassRandomChance(ChangeDirectionChance))
 		{
 			Direction = GetRandomDirection();
 		}
@@ -187,8 +189,8 @@ void SpikeEnemy::SetSpeed()
 
 glm::vec2 SpikeEnemy::GetAggroPosition(glm::vec2 actorPosition, glm::vec3 actorSize)
 {
-	float posCorrectionX = (AGGRO_SIZE - actorSize.x) / 2;
-	float posCorrectionY = (AGGRO_SIZE - actorSize.y) / 2;
+	float posCorrectionX = (AggroSize - actorSize.x) / 2;
+	float posCorrectionY = (AggroSize - actorSize.y) / 2;
 
 	return glm::vec2(
 			actorPosition.x - posCorrectionX,

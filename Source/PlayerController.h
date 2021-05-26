@@ -3,6 +3,10 @@
 #include <glm/glm.hpp>
 #include <utility>
 #include <memory>
+#include <map>
+
+#include "Common.h"
+#include "AsterTypes.h"
 
 class Player;
 struct GLFWwindow;
@@ -27,12 +31,17 @@ public:
 	void Posses(std::shared_ptr<Player> player);
 
 private:
+	const glm::vec3 UI_ITEM_COLOR = glm::vec3(1);
+	const glm::vec3 UI_SELECTED_ITEM_COLOR = glm::vec3(1, 0.5, 0.5);
 
-	GLFWwindow* Window;
-	
+	std::map<PowerUpType, std::string> POWER_UP_SPRITES = {
+			{PowerUpType::SWORD, "sword_powerup"},
+			{PowerUpType::SPEAR, "spear_powerup"},
+			{PowerUpType::HAMMER, "hammer_powerup"}};
+
+	GLFWwindow *Window;
+
 	std::shared_ptr<Player> Character;
 	SpriteRenderer *Renderer;
 	TextRenderer *Text;
-
-
 };
