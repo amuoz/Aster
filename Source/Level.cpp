@@ -16,6 +16,7 @@
 #include "AsterTypes.h"
 
 #include "Entity/Block.h"
+#include "Entity/Door.h"
 #include "Entity/Player.h"
 #include "Entity/SpikeEnemy.h"
 #include "Entity/PowerUp.h"
@@ -136,18 +137,9 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
                 blockActor->IsDestroyable = true;
                 Actors.push_back(blockActor);
             }
-            else if (Tiles[y][x] > 1) // non-destroyable; now determine its color based on level data
+            else if (Tiles[y][x] == 2) // non-destroyable; now determine its color based on level data
             {
-                glm::vec3 color = glm::vec3(1.0f); // original: white
-                if (Tiles[y][x] == 2)
-                    color = glm::vec3(1, 1, 1);
-                else if (Tiles[y][x] == 3)
-                    color = glm::vec3(0.0f, 0.7f, 0.0f);
-                else if (Tiles[y][x] == 4)
-                    color = glm::vec3(0.8f, 0.8f, 0.4f);
-                else if (Tiles[y][x] == 5)
-                    color = glm::vec3(1.0f, 0.5f, 0.0f);
-
+                glm::vec3 color = glm::vec3(1.0f);
                 glm::vec2 pos(unit_width * x, unit_height * y);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
                 BlockLocation location = GetBlockLocation(x, y);
@@ -155,6 +147,16 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
                 std::shared_ptr<Block> blockPtr = std::make_shared<Block>(
                     pos, size, std::move(blockSprite), color, location);
                 Actors.push_back(blockPtr);
+            }
+            else if (Tiles[y][x] == 3) // door
+            {
+                glm::vec2 pos(unit_width * x, unit_height * y);
+                glm::vec3 size(unit_width, unit_height, 0.0f);
+                auto doorSprite = std::make_unique<Sprite>("door");
+                std::shared_ptr<Actor> doorActor = std::make_shared<Door>(
+                    pos, size, std::move(doorSprite), glm::vec3(1.0f));
+                doorActor->IsDestroyable = true;
+                Actors.push_back(doorActor);
             }
         }
     }
