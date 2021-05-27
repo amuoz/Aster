@@ -2,18 +2,11 @@
 
 #include "Sprite.h"
 #include "Animation.h"
-
+#include "Common.h"
+#include "Config.h"
 #include "SpriteRenderer.h"
 #include "Physics.h"
 #include "PhysicActor.h"
-
-const float DASH_PERIOD = 0.7f;
-const float DASH_SPEED_UP_START = DASH_PERIOD / 4;
-const float DASH_SPEED_UP_FINISH = DASH_PERIOD * 3 / 4;
-const float DASH_IFRAMES_START = DASH_PERIOD / 5;
-const float DASH_IFRAMES_FINISH = DASH_PERIOD * 4 / 5;
-const float BASE_SPEED = 200;
-const float HAMMER_BLOCK_RATE = 0.5;
 
 Player::Player(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color) : Actor(pos, size, std::move(sprite), color)
 {
@@ -23,9 +16,17 @@ Player::Player(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, gl
 	ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::BLOCK;
 	ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::IGNORED;
 
+	DashPeriod = Config::Get()->GetValue(DASH_PERIOD);
+	DashSpeedUpStart = DashPeriod * Config::Get()->GetValue(DASH_SPEED_UP_START);
+	DashSpeedUpEnd = DashPeriod * Config::Get()->GetValue(DASH_SPEED_UP_END);
+	DashIFramesStart = DashPeriod * Config::Get()->GetValue(DASH_IFRAMES_START);
+	DashIFramesEnd = DashPeriod * Config::Get()->GetValue(DASH_IFRAMES_END);
+	HammerBlockRate = Config::Get()->GetValue(HAMMER_BLOCK_RATE);
+	MaxSpeed = Config::Get()->GetValue(BASE_SPEED);
+
 	State = ActorState::IDLE;
 	LastState = ActorState::IDLE;
-	Speed = BASE_SPEED;
+	Speed = MaxSpeed;
 	CurrentAnimation = AnimationType::IDLE;
 	DashTime = 0.0f;
 	ActivePowerUp = PowerUpType::NONE;
@@ -52,7 +53,7 @@ void Player::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 		SetDashSpeed();
 		SetDashIFrames();
 
-		if (DashTime > DASH_PERIOD)
+		if (DashTime > DashPeriod)
 		{
 			DashTime = 0;
 			SetState(ActorState::IDLE);
@@ -193,7 +194,7 @@ void Player::TakeDamage()
 
 bool Player::IsInDashIFrames()
 {
-	return (DashTime > DASH_IFRAMES_START) && (DashTime < DASH_IFRAMES_FINISH);
+	return (DashTime > DashIFramesStart) && (DashTime < DashIFramesEnd);
 }
 
 void Player::SetInputDirection(glm::vec2 direction)
@@ -254,7 +255,7 @@ bool Player::IsDashState()
 bool Player::IsBlockedByHammer()
 {
 	float animationLength = ActorSprite->GetAnimationLength();
-	bool isInHammerBlockingFrames = AnimationProgress < animationLength * HAMMER_BLOCK_RATE;
+	bool isInHammerBlockingFrames = AnimationProgress < animationLength * HammerBlockRate;
 
 	return IsHammerAttack() && isInHammerBlockingFrames;
 }
@@ -266,13 +267,14 @@ bool Player::IsHammerAttack()
 
 void Player::SetDashSpeed()
 {
-	if (DashTime < DASH_SPEED_UP_START || DashTime > DASH_SPEED_UP_FINISH)
+
+	if (DashTime < DashSpeedUpStart || DashTime > DashSpeedUpEnd)
 	{
-		Speed = BASE_SPEED;
+		Speed = MaxSpeed;
 	}
 	else
 	{
-		Speed = 2 * BASE_SPEED;
+		Speed = 2 * MaxSpeed;
 	}
 }
 

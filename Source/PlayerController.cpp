@@ -3,7 +3,6 @@
 #include <utility>
 #include <memory>
 #include <vector>
-#include <map>
 #include <string>
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
@@ -21,16 +20,6 @@ bool keys[1024];
 bool keysProcessed[1024];
 
 void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mode);
-
-const unsigned int UI_PADDING = 10;
-const glm::vec2 UI_ITEM_SIZE = glm::vec2(50, 50);
-const glm::vec3 UI_ITEM_COLOR = glm::vec3(1);
-const glm::vec3 UI_SELECTED_ITEM_COLOR = glm::vec3(1, 0.5, 0.5);
-
-std::map<PowerUpType, std::string> POWER_UP_SPRITES = {
-		{PowerUpType::SWORD, "sword_powerup"},
-		{PowerUpType::SPEAR, "spear_powerup"},
-		{PowerUpType::HAMMER, "hammer_powerup"}};
 
 PlayerController::PlayerController(GLFWwindow *window, SpriteRenderer *renderer, TextRenderer *text) : Renderer(renderer), Text(text)
 {
@@ -114,21 +103,23 @@ void PlayerController::DrawUI(glm::vec3 cameraPosition)
 	std::vector<PowerUpType> inventory = Character->GetPowerUps();
 	PowerUpType activePowerUp = Character->GetActivePowerUp();
 
-	unsigned int space = UI_PADDING;
+	auto uiPadding = Config::Get()->GetValue(UI_PADDING);
+	unsigned int space = uiPadding;
 
 	for (PowerUpType powerUp : inventory)
 	{
 		auto color = powerUp == activePowerUp ? UI_SELECTED_ITEM_COLOR : UI_ITEM_COLOR;
 		auto textureName = POWER_UP_SPRITES[powerUp];
+		auto uiItemSize = Config::Get()->GetValue(UI_ITEM_SIZE);
 		auto texturePosition = glm::vec3(
 				cameraPosition.x + space,
-				cameraPosition.y + UI_PADDING + UI_ITEM_SIZE.y,
+				cameraPosition.y + uiPadding + uiItemSize,
 				1.0f);
 
 		Texture2D powerUpTexture = ResourceManager::GetInstance()->GetTexture(textureName);
-		Renderer->DrawTexture(powerUpTexture, texturePosition, UI_ITEM_SIZE, 0, color);
+		Renderer->DrawTexture(powerUpTexture, texturePosition, glm::vec2(uiItemSize), 0, color);
 
-		space += UI_PADDING + UI_ITEM_SIZE.x;
+		space += uiPadding + uiItemSize;
 	}
 }
 

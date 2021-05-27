@@ -35,6 +35,14 @@ public:
 	void SelectPowerUp(unsigned int index);
 
 private:
+	float DashPeriod;
+	float DashSpeedUpStart;
+	float DashSpeedUpEnd;
+	float DashIFramesStart;
+	float DashIFramesEnd;
+	float HammerBlockRate;
+	float MaxSpeed;
+
 	std::vector<PowerUpType> Inventory;
 	AnimationType CurrentAnimation;
 	PowerUpType ActivePowerUp;

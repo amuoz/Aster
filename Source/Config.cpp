@@ -5,23 +5,10 @@
 #include <iostream>
 #include <string>
 
-const string Config::FORWARD_VELOCITY = "FORWARD_VELOCITY";
-const string Config::ANGULAR_VELOCITY = "ANGULAR_VELOCITY";
-const string Config::THRUST = "THRUST";
-const string Config::MASS = "MASS";
-const string Config::FREQUENCY = "FREQUENCY";
-const string Config::FREQUENCY_INCREASE = "FREQUENCY_INCREASE";
-const string Config::BULLET_VELOCITY = "BULLET_VELOCITY";
-const string Config::BULLET_FREQUENCY = "BULLET_FREQUENCY";
-const string Config::EXPLOSION_DURATION = "EXPLOSION_DURATION";
-const string Config::RAPID_FIRE = "RAPID_FIRE";
-const string Config::DIFFICULTY_INCREASE = "DIFFICULTY_INCREASE";
-
-Config* Config::m_instance = nullptr;
+Config *Config::m_instance = nullptr;
 
 Config::Config()
 {
-
 }
 
 Config::~Config()
@@ -32,7 +19,7 @@ Config::~Config()
 	}
 }
 
-void Config::Load(const char * file)
+void Config::Load(const char *file)
 {
 	std::cout << "... Load " << file << " ..." << std::endl;
 	m_config.clear();
@@ -44,7 +31,7 @@ void Config::Load(const char * file)
 	if (fstream)
 	{
 		// read each line from config file
-		while (std::getline(fstream, line)) 
+		while (std::getline(fstream, line))
 		{
 			std::istringstream sstream(line);
 			std::string key;
@@ -65,7 +52,7 @@ float Config::GetValue(string key) const
 	return m_config.find(key)->second;
 }
 
-Config* Config::Get()
+Config *Config::Get()
 {
 	if (m_instance == nullptr)
 	{
@@ -76,7 +63,7 @@ Config* Config::Get()
 
 void Config::StoreKeyValue(string key, string value)
 {
-	std::string::size_type sz;     // alias of size_t
+	std::string::size_type sz; // alias of size_t
 	float floatValue = std::stof(value, &sz);
 	m_config.insert(std::pair<string, float>(key, floatValue));
 }

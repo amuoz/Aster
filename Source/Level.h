@@ -43,6 +43,17 @@ private:
     std::shared_ptr<Player> Character;
     std::list<std::shared_ptr<Actor> > Actors;
 
+    std::map<BlockLocation, std::string> BLOCK_SPRITES = {
+        {BlockLocation::BOTTOM_LEFT, "block_corner_left"},
+        {BlockLocation::BOTTOM_RIGHT, "block_corner_right"},
+        {BlockLocation::BOTTOM, "block_bottom"},
+        {BlockLocation::LEFT, "block_side_left"},
+        {BlockLocation::RIGHT, "block_side_right"},
+        {BlockLocation::MIDDLE, "block"},
+        {BlockLocation::TOP_LEFT, "block_top_left"},
+        {BlockLocation::TOP_RIGHT, "block_top_right"},
+        {BlockLocation::TOP, "block_top"}};
+
     void LoadTiles();
     void InitBlocks(unsigned int levelWidth, unsigned int levelHeight);
     void InitEnemies();
@@ -51,7 +62,7 @@ private:
     void InitSword(nlohmann::json &powerUpInfo);
     void InitSpear(nlohmann::json &powerUpInfo);
     void InitHammer(nlohmann::json &powerUpInfo);
-    
+
     void CreatePlayer(glm::vec2 playerPosition);
     glm::vec2 GetPlayerPosition();
     BlockLocation GetBlockLocation(int x, int y);
