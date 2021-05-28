@@ -24,8 +24,8 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mode
 
 const unsigned int UI_PADDING = 10;
 const glm::vec2 UI_ITEM_SIZE = glm::vec2(50, 50);
-const glm::vec3 UI_ITEM_COLOR = glm::vec3(1);
-const glm::vec3 UI_SELECTED_ITEM_COLOR = glm::vec3(1, 0.5, 0.5);
+const glm::vec4 UI_ITEM_COLOR = glm::vec4(1.0);
+const glm::vec4 UI_SELECTED_ITEM_COLOR = glm::vec4(1.0, 0.5, 0.5, 1.0);
 
 std::map<PowerUpType, std::string> POWER_UP_SPRITES = {
 		{PowerUpType::SWORD, "sword_powerup"},

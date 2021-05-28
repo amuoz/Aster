@@ -7,6 +7,8 @@
 #include "Physics.h"
 #include "PhysicActor.h"
 #include <iostream>
+#include "Config.h"
+#include "Common.h"
 
 Actor::Actor()
 {
@@ -14,7 +16,7 @@ Actor::Actor()
 	ZIndex = 0.5f;
 	m_scale = glm::vec3(1.0f);
 	ActorSprite = nullptr;
-	m_color = glm::vec3(1.0f);
+	Color = glm::vec4(1.0f);
 	
 	m_rotAngle = 0.0f;
 	m_rotAxis = glm::vec3(0.0f);
@@ -27,13 +29,13 @@ Actor::Actor()
 	LastState = ActorState::IDLE;
 }
 
-Actor::Actor(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color): Actor()
+Actor::Actor(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec4 color): Actor()
 {
 	Position = pos;
 	ZIndex = 0.5f;
 	m_scale = size;
 	ActorSprite = std::move(sprite);
-	m_color = color;
+	Color = color;
 }
 
 Actor::~Actor()
@@ -64,8 +66,12 @@ void Actor::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 void Actor::Draw(SpriteRenderer &renderer, double)
 {
 	Texture2D texture = ActorSprite->GetTexture();
-	glm::vec3 spritePosition(Position, ZIndex);
-	renderer.DrawTexture(texture, spritePosition, m_scale, m_rotAngle, m_color);
+
+	float dynamicZIndex = GetZIndex(Position.y);
+
+	//glm::vec3 spritePosition(Position, ZIndex);
+	glm::vec3 spritePosition(Position, dynamicZIndex);
+	renderer.DrawTexture(texture, spritePosition, m_scale, m_rotAngle, Color);
 }
 
 void Actor::TakeDamage()
@@ -109,9 +115,9 @@ void Actor::SetDelete(bool newDelete)
 	m_delete = newDelete;
 }
 
-void Actor::SetColor(glm::vec3 color)
+void Actor::SetColor(glm::vec4 color)
 {
-	m_color = color;
+	Color = color;
 }
 
 void Actor::SetPosition(glm::vec2 pos)
@@ -146,4 +152,10 @@ void Actor::OnBeginOverlapFunction(std::shared_ptr<PhysicActor> other)
 void Actor::OnEndOverlapFunction(std::shared_ptr<PhysicActor> other)
 {
 	//std::cout << "On End Overlap" << std::endl;
+}
+
+float Actor::GetZIndex(float posY)
+{
+	float maxHeight = Config::Get()->GetValue(LVL_HEIGHT);
+	return posY * 0.99 / maxHeight;
 }

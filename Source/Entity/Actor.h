@@ -14,7 +14,7 @@ class Actor: public std::enable_shared_from_this<Actor>
 {
 protected:
 	
-	Actor(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color = glm::vec3(1.0f));
+	Actor(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec4 color = glm::vec4(1.0f));
 
 public:
 	
@@ -32,7 +32,7 @@ public:
 	virtual void SetState(ActorState state);
 	void SetActive(bool newActive);
 	void SetDelete(bool newDelete);
-	void SetColor(glm::vec3 color);
+	void SetColor(glm::vec4 color);
 
 	inline bool IsActive() { return m_active; }
 	inline bool IsDelete() { return m_delete; }
@@ -54,13 +54,15 @@ private:
 
 	Actor();
 
+	float GetZIndex(float posY);
+
 protected:
 	// actor state
 	glm::vec2 Position;
 	glm::vec3 m_scale;
 	float m_rotAngle;
 	glm::vec3 m_rotAxis;
-	glm::vec3 m_color;
+	glm::vec4 Color;
 
 	bool m_active;
 

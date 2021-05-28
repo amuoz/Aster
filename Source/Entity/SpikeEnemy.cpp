@@ -15,7 +15,7 @@ const float STILL_CHANCE = 0.3;
 const float CHANGE_DIRECTION_CHANCE = 0.2;
 const float AGGRO_SIZE = 350;
 
-SpikeEnemy::SpikeEnemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, float framePeriod, glm::vec3 color) : Actor(pos, size, std::move(sprite), color)
+SpikeEnemy::SpikeEnemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, float framePeriod, glm::vec4 color) : Actor(pos, size, std::move(sprite), color)
 {
 	ActorCollider = Physics::Get()->AddDynamicActor(pos, size, CollisionChannel::DYNAMIC);
 	ActorCollider->bCheckCollision = true;
@@ -101,11 +101,11 @@ void SpikeEnemy::Draw(SpriteRenderer &renderer, double deltatime)
 	switch (State)
 	{
 	case ActorState::IDLE:
-		m_color = glm::vec3(1, 1, 1);
+		Color = glm::vec4(1, 1, 1, 1);
 		CurrentAnimation = AnimationType::IDLE;
 		break;
 	case ActorState::AGGRO:
-		m_color = glm::vec3(1, 0.5, 0.5);
+		Color = glm::vec4(1, 0.5, 0.5, 1);
 		CurrentAnimation = AnimationType::IDLE;
 		break;
 	default:
@@ -121,7 +121,7 @@ void SpikeEnemy::Draw(SpriteRenderer &renderer, double deltatime)
 			spritePosition,
 			m_scale,
 			m_rotAngle,
-			m_color);
+			Color);
 }
 
 void SpikeEnemy::Destroy()

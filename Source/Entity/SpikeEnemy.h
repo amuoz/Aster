@@ -12,7 +12,7 @@ class Sprite;
 class SpikeEnemy : public Actor
 {
 public:
-	SpikeEnemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, float framePeriod, glm::vec3 color = glm::vec3(1.0f));
+	SpikeEnemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, float framePeriod, glm::vec4 color = glm::vec4(1.0f));
 	~SpikeEnemy();
 
 	void BeginPlay() override;

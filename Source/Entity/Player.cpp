@@ -15,7 +15,7 @@ const float DASH_IFRAMES_FINISH = DASH_PERIOD * 4 / 5;
 const float BASE_SPEED = 200;
 const float HAMMER_BLOCK_RATE = 0.5;
 
-Player::Player(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color) : Actor(pos, size, std::move(sprite), color)
+Player::Player(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec4 color) : Actor(pos, size, std::move(sprite), color)
 {
 	ActorCollider = Physics::Get()->AddDynamicActor(pos, size, CollisionChannel::PLAYER);
 	ActorCollider->bCheckCollision = true;
@@ -72,7 +72,7 @@ void Player::Draw(SpriteRenderer &renderer, double deltatime)
 	{
 		CurrentAnimation = GetAnimationFromState();
 		glm::vec3 spritePosition(Position, ZIndex);
-		ActorSprite->Draw(CurrentAnimation, renderer, deltatime, spritePosition, m_scale, m_rotAngle, m_color);
+		ActorSprite->Draw(CurrentAnimation, renderer, deltatime, spritePosition, m_scale, m_rotAngle, Color);
 	}
 }
 
