@@ -33,13 +33,15 @@ Block::Block(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm:
 		ActorCollider = Physics::Get()->AddDynamicActor(physicsPosition, physicsSize, CollisionChannel::STATIC);
 		ZIndex = 0.1f;
 	//}
-		if (Location == BlockLocation::MIDDLE)
-		{
-			ActorCollider->bCheckCollision = true;
-			ActorCollider->ChannelResponse[CollisionChannel::STATIC] = CollisionResponse::IGNORED;
-			ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::IGNORED;
-			ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::OVERLAP;
-		}
+
+	// transparency test
+	if (Location == BlockLocation::MIDDLE)
+	{
+		ActorCollider->bCheckCollision = true;
+		ActorCollider->ChannelResponse[CollisionChannel::STATIC] = CollisionResponse::IGNORED;
+		ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::IGNORED;
+		ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::OVERLAP;
+	}
 }
 
 Block::~Block()
