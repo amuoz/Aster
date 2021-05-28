@@ -4,17 +4,21 @@
 #include <utility>
 
 #include "Actor.h"
+#include "AsterTypes.h"
 
 enum class AnimationType;
 class Sprite;
-class PhysicActor;
 
-class HammerPowerUp : public Actor
+class PowerUp : public Actor
 {
 public:
-	HammerPowerUp(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec4 color = glm::vec4(1.0f), glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f));
-	~HammerPowerUp();
+	PowerUp(PowerUpType type, glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec4 color = glm::vec4(1.0f));
+	~PowerUp();
 
 	void OnBeginOverlapFunction(std::shared_ptr<PhysicActor> other) override;
 	void OnEndOverlapFunction(std::shared_ptr<PhysicActor> other) override;
+
+private:
+	PowerUpType Type;
+
 };

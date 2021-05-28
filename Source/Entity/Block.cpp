@@ -1,5 +1,7 @@
 #include "Block.h"
 
+#include "Common.h"
+#include "Config.h"
 #include "Sprite.h"
 #include "Physics.h"
 #include "PhysicActor.h"
@@ -18,13 +20,12 @@
 //  |   Actor Sprite   |
 //  |__________________|
 
-const float SIZE_RATIO_X = 0.33f;
-const float SIZE_RATIO_Y = 0.5f;
-
 Block::Block(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec4 color, BlockLocation location): Actor(pos, size, std::move(sprite), color)
 {
 	Location = location;
 	ZIndex = 0.9f;
+	SizeRatioX = Config::Get()->GetValue(SIZE_RATIO_X);
+	SizeRatioY = Config::Get()->GetValue(SIZE_RATIO_Y);
 
 	//if (!IsTopLocation())
 	//{
@@ -61,16 +62,16 @@ glm::vec2 Block::GetPhysicsPosition(glm::vec2 pos, glm::vec3 size, BlockLocation
 	switch (location)
 	{
 	case BlockLocation::LEFT:
-		return glm::vec2(pos.x + size.x * (1 - SIZE_RATIO_X), pos.y);
+		return glm::vec2(pos.x + size.x * (1 - SizeRatioX), pos.y);
 	case BlockLocation::MIDDLE:
 	case BlockLocation::RIGHT:
 	default:
 		return pos;
 	case BlockLocation::BOTTOM_LEFT:
-		return glm::vec2(pos.x + size.x * (1 - SIZE_RATIO_X), pos.y - size.y * (1 - SIZE_RATIO_Y));
+		return glm::vec2(pos.x + size.x * (1 - SizeRatioX), pos.y - size.y * (1 - SizeRatioY));
 	case BlockLocation::BOTTOM:
 	case BlockLocation::BOTTOM_RIGHT:
-		return glm::vec2(pos.x, pos.y - size.y * (1 - SIZE_RATIO_Y));
+		return glm::vec2(pos.x, pos.y - size.y * (1 - SizeRatioY));
 
 	case BlockLocation::TOP_LEFT:
 		return glm::vec2(pos.x + size.x * (1 - SIZE_RATIO_X), pos.y);
@@ -86,15 +87,15 @@ glm::vec3 Block::GetPhysicsSize(glm::vec3 size, BlockLocation location)
 	{
 	case BlockLocation::LEFT:
 	case BlockLocation::RIGHT:
-		return glm::vec3(size.x * SIZE_RATIO_X, size.y, size.z);
+		return glm::vec3(size.x * SizeRatioX, size.y, size.z);
 	case BlockLocation::MIDDLE:
 	default:
 		return size;
 	case BlockLocation::BOTTOM_LEFT:
 	case BlockLocation::BOTTOM_RIGHT:
-		return glm::vec3(size.x * SIZE_RATIO_X, size.y * SIZE_RATIO_Y, size.z);
+		return glm::vec3(size.x * SizeRatioX, size.y * SizeRatioY, size.z);
 	case BlockLocation::BOTTOM:
-		return glm::vec3(size.x, size.y * SIZE_RATIO_Y, size.z);
+		return glm::vec3(size.x, size.y * SizeRatioY, size.z);
 	case BlockLocation::TOP_LEFT:
 	case BlockLocation::TOP_RIGHT:
 		return glm::vec3(size.x * SIZE_RATIO_X, size.y * SIZE_RATIO_Y, size.z);

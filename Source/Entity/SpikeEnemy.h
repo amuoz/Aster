@@ -27,6 +27,10 @@ public:
 	void OnEndOverlapAggro(std::shared_ptr<PhysicActor> other);
 
 private:
+	float StillChance;
+	float ChangeDirectionChance;
+	float AggroSize;
+
 	bool PassRandomChance(float chance);
 	float GetRandomDirectionComponent();
 	glm::vec2 GetRandomDirection();
