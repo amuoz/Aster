@@ -25,7 +25,7 @@ public:
       glm::vec3 position,
       glm::vec2 size,
       float rotate,
-      glm::vec3 color,
+      glm::vec4 color,
       bool restartAnimation);
 
   glm::vec4 GetAttackHitbox();

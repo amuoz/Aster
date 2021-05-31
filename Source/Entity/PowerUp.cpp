@@ -11,7 +11,7 @@
 #include "SpriteRenderer.h"
 #include "PhysicActor.h"
 
-PowerUp::PowerUp(PowerUpType type, glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color) : Actor(pos, size, std::move(sprite), color)
+PowerUp::PowerUp(PowerUpType type, glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec4 color) : Actor(pos, size, std::move(sprite), color)
 {
 	Type = type;
 	ActorCollider = Physics::Get()->AddDynamicActor(pos, size, CollisionChannel::DYNAMIC);

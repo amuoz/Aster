@@ -86,6 +86,13 @@ void Level::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 
 void Level::Draw(SpriteRenderer &renderer, double deltaTime)
 {
+    auto sortByPosition = [](std::shared_ptr<Actor> a, std::shared_ptr<Actor> b)
+    {
+        return a->GetPosition().y < b->GetPosition().y;
+    };
+    // Sort sprites by z-index
+    Actors.sort(sortByPosition);
+
     for (auto &actor : Actors)
     {
         if (!actor->IsDestroyed)
@@ -97,12 +104,6 @@ void Level::Draw(SpriteRenderer &renderer, double deltaTime)
 
 void Level::BeginPlay()
 {
-    auto sortByZIndex = [](std::shared_ptr<Actor> a, std::shared_ptr<Actor> b) {
-        return a->ZIndex < b->ZIndex;
-    };
-    // Sort sprites by z-index
-    Actors.sort(sortByZIndex);
-
     for (auto &actor : Actors)
     {
         actor->BeginPlay();
@@ -132,21 +133,21 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
                 glm::vec3 size(unit_width, unit_height, 0.0f);
                 auto blockSprite = std::make_unique<Sprite>("block");
                 std::shared_ptr<Actor> blockActor = std::make_shared<Block>(
-                    pos, size, std::move(blockSprite), glm::vec3(0.9f, 0.9f, 1.0f));
+                    pos, size, std::move(blockSprite), glm::vec4(0.9f, 0.9f, 1.0f, 1.0f));
                 blockActor->IsDestroyable = true;
                 Actors.push_back(blockActor);
             }
             else if (Tiles[y][x] > 1) // non-destroyable; now determine its color based on level data
             {
-                glm::vec3 color = glm::vec3(1.0f); // original: white
+                glm::vec4 color = glm::vec4(1.0f); // original: white
                 if (Tiles[y][x] == 2)
-                    color = glm::vec3(1, 1, 1);
+                    color = glm::vec4(1.0f);
                 else if (Tiles[y][x] == 3)
-                    color = glm::vec3(0.0f, 0.7f, 0.0f);
+                    color = glm::vec4(0.0f, 0.7f, 0.0f, 1.0f);
                 else if (Tiles[y][x] == 4)
-                    color = glm::vec3(0.8f, 0.8f, 0.4f);
+                    color = glm::vec4(0.8f, 0.8f, 0.4f, 1.0f);
                 else if (Tiles[y][x] == 5)
-                    color = glm::vec3(1.0f, 0.5f, 0.0f);
+                    color = glm::vec4(1.0f, 0.5f, 0.0f, 1.0f);
 
                 glm::vec2 pos(unit_width * x, unit_height * y);
                 glm::vec3 size(unit_width, unit_height, 0.0f);
@@ -352,13 +353,15 @@ void Level::InitPowerUps()
     {
         std::string powerUpName = powerUp["type"].get<std::string>();
         InitPowerUp(powerUpName, powerUp);
+    glm::vec4 color = glm::vec4(1.0f);
     }
+    glm::vec4 color = glm::vec4(1.0f);
 }
 
 void Level::InitPowerUp(std::string name, nlohmann::json &info)
 {
     const glm::vec3 size(50, 50, 0);
-    glm::vec3 color = glm::vec3(1, 1, 1);
+    glm::vec4 color = glm::vec4(1.0f);
     auto position = info["position"];
     glm::vec2 pos(position[0], position[1]);
 
