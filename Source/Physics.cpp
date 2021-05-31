@@ -149,7 +149,11 @@ void Physics::DoCollisions(std::shared_ptr<PhysicActor> geom)
 				// If both blocking then resolve collision
 				if (myResponse == CollisionResponse::BLOCK && otherResponse == CollisionResponse::BLOCK)
 				{
-					geom->pos = col;
+					// Only resolve collision if not static
+					if (geom->Channel != CollisionChannel::STATIC)
+					{
+						geom->pos = col;
+					}
 				}
 
 				// Notify overlap
