@@ -15,11 +15,12 @@ SpriteRenderer::~SpriteRenderer()
     glDeleteVertexArrays(1, &this->quadVAO);
 }
 
-void SpriteRenderer::SetShader(glm::vec3 position, glm::vec2 size, float rotate, glm::vec3 color)
+void SpriteRenderer::SetShader(glm::vec3 position, glm::vec2 size, float rotate, glm::vec4 color)
 {
     // prepare transformations
     this->shader.Use();
     glm::mat4 model = glm::mat4(1.0f);
+
     model = glm::translate(model, position);  // first translate (transformations are: scale happens first, then rotation, and then final translation happens; reversed order)
 
     model = glm::translate(model, glm::vec3(0.5f * size.x, -0.5f * size.y, 0.0f)); // move origin of rotation to center of quad
@@ -31,10 +32,10 @@ void SpriteRenderer::SetShader(glm::vec3 position, glm::vec2 size, float rotate,
     this->shader.SetMatrix4("model", model);
 
     // render textured quad
-    this->shader.SetVector3f("spriteColor", color);
+    this->shader.SetVector4f("spriteColor", color);
 }
 
-void SpriteRenderer::DrawTexture(Texture2D& texture, glm::vec3 position, glm::vec2 size, float rotate, glm::vec3 color)
+void SpriteRenderer::DrawTexture(Texture2D& texture, glm::vec3 position, glm::vec2 size, float rotate, glm::vec4 color)
 {
     SetShader(position, size, rotate, color);
     BindTexture(texture);

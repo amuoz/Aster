@@ -223,5 +223,5 @@ void Game::DebugAttackHitbox(SpriteRenderer &Renderer)
 			glm::vec3(playerAttackHitbox.x, playerAttackHitbox.y, 9999.9f),
 			glm::vec2(playerAttackHitbox.z, playerAttackHitbox.w),
 			0.0f,
-			glm::vec3(0.8f, 0.0f, 0.2f));
+			glm::vec4(0.8f, 0.0f, 0.2f, 1.0f));
 }

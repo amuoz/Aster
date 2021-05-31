@@ -12,7 +12,7 @@ class Sprite;
 class Player : public Actor
 {
 public:
-	Player(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color = glm::vec3(1.0f));
+	Player(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec4 color = glm::vec4(1.0f));
 	~Player();
 
 	void Update(float, glm::vec4) override;

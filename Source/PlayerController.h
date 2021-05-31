@@ -31,8 +31,8 @@ public:
 	void Posses(std::shared_ptr<Player> player);
 
 private:
-	const glm::vec3 UI_ITEM_COLOR = glm::vec3(1);
-	const glm::vec3 UI_SELECTED_ITEM_COLOR = glm::vec3(1, 0.5, 0.5);
+	const glm::vec4 UI_ITEM_COLOR = glm::vec4(1);
+	const glm::vec4 UI_SELECTED_ITEM_COLOR = glm::vec4(1, 0.5, 0.5, 1);
 
 	std::map<PowerUpType, std::string> POWER_UP_SPRITES = {
 			{PowerUpType::SWORD, "sword_powerup"},

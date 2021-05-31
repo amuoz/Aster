@@ -11,10 +11,13 @@ class Block : public Actor
 {
 public:
 
-	Block(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec3 color = glm::vec3(1.0f), BlockLocation location = BlockLocation::MIDDLE);
+	Block(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec4 color = glm::vec4(1.0f), BlockLocation location = BlockLocation::MIDDLE);
 	virtual ~Block();
 
 	void Update(float deltaTime, glm::vec4 playerAttackHitbox) override;
+
+	void OnBeginOverlapFunction(std::shared_ptr<PhysicActor> other) override;
+	void OnEndOverlapFunction(std::shared_ptr<PhysicActor> other) override;
 
 private:
 	float SizeRatioX;
