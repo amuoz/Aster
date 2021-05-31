@@ -74,7 +74,7 @@ glm::vec2 Block::GetPhysicsPosition(glm::vec2 pos, glm::vec3 size, BlockLocation
 		return glm::vec2(pos.x, pos.y - size.y * (1 - SizeRatioY));
 
 	case BlockLocation::TOP_LEFT:
-		return glm::vec2(pos.x + size.x * (1 - SIZE_RATIO_X), pos.y);
+		return glm::vec2(pos.x + size.x * (1 - SizeRatioX), pos.y);
 	case BlockLocation::TOP:
 	case BlockLocation::TOP_RIGHT:
 		return pos;
@@ -98,9 +98,9 @@ glm::vec3 Block::GetPhysicsSize(glm::vec3 size, BlockLocation location)
 		return glm::vec3(size.x, size.y * SizeRatioY, size.z);
 	case BlockLocation::TOP_LEFT:
 	case BlockLocation::TOP_RIGHT:
-		return glm::vec3(size.x * SIZE_RATIO_X, size.y * SIZE_RATIO_Y, size.z);
+		return glm::vec3(size.x * SizeRatioX, size.y * SizeRatioY, size.z);
 	case BlockLocation::TOP:
-		return glm::vec3(size.x, size.y * SIZE_RATIO_Y, size.z);
+		return glm::vec3(size.x, size.y * SizeRatioY, size.z);
 	}
 }
 

@@ -17,7 +17,7 @@ git clone --recursive https://github.com/amuoz/Aster.git
 Install https://cmake.org/download/
 `mkdir Build`
 `cd Build`
-`cmake -G "Visual Studio 19" "Win64" ..`
+`cmake -G "Visual Studio 16 2019" "Win64" ..`
 Double click in `Aster/Build/Aster.sln`
 Inside Visual Studio:
 `Aster` > Set as startup project
