@@ -40,6 +40,7 @@ public:
 private:
     nlohmann::json LevelInfo;
     std::vector<std::vector<int> > Tiles;
+    std::vector<std::vector<int> > InteriorTiles;
     std::shared_ptr<Player> Character;
     std::list<std::shared_ptr<Actor> > Actors;
 
@@ -53,15 +54,19 @@ private:
         {BlockLocation::TOP_LEFT, "block_top_left"},
         {BlockLocation::TOP_RIGHT, "block_top_right"},
         {BlockLocation::TOP, "block_top"}};
+    
+    std::map<std::string, PowerUpType> POWER_UPS = {
+        {"sword_powerup", PowerUpType::SWORD},
+        {"spear_powerup", PowerUpType::SPEAR},
+        {"hammer_powerup", PowerUpType::HAMMER}
+    };
 
     void LoadTiles();
     void InitBlocks(unsigned int levelWidth, unsigned int levelHeight);
     void InitEnemies();
     void InitSpike(nlohmann::json &enemyInfo);
     void InitPowerUps();
-    void InitSword(nlohmann::json &powerUpInfo);
-    void InitSpear(nlohmann::json &powerUpInfo);
-    void InitHammer(nlohmann::json &powerUpInfo);
+    void InitPowerUp(std::string name, nlohmann::json &info);
 
     void CreatePlayer(glm::vec2 playerPosition);
     glm::vec2 GetPlayerPosition();
