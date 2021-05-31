@@ -351,59 +351,21 @@ void Level::InitPowerUps()
     for (auto &powerUp : powerUps)
     {
         std::string powerUpName = powerUp["type"].get<std::string>();
-
-        if (powerUpName == "Sword")
-        {
-            InitSword(powerUp);
-        }
-        if (powerUpName == "Spear")
-        {
-            InitSpear(powerUp);
-        }
-        if (powerUpName == "Hammer")
-        {
-            InitHammer(powerUp);
-        }
+        InitPowerUp(powerUpName, powerUp);
     }
 }
 
-void Level::InitSword(nlohmann::json &powerUpInfo)
+void Level::InitPowerUp(std::string name, nlohmann::json &info)
 {
     const glm::vec3 size(50, 50, 0);
     glm::vec3 color = glm::vec3(1, 1, 1);
-    auto position = powerUpInfo["position"];
+    auto position = info["position"];
     glm::vec2 pos(position[0], position[1]);
 
-    auto blockSprite = std::make_unique<Sprite>("sword_powerup");
-    std::shared_ptr<PowerUp> swordPowerUpPtr = std::make_shared<PowerUp>(
-        PowerUpType::SWORD, pos, size, std::move(blockSprite), color);
-    Actors.push_back(swordPowerUpPtr);
-}
-
-void Level::InitSpear(nlohmann::json &powerUpInfo)
-{
-    const glm::vec3 size(50, 50, 0);
-    glm::vec3 color = glm::vec3(1, 1, 1);
-    auto position = powerUpInfo["position"];
-    glm::vec2 pos(position[0], position[1]);
-
-    auto blockSprite = std::make_unique<Sprite>("spear_powerup");
-    std::shared_ptr<PowerUp> spearPowerUpPtr = std::make_shared<PowerUp>(
-        PowerUpType::SPEAR, pos, size, std::move(blockSprite), color);
-    Actors.push_back(spearPowerUpPtr);
-}
-
-void Level::InitHammer(nlohmann::json &powerUpInfo)
-{
-    const glm::vec3 size(50, 50, 0);
-    glm::vec3 color = glm::vec3(1, 1, 1);
-    auto position = powerUpInfo["position"];
-    glm::vec2 pos(position[0], position[1]);
-
-    auto blockSprite = std::make_unique<Sprite>("hammer_powerup");
-    std::shared_ptr<PowerUp> hammerPowerUpPtr = std::make_shared<PowerUp>(
-        PowerUpType::HAMMER, pos, size, std::move(blockSprite), color);
-    Actors.push_back(hammerPowerUpPtr);
+    auto blockSprite = std::make_unique<Sprite>(name);
+    std::shared_ptr<PowerUp> powerUpPtr = std::make_shared<PowerUp>(
+        POWER_UPS[name], pos, size, std::move(blockSprite), color);
+    Actors.push_back(powerUpPtr);
 }
 
 void Level::CreatePlayer(glm::vec2 playerPosition)
