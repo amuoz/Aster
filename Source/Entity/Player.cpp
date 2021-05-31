@@ -65,6 +65,8 @@ void Player::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 	{
 		Move(deltaTime, InputDirection);
 	}
+
+	ZIndex = GetZIndex(GetPosition().y);
 }
 
 void Player::Draw(SpriteRenderer &renderer, double deltatime)

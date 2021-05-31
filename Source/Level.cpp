@@ -86,12 +86,12 @@ void Level::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 
 void Level::Draw(SpriteRenderer &renderer, double deltaTime)
 {
-    auto sortByPosition = [](std::shared_ptr<Actor> a, std::shared_ptr<Actor> b)
+    auto sortByZIndex = [](std::shared_ptr<Actor> a, std::shared_ptr<Actor> b)
     {
-        return a->GetPosition().y < b->GetPosition().y;
+        return a->ZIndex < b->ZIndex;
     };
     // Sort sprites by z-index
-    Actors.sort(sortByPosition);
+    Actors.sort(sortByZIndex);
 
     for (auto &actor : Actors)
     {
