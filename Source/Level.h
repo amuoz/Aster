@@ -54,12 +54,25 @@ private:
         {BlockLocation::TOP_LEFT, "block_top_left"},
         {BlockLocation::TOP_RIGHT, "block_top_right"},
         {BlockLocation::TOP, "block_top"}};
-    
+
     std::map<std::string, PowerUpType> POWER_UPS = {
         {"sword_powerup", PowerUpType::SWORD},
         {"spear_powerup", PowerUpType::SPEAR},
-        {"hammer_powerup", PowerUpType::HAMMER}
+        {"hammer_powerup", PowerUpType::HAMMER}};
+
+    enum class ActorType
+    {
+        NONE,
+        DESTROYABLE_BLOCK,
+        BLOCK,
+        DOOR
     };
+
+    std::vector<std::vector<int> > DIRECTIONS = {
+        {-1, 0},
+        {0, -1},
+        {1, 0},
+        {0, 1}};
 
     void LoadTiles();
     void InitBlocks(unsigned int levelWidth, unsigned int levelHeight);
@@ -76,4 +89,21 @@ private:
     void TopBlocks(int &top, int &bottom, int &left, int &right, int x, int y);
     void BottomBlocks(int &top, int &bottom, int &left, int &right, int x, int y);
     void MiddleBlocks(int &top, int &bottom, int &left, int &right, int x, int y);
+    void CreateActors(std::vector<std::vector<ActorType> > actorTypes,
+                      std::list<std::shared_ptr<Actor> > &actors,
+                      unsigned int levelWidth,
+                      unsigned int levelHeight);
+    std::shared_ptr<Actor> CreateBuilding(std::tuple<int, int> coords,
+                                          std::vector<std::vector<ActorType> > &actorTypes,
+                                          unsigned int levelWidth,
+                                          unsigned int levelHeight);
+    std::tuple<int, int, bool> GetNextTileCoords(int x,
+                                           int y,
+                                           std::vector<std::vector<ActorType> > grid,
+                                           std::vector<std::tuple<int, int, bool> > &knownPositions,
+                                           int directionIndex);
+    std::shared_ptr<Actor> CreateDestroyableBlock(float unit_width, float unit_height, int x, int y);
+    std::shared_ptr<Actor> CreateBlock(float unit_width, float unit_height, int x, int y);
+    std::shared_ptr<Actor> CreateDoor(float unit_width, float unit_height, int x, int y);
+    void DebugBuildingPath(std::vector<std::vector<ActorType> > buildingActorsTypes, int x, int y);
 };

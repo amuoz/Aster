@@ -15,6 +15,7 @@ public:
 	virtual ~Block();
 
 	void Update(float deltaTime, glm::vec4 playerAttackHitbox) override;
+	void Draw(SpriteRenderer &renderer, double deltaTime) override;
 
 	void OnBeginOverlapFunction(std::shared_ptr<PhysicActor> other) override;
 	void OnEndOverlapFunction(std::shared_ptr<PhysicActor> other) override;
@@ -28,4 +29,5 @@ private:
 	glm::vec2 GetPhysicsPosition(glm::vec2 pos, glm::vec3 size, BlockLocation location);
 	glm::vec3 GetPhysicsSize(glm::vec3 size, BlockLocation location);
 	bool IsTopLocation();
+	bool IsFloor();
 };

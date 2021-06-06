@@ -16,6 +16,7 @@
 #include "AsterTypes.h"
 
 #include "Entity/Block.h"
+#include "Entity/Building.h"
 #include "Entity/Door.h"
 #include "Entity/Player.h"
 #include "Entity/SpikeEnemy.h"
@@ -119,7 +120,173 @@ std::shared_ptr<Player> Level::GetPlayer()
 void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
 {
     int height = static_cast<int>(Tiles.size());
-    int width = static_cast<int>(Tiles[0].size()); // note we can index vector at [0] since this function is only called if height > 0
+    int width = static_cast<int>(Tiles[0].size());
+    std::vector<std::vector<ActorType> > actorTypes(height, std::vector<ActorType>(width, ActorType::NONE));
+    std::vector<std::tuple<int, int> > doorCoordinates;
+
+    for (int y = 0; y < height; ++y)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            if (Tiles[y][x] == 1)
+            {
+                actorTypes[y][x] = ActorType::DESTROYABLE_BLOCK;
+            }
+            else if (Tiles[y][x] == 2)
+            {
+                actorTypes[y][x] = ActorType::BLOCK;
+            }
+            else if (Tiles[y][x] == 3)
+            {
+                actorTypes[y][x] = ActorType::DOOR;
+                doorCoordinates.push_back(std::make_tuple(x, y));
+            }
+        }
+    }
+
+    for (auto coords : doorCoordinates)
+    {
+        std::shared_ptr<Actor> building = CreateBuilding(coords, actorTypes, levelWidth, levelHeight);
+        Actors.push_back(building);
+    }
+
+    CreateActors(actorTypes, Actors, levelWidth, levelHeight);
+}
+
+std::shared_ptr<Actor> Level::CreateBuilding(std::tuple<int, int> coords,
+                                             std::vector<std::vector<ActorType> > &actorTypes,
+                                             unsigned int levelWidth,
+                                             unsigned int levelHeight)
+{
+    int height = static_cast<int>(Tiles.size());
+    int width = static_cast<int>(Tiles[0].size());
+    float unit_width = levelWidth / static_cast<float>(width);
+    float unit_height = levelHeight / static_cast<float>(height);
+
+    bool isBuildingProcessed = false;
+    std::vector<std::vector<ActorType> > buildingActorsTypes(height, std::vector<ActorType>(width, ActorType::NONE));
+    std::vector<std::tuple<int, int, bool> > knownPositions;
+    knownPositions.push_back(std::make_tuple(get<0>(coords), get<1>(coords), true));
+
+    std::tuple<int, int> currentCoords = std::make_tuple(
+        get<0>(coords),
+        get<1>(coords));
+
+    while (!isBuildingProcessed)
+    {
+        int x = get<0>(currentCoords);
+        int y = get<1>(currentCoords);
+        buildingActorsTypes[y][x] = actorTypes[y][x];
+
+        DebugBuildingPath(buildingActorsTypes, x, y);
+
+        actorTypes[y][x] = ActorType::NONE;
+
+        std::tuple<int, int, bool> nextTileCoords = GetNextTileCoords(x, y, actorTypes, knownPositions, 0);
+        
+        get<0>(currentCoords) = get<0>(nextTileCoords);
+        get<1>(currentCoords) = get<1>(nextTileCoords);
+
+        if (get<0>(currentCoords) == -1)
+        {
+            isBuildingProcessed = true;
+        }
+    }
+
+    std::list<std::shared_ptr<Actor> > buildingActors;
+    CreateActors(buildingActorsTypes, buildingActors, levelWidth, levelHeight);
+
+    glm::vec2 doorPosition(unit_width * get<0>(coords), unit_height * get<1>(coords));
+    glm::vec3 doorSize(unit_width, unit_height, 0.0f);
+    auto doorSprite = std::make_unique<Sprite>("door");
+    auto floorSprite = std::make_unique<Sprite>("block");
+    glm::vec4 floorColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
+    std::shared_ptr<Actor> building = std::make_shared<Building>(
+        doorPosition, doorSize, std::move(doorSprite), std::move(floorSprite), floorColor, buildingActors);
+    return building;
+}
+
+std::tuple<int, int, bool> Level::GetNextTileCoords(int x,
+                                                    int y,
+                                                    std::vector<std::vector<ActorType> > grid,
+                                                    std::vector<std::tuple<int, int, bool> > &knownPositions,
+                                                    int directionIndex)
+{
+    auto nextCoords = std::make_tuple(x + DIRECTIONS[directionIndex][0],
+                                      y + DIRECTIONS[directionIndex][1],
+                                      true);
+    auto nextX = get<0>(nextCoords);
+    auto nextY = get<1>(nextCoords);
+    ActorType tileActor = grid[nextY][nextX];
+
+    // Debug next tile
+    // std::cout << "(" << nextX << ", " << nextY << ") ";
+
+    auto areNextCoordsKnown = [&nextCoords](const auto position)
+    {
+        return get<0>(position) == get<0>(nextCoords) &&
+               get<1>(position) == get<1>(nextCoords);
+    };
+
+    auto foundPosition = std::find_if(knownPositions.begin(), knownPositions.end(), areNextCoordsKnown);
+    if (foundPosition == knownPositions.end())
+    {
+        if (tileActor == ActorType::BLOCK || tileActor == ActorType::DOOR)
+        {
+            knownPositions.push_back(nextCoords);
+            return nextCoords;
+        }
+        else
+        {
+            get<2>(nextCoords) = false;
+            knownPositions.push_back(nextCoords);
+        }
+    }
+
+    if (foundPosition == knownPositions.begin() && directionIndex == 3)
+    {
+        return std::make_tuple(-1, -1, false);
+    }
+    else if (directionIndex < 3)
+    {
+        return GetNextTileCoords(x, y, grid, knownPositions, ++directionIndex);
+    }
+    else
+    {
+        auto directions = DIRECTIONS;
+        auto isLastBlock = [&foundPosition, directionIndex, directions](const auto position)
+        {
+            return get<0>(position) == get<0>(*foundPosition) - directions[directionIndex][0] &&
+                   get<1>(position) == get<1>(*foundPosition) - directions[directionIndex][1];
+        };
+        auto lastBlockPosition = std::find_if(knownPositions.begin(), knownPositions.end(), isLastBlock);
+        get<2>(*lastBlockPosition) = false;
+        int tileIndex = foundPosition - knownPositions.begin();
+        if (tileIndex > 0)
+        {
+            std::tuple<int, int, bool> previousPosition;
+            do
+            {
+                --tileIndex;
+                previousPosition = knownPositions[tileIndex];
+            } while (get<2>(previousPosition) == false && tileIndex > 0);
+
+            return GetNextTileCoords(get<0>(previousPosition), get<1>(previousPosition), grid, knownPositions, 0);
+        }
+        else
+        {
+            return std::make_tuple(-1, -1, false);
+        }
+    }
+}
+
+void Level::CreateActors(std::vector<std::vector<ActorType> > actorTypes,
+                         std::list<std::shared_ptr<Actor> > &actors,
+                         unsigned int levelWidth,
+                         unsigned int levelHeight)
+{
+    int height = static_cast<int>(Tiles.size());
+    int width = static_cast<int>(Tiles[0].size());
     float unit_width = levelWidth / static_cast<float>(width);
     float unit_height = levelHeight / static_cast<float>(height);
 
@@ -128,39 +295,61 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
         for (int x = 0; x < width; ++x)
         {
             // check block type from level data (2D level array)
-            if (Tiles[y][x] == 1) // destroyable
+            if (actorTypes[y][x] == ActorType::DESTROYABLE_BLOCK)
             {
-                glm::vec2 pos(unit_width * x, unit_height * y);
-                glm::vec3 size(unit_width, unit_height, 0.0f);
-                auto blockSprite = std::make_unique<Sprite>("block");
-                std::shared_ptr<Actor> blockActor = std::make_shared<Block>(
-                    pos, size, std::move(blockSprite), glm::vec4(0.9f, 0.9f, 1.0f, 1.0f));
-                blockActor->IsDestroyable = true;
-                Actors.push_back(blockActor);
+                std::shared_ptr<Actor> blockActor = CreateDestroyableBlock(unit_width, unit_height, x, y);
+                actors.push_back(blockActor);
             }
-            else if (Tiles[y][x] == 2) // non-destroyable; now determine its color based on level data
+            else if (actorTypes[y][x] == ActorType::BLOCK)
             {
-                glm::vec4 color = glm::vec4(1.0f);
-                glm::vec2 pos(unit_width * x, unit_height * y);
-                glm::vec3 size(unit_width, unit_height, 0.0f);
-                BlockLocation location = GetBlockLocation(x, y);
-                auto blockSprite = GetBlockSprite(location);
-                std::shared_ptr<Block> blockPtr = std::make_shared<Block>(
-                    pos, size, std::move(blockSprite), color, location);
-                Actors.push_back(blockPtr);
+                std::shared_ptr<Actor> blockActor = CreateBlock(unit_width, unit_height, x, y);
+                actors.push_back(blockActor);
             }
-            else if (Tiles[y][x] == 3) // door
+            else if (actorTypes[y][x] == ActorType::DOOR)
             {
-                glm::vec2 pos(unit_width * x, unit_height * y);
-                glm::vec3 size(unit_width, unit_height, 0.0f);
-                auto doorSprite = std::make_unique<Sprite>("door");
-                std::shared_ptr<Actor> doorActor = std::make_shared<Door>(
-                    pos, size, std::move(doorSprite), glm::vec4(1.0f));
-                doorActor->IsDestroyable = true;
-                Actors.push_back(doorActor);
+                std::shared_ptr<Actor> doorActor = CreateDoor(unit_width, unit_height, x, y);
+                actors.push_back(doorActor);
             }
         }
     }
+}
+
+std::shared_ptr<Actor> Level::CreateDestroyableBlock(float unit_width, float unit_height, int x, int y)
+{
+    glm::vec2 pos(unit_width * x, unit_height * y);
+    glm::vec3 size(unit_width, unit_height, 0.0f);
+    auto blockSprite = std::make_unique<Sprite>("block");
+    glm::vec4 color = glm::vec4(0.9f, 0.9f, 1.0f, 1.0f);
+    std::shared_ptr<Actor> blockActor = std::make_shared<Block>(
+        pos, size, std::move(blockSprite), color);
+    blockActor->IsDestroyable = true;
+
+    return blockActor;
+}
+
+std::shared_ptr<Actor> Level::CreateBlock(float unit_width, float unit_height, int x, int y)
+{
+    glm::vec2 pos(unit_width * x, unit_height * y);
+    glm::vec3 size(unit_width, unit_height, 0.0f);
+    BlockLocation location = GetBlockLocation(x, y);
+    auto blockSprite = GetBlockSprite(location);
+    glm::vec4 color = glm::vec4(1.0f);
+    std::shared_ptr<Actor> blockActor = std::make_shared<Block>(
+        pos, size, std::move(blockSprite), color, location);
+
+    return blockActor;
+}
+
+std::shared_ptr<Actor> Level::CreateDoor(float unit_width, float unit_height, int x, int y)
+{
+    glm::vec2 pos(unit_width * x, unit_height * y);
+    glm::vec3 size(unit_width, unit_height, 0.0f);
+    auto blockSprite = std::make_unique<Sprite>("door");
+    glm::vec4 color = glm::vec4(1.0f);
+    std::shared_ptr<Actor> doorActor = std::make_shared<Door>(
+        pos, size, std::move(blockSprite), color);
+
+    return doorActor;
 }
 
 BlockLocation Level::GetBlockLocation(int x, int y)
@@ -355,9 +544,7 @@ void Level::InitPowerUps()
     {
         std::string powerUpName = powerUp["type"].get<std::string>();
         InitPowerUp(powerUpName, powerUp);
-    glm::vec4 color = glm::vec4(1.0f);
     }
-    glm::vec4 color = glm::vec4(1.0f);
 }
 
 void Level::InitPowerUp(std::string name, nlohmann::json &info)
@@ -399,4 +586,32 @@ void Level::CreatePlayer(glm::vec2 playerPosition)
 
     Character = std::make_shared<Player>(playerPosition, charScale, std::move(playerSprite));
     Actors.push_back(Character);
+}
+
+void Level::DebugBuildingPath(std::vector<std::vector<ActorType> > buildingActorsTypes, int x, int y)
+{
+    int i = 0;
+    int j = 0;
+    for (auto line : buildingActorsTypes)
+    {
+        for (auto cell : line)
+        {
+            std::string symbol;
+            if (x == i && y == j)
+                symbol = "o";
+            else if (cell == ActorType::NONE)
+                symbol = ".";
+            else
+                symbol = "x";
+            std::cout << symbol << " ";
+
+            i++;
+        }
+
+        std::cout << endl;
+
+        j++;
+        i = 0;
+    }
+    std::cout << "//////////////////////" << endl;
 }
