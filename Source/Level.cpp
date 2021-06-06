@@ -163,35 +163,14 @@ std::shared_ptr<Actor> Level::CreateBuilding(std::tuple<int, int> coords,
     float unit_width = levelWidth / static_cast<float>(width);
     float unit_height = levelHeight / static_cast<float>(height);
 
-    bool isBuildingProcessed = false;
     std::vector<std::vector<ActorType> > buildingActorsTypes(height, std::vector<ActorType>(width, ActorType::NONE));
     std::vector<std::tuple<int, int, bool> > knownPositions;
     knownPositions.push_back(std::make_tuple(get<0>(coords), get<1>(coords), true));
 
-    std::tuple<int, int> currentCoords = std::make_tuple(
-        get<0>(coords),
-        get<1>(coords));
-
-    while (!isBuildingProcessed)
-    {
-        int x = get<0>(currentCoords);
-        int y = get<1>(currentCoords);
-        buildingActorsTypes[y][x] = actorTypes[y][x];
-
-        DebugBuildingPath(buildingActorsTypes, x, y);
-
-        actorTypes[y][x] = ActorType::NONE;
-
-        std::tuple<int, int, bool> nextTileCoords = GetNextTileCoords(x, y, actorTypes, knownPositions, 0);
-        
-        get<0>(currentCoords) = get<0>(nextTileCoords);
-        get<1>(currentCoords) = get<1>(nextTileCoords);
-
-        if (get<0>(currentCoords) == -1)
-        {
-            isBuildingProcessed = true;
-        }
-    }
+    PreprocessBuildingActor(coords,
+                            buildingActorsTypes,
+                            actorTypes,
+                            knownPositions);
 
     std::list<std::shared_ptr<Actor> > buildingActors;
     CreateActors(buildingActorsTypes, buildingActors, levelWidth, levelHeight);
@@ -206,12 +185,45 @@ std::shared_ptr<Actor> Level::CreateBuilding(std::tuple<int, int> coords,
     return building;
 }
 
+void Level::PreprocessBuildingActor(std::tuple<int, int> coords,
+                                    std::vector<std::vector<ActorType> > &buildingActorsTypes,
+                                    std::vector<std::vector<ActorType> > &actorTypes,
+                                    std::vector<std::tuple<int, int, bool> > &knownPositions)
+{
+    std::tuple<int, int> currentCoords = std::make_tuple(
+        get<0>(coords),
+        get<1>(coords));
+
+    bool isBuildingProcessed = false;
+
+    while (!isBuildingProcessed)
+    {
+        int x = get<0>(currentCoords);
+        int y = get<1>(currentCoords);
+        buildingActorsTypes[y][x] = actorTypes[y][x];
+        actorTypes[y][x] = ActorType::NONE;
+
+        // DebugBuildingPath(buildingActorsTypes, x, y);
+
+        std::tuple<int, int, bool> nextTileCoords = GetNextTileCoords(x, y, actorTypes, knownPositions, 0);
+
+        get<0>(currentCoords) = get<0>(nextTileCoords);
+        get<1>(currentCoords) = get<1>(nextTileCoords);
+
+        if (currentCoords == NO_TILE_COORDS)
+        {
+            isBuildingProcessed = true;
+        }
+    }
+}
+
 std::tuple<int, int, bool> Level::GetNextTileCoords(int x,
                                                     int y,
                                                     std::vector<std::vector<ActorType> > grid,
                                                     std::vector<std::tuple<int, int, bool> > &knownPositions,
                                                     int directionIndex)
 {
+    // next coords to test (x, y, shouldContinueTestingDirections)
     auto nextCoords = std::make_tuple(x + DIRECTIONS[directionIndex][0],
                                       y + DIRECTIONS[directionIndex][1],
                                       true);
@@ -222,13 +234,9 @@ std::tuple<int, int, bool> Level::GetNextTileCoords(int x,
     // Debug next tile
     // std::cout << "(" << nextX << ", " << nextY << ") ";
 
-    auto areNextCoordsKnown = [&nextCoords](const auto position)
-    {
-        return get<0>(position) == get<0>(nextCoords) &&
-               get<1>(position) == get<1>(nextCoords);
-    };
+    auto foundPosition = FindKnownPosition(nextCoords, knownPositions);
 
-    auto foundPosition = std::find_if(knownPositions.begin(), knownPositions.end(), areNextCoordsKnown);
+    // if next tile is unknown
     if (foundPosition == knownPositions.end())
     {
         if (tileActor == ActorType::BLOCK || tileActor == ActorType::DOOR)
@@ -238,46 +246,74 @@ std::tuple<int, int, bool> Level::GetNextTileCoords(int x,
         }
         else
         {
+            // if not block or door, don't test any direction from this tile
             get<2>(nextCoords) = false;
             knownPositions.push_back(nextCoords);
         }
     }
 
-    if (foundPosition == knownPositions.begin() && directionIndex == 3)
-    {
-        return std::make_tuple(-1, -1, false);
-    }
-    else if (directionIndex < 3)
+    // if not all directions tested, test next direction
+    if (directionIndex < 3)
     {
         return GetNextTileCoords(x, y, grid, knownPositions, ++directionIndex);
     }
+    // if all directions tested, test new directions of previous tiles
     else
     {
-        auto directions = DIRECTIONS;
-        auto isLastBlock = [&foundPosition, directionIndex, directions](const auto position)
-        {
-            return get<0>(position) == get<0>(*foundPosition) - directions[directionIndex][0] &&
-                   get<1>(position) == get<1>(*foundPosition) - directions[directionIndex][1];
-        };
-        auto lastBlockPosition = std::find_if(knownPositions.begin(), knownPositions.end(), isLastBlock);
-        get<2>(*lastBlockPosition) = false;
         int tileIndex = foundPosition - knownPositions.begin();
-        if (tileIndex > 0)
+        // if at the origin, finish building actors
+        if (tileIndex == 0)
         {
-            std::tuple<int, int, bool> previousPosition;
-            do
-            {
-                --tileIndex;
-                previousPosition = knownPositions[tileIndex];
-            } while (get<2>(previousPosition) == false && tileIndex > 0);
-
-            return GetNextTileCoords(get<0>(previousPosition), get<1>(previousPosition), grid, knownPositions, 0);
+            return NO_TILE_COORDS;
         }
         else
         {
-            return std::make_tuple(-1, -1, false);
+            SetAllDirectionsTestedForLastBlockTile(foundPosition, directionIndex, knownPositions);
+            auto previousPosition = GetPreviousPosition(knownPositions, tileIndex);
+            return GetNextTileCoords(get<0>(previousPosition), get<1>(previousPosition), grid, knownPositions, 0);
         }
     }
+}
+
+std::vector<std::tuple<int, int, bool> >::iterator Level::FindKnownPosition(
+    std::tuple<int, int, bool> &nextCoords,
+    std::vector<std::tuple<int, int, bool> > &knownPositions)
+{
+    auto areNextCoordsKnown = [&nextCoords](const auto position)
+    {
+        return get<0>(position) == get<0>(nextCoords) &&
+               get<1>(position) == get<1>(nextCoords);
+    };
+
+    return std::find_if(knownPositions.begin(), knownPositions.end(), areNextCoordsKnown);
+}
+
+void Level::SetAllDirectionsTestedForLastBlockTile(
+    std::vector<std::tuple<int, int, bool> >::iterator &foundPosition,
+    int directionIndex,
+    std::vector<std::tuple<int, int, bool> > &knownPositions)
+{
+    auto directions = DIRECTIONS;
+    auto isLastBlock = [&foundPosition, directionIndex, directions](const auto position)
+    {
+        return get<0>(position) == get<0>(*foundPosition) - directions[directionIndex][0] &&
+               get<1>(position) == get<1>(*foundPosition) - directions[directionIndex][1];
+    };
+    auto lastBlockPosition = std::find_if(knownPositions.begin(), knownPositions.end(), isLastBlock);
+    get<2>(*lastBlockPosition) = false;
+}
+
+std::tuple<int, int, bool> Level::GetPreviousPosition(std::vector<std::tuple<int, int, bool> > &knownPositions,
+                                                      int tileIndex)
+{
+    std::tuple<int, int, bool> previousPosition;
+    do
+    {
+        --tileIndex;
+        previousPosition = knownPositions[tileIndex];
+    } while (get<2>(previousPosition) == false && tileIndex > 0);
+
+    return previousPosition;
 }
 
 void Level::CreateActors(std::vector<std::vector<ActorType> > actorTypes,

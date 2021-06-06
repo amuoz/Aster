@@ -74,6 +74,8 @@ private:
         {1, 0},
         {0, 1}};
 
+    std::tuple<int, int, bool> NO_TILE_COORDS = std::make_tuple(-1, -1, false);
+
     void LoadTiles();
     void InitBlocks(unsigned int levelWidth, unsigned int levelHeight);
     void InitEnemies();
@@ -93,15 +95,27 @@ private:
                       std::list<std::shared_ptr<Actor> > &actors,
                       unsigned int levelWidth,
                       unsigned int levelHeight);
+
     std::shared_ptr<Actor> CreateBuilding(std::tuple<int, int> coords,
                                           std::vector<std::vector<ActorType> > &actorTypes,
                                           unsigned int levelWidth,
                                           unsigned int levelHeight);
+    void PreprocessBuildingActor(std::tuple<int, int> coords,
+                                 std::vector<std::vector<ActorType> > &buildingActorsTypes,
+                                 std::vector<std::vector<ActorType> > &actorTypes,
+                                 std::vector<std::tuple<int, int, bool> > &knownPositions);
     std::tuple<int, int, bool> GetNextTileCoords(int x,
-                                           int y,
-                                           std::vector<std::vector<ActorType> > grid,
-                                           std::vector<std::tuple<int, int, bool> > &knownPositions,
-                                           int directionIndex);
+                                                 int y,
+                                                 std::vector<std::vector<ActorType> > grid,
+                                                 std::vector<std::tuple<int, int, bool> > &knownPositions,
+                                                 int directionIndex);
+    std::vector<std::tuple<int, int, bool> >::iterator FindKnownPosition(std::tuple<int, int, bool> &nextCoords,
+                                                                         std::vector<std::tuple<int, int, bool> > &knownPositions);
+    void SetAllDirectionsTestedForLastBlockTile(std::vector<std::tuple<int, int, bool> >::iterator &foundPosition,
+                                                int directionIndex,
+                                                std::vector<std::tuple<int, int, bool> > &knownPositions);
+    std::tuple<int, int, bool> GetPreviousPosition(std::vector<std::tuple<int, int, bool> > &knownPositions,
+                                                   int tileIndex);
     std::shared_ptr<Actor> CreateDestroyableBlock(float unit_width, float unit_height, int x, int y);
     std::shared_ptr<Actor> CreateBlock(float unit_width, float unit_height, int x, int y);
     std::shared_ptr<Actor> CreateDoor(float unit_width, float unit_height, int x, int y);
