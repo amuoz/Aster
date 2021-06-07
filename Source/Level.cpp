@@ -217,6 +217,21 @@ void Level::PreprocessBuildingActor(std::tuple<int, int> coords,
     }
 }
 
+/**
+ * Tile traversing algorithm for buildings.
+ *
+ * Returns the next tile for a building to store in the list of building actors.
+ *
+ * @param x
+ * @param y Coords of the current building tile (starting at the door).
+ * @param actorTypesGrid Matrix with all actor types in the level by coords
+ * @param knownPositions Already visited tiles by this algorithm
+ * @param directionIndex direction to test from current coords for the next tile
+ * 
+ * @return tuple with the coords for the next building tile to be stored
+ *         or
+ *         tuple with (-1, -1) to indicate end of the building.
+ */
 std::tuple<int, int, bool> Level::GetNextTileCoords(int x,
                                                     int y,
                                                     std::vector<std::vector<ActorType> > grid,
