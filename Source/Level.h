@@ -13,6 +13,8 @@ class Actor;
 class SpriteRenderer;
 class Player;
 class Sprite;
+class BuildingManager;
+class TileBuilder;
 
 /* Level holds all Tiles as part of a level and 
  * hosts functionality to Load/render levels from the harddisk.
@@ -21,11 +23,11 @@ class Level
 {
 public:
     // constructor
-    Level();
+    Level(std::shared_ptr<BuildingManager> buildingManager, std::shared_ptr<TileBuilder> tileBuilder);
     ~Level();
 
     // loads level from file
-    void Load(std::string file, unsigned int levelWidth, unsigned int levelHeight);
+    void Load(std::string file);
 
     void Update(float deltaTime, glm::vec4 playerAttackHitbox);
 
@@ -43,41 +45,18 @@ private:
     std::vector<std::vector<int> > InteriorTiles;
     std::shared_ptr<Player> Character;
     std::list<std::shared_ptr<Actor> > Actors;
-
-    std::map<BlockLocation, std::string> BLOCK_SPRITES = {
-        {BlockLocation::BOTTOM_LEFT, "block_corner_left"},
-        {BlockLocation::BOTTOM_RIGHT, "block_corner_right"},
-        {BlockLocation::BOTTOM, "block_bottom"},
-        {BlockLocation::LEFT, "block_side_left"},
-        {BlockLocation::RIGHT, "block_side_right"},
-        {BlockLocation::MIDDLE, "block"},
-        {BlockLocation::TOP_LEFT, "block_top_left"},
-        {BlockLocation::TOP_RIGHT, "block_top_right"},
-        {BlockLocation::TOP, "block_top"}};
+    std::shared_ptr<BuildingManager> RoomsManager;
+    std::shared_ptr<TileBuilder> MapBuilder;
+    int NumOfTilesX;
+    int NumOfTilesY;
 
     std::map<std::string, PowerUpType> POWER_UPS = {
         {"sword_powerup", PowerUpType::SWORD},
         {"spear_powerup", PowerUpType::SPEAR},
         {"hammer_powerup", PowerUpType::HAMMER}};
 
-    enum class ActorType
-    {
-        NONE,
-        DESTROYABLE_BLOCK,
-        BLOCK,
-        DOOR
-    };
-
-    std::vector<std::vector<int> > DIRECTIONS = {
-        {-1, 0},
-        {0, -1},
-        {1, 0},
-        {0, 1}};
-
-    std::tuple<int, int, bool> NO_TILE_COORDS = std::make_tuple(-1, -1, false);
-
     void LoadTiles();
-    void InitBlocks(unsigned int levelWidth, unsigned int levelHeight);
+    void InitBlocks();
     void InitEnemies();
     void InitSpike(nlohmann::json &enemyInfo);
     void InitPowerUps();
@@ -85,39 +64,4 @@ private:
 
     void CreatePlayer(glm::vec2 playerPosition);
     glm::vec2 GetPlayerPosition();
-    BlockLocation GetBlockLocation(int x, int y);
-    BlockLocation GetBlockLocationByNeighbors(int top, int bottom, int left, int right);
-    std::unique_ptr<Sprite> GetBlockSprite(BlockLocation location);
-    void TopBlocks(int &top, int &bottom, int &left, int &right, int x, int y);
-    void BottomBlocks(int &top, int &bottom, int &left, int &right, int x, int y);
-    void MiddleBlocks(int &top, int &bottom, int &left, int &right, int x, int y);
-    void CreateActors(std::vector<std::vector<ActorType> > actorTypes,
-                      std::list<std::shared_ptr<Actor> > &actors,
-                      unsigned int levelWidth,
-                      unsigned int levelHeight);
-
-    std::shared_ptr<Actor> CreateBuilding(std::tuple<int, int> coords,
-                                          std::vector<std::vector<ActorType> > &actorTypes,
-                                          unsigned int levelWidth,
-                                          unsigned int levelHeight);
-    void PreprocessBuildingActor(std::tuple<int, int> coords,
-                                 std::vector<std::vector<ActorType> > &buildingActorsTypes,
-                                 std::vector<std::vector<ActorType> > &actorTypes,
-                                 std::vector<std::tuple<int, int, bool> > &knownPositions);
-    std::tuple<int, int, bool> GetNextTileCoords(int x,
-                                                 int y,
-                                                 std::vector<std::vector<ActorType> > grid,
-                                                 std::vector<std::tuple<int, int, bool> > &knownPositions,
-                                                 int directionIndex);
-    std::vector<std::tuple<int, int, bool> >::iterator FindKnownPosition(std::tuple<int, int, bool> &nextCoords,
-                                                                         std::vector<std::tuple<int, int, bool> > &knownPositions);
-    void SetAllDirectionsTestedForLastBlockTile(std::vector<std::tuple<int, int, bool> >::iterator &foundPosition,
-                                                int directionIndex,
-                                                std::vector<std::tuple<int, int, bool> > &knownPositions);
-    std::tuple<int, int, bool> GetPreviousPosition(std::vector<std::tuple<int, int, bool> > &knownPositions,
-                                                   int tileIndex);
-    std::shared_ptr<Actor> CreateDestroyableBlock(float unit_width, float unit_height, int x, int y);
-    std::shared_ptr<Actor> CreateBlock(float unit_width, float unit_height, int x, int y);
-    std::shared_ptr<Actor> CreateDoor(float unit_width, float unit_height, int x, int y);
-    void DebugBuildingPath(std::vector<std::vector<ActorType> > buildingActorsTypes, int x, int y);
 };

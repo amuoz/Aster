@@ -5,7 +5,6 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
-#include <list>
 #include <utility>
 #include <string>
 #include <algorithm>
@@ -14,23 +13,24 @@
 #include "Config.h"
 #include "Sprite.h"
 #include "AsterTypes.h"
+#include "BuildingManager.h"
+#include "TileBuilder.h"
 
-#include "Entity/Block.h"
-#include "Entity/Building.h"
-#include "Entity/Door.h"
 #include "Entity/Player.h"
 #include "Entity/SpikeEnemy.h"
 #include "Entity/PowerUp.h"
 
-Level::Level()
+Level::Level(std::shared_ptr<BuildingManager> buildingManager, std::shared_ptr<TileBuilder> tileBuilder)
 {
+    RoomsManager = buildingManager;
+    MapBuilder = tileBuilder;
 }
 
 Level::~Level()
 {
 }
 
-void Level::Load(std::string file, unsigned int levelWidth, unsigned int levelHeight)
+void Level::Load(std::string file)
 {
     // clear old data
     Actors.clear();
@@ -39,7 +39,7 @@ void Level::Load(std::string file, unsigned int levelWidth, unsigned int levelHe
     LevelInfo = nlohmann::json::parse(in);
 
     LoadTiles();
-    InitBlocks(levelWidth, levelHeight);
+    InitBlocks();
     // Create player and add it to shared reference
     CreatePlayer(GetPlayerPosition());
     InitPowerUps();
@@ -50,6 +50,7 @@ void Level::LoadTiles()
 {
     auto &tiles = LevelInfo["tiles"];
     unsigned int i = 0;
+
     for (std::string line : tiles)
     {
         std::vector<int> lineNumbers;
@@ -65,6 +66,11 @@ void Level::LoadTiles()
         Tiles.push_back(lineNumbers);
         i = i + 1;
     }
+
+    NumOfTilesX = static_cast<int>(Tiles[0].size());
+    NumOfTilesY = static_cast<int>(Tiles.size());
+    RoomsManager->SetLevelSize(NumOfTilesX, NumOfTilesY);
+    MapBuilder->SetLevelSize(NumOfTilesX, NumOfTilesY);
 }
 
 void Level::Update(float deltaTime, glm::vec4 playerAttackHitbox)
@@ -117,16 +123,14 @@ std::shared_ptr<Player> Level::GetPlayer()
     return Character;
 }
 
-void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
+void Level::InitBlocks()
 {
-    int height = static_cast<int>(Tiles.size());
-    int width = static_cast<int>(Tiles[0].size());
-    std::vector<std::vector<ActorType> > actorTypes(height, std::vector<ActorType>(width, ActorType::NONE));
+    std::vector<std::vector<ActorType> > actorTypes(NumOfTilesY, std::vector<ActorType>(NumOfTilesX, ActorType::NONE));
     std::vector<std::tuple<int, int> > doorCoordinates;
 
-    for (int y = 0; y < height; ++y)
+    for (int y = 0; y < NumOfTilesY; ++y)
     {
-        for (int x = 0; x < width; ++x)
+        for (int x = 0; x < NumOfTilesX; ++x)
         {
             if (Tiles[y][x] == 1)
             {
@@ -146,404 +150,11 @@ void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
 
     for (auto coords : doorCoordinates)
     {
-        std::shared_ptr<Actor> building = CreateBuilding(coords, actorTypes, levelWidth, levelHeight);
+        std::shared_ptr<Actor> building = RoomsManager->CreateBuilding(coords, actorTypes, Tiles);
         Actors.push_back(building);
     }
 
-    CreateActors(actorTypes, Actors, levelWidth, levelHeight);
-}
-
-std::shared_ptr<Actor> Level::CreateBuilding(std::tuple<int, int> coords,
-                                             std::vector<std::vector<ActorType> > &actorTypes,
-                                             unsigned int levelWidth,
-                                             unsigned int levelHeight)
-{
-    int height = static_cast<int>(Tiles.size());
-    int width = static_cast<int>(Tiles[0].size());
-    float unit_width = levelWidth / static_cast<float>(width);
-    float unit_height = levelHeight / static_cast<float>(height);
-
-    std::vector<std::vector<ActorType> > buildingActorsTypes(height, std::vector<ActorType>(width, ActorType::NONE));
-    std::vector<std::tuple<int, int, bool> > knownPositions;
-    knownPositions.push_back(std::make_tuple(get<0>(coords), get<1>(coords), true));
-
-    PreprocessBuildingActor(coords,
-                            buildingActorsTypes,
-                            actorTypes,
-                            knownPositions);
-
-    std::list<std::shared_ptr<Actor> > buildingActors;
-    CreateActors(buildingActorsTypes, buildingActors, levelWidth, levelHeight);
-
-    glm::vec2 doorPosition(unit_width * get<0>(coords), unit_height * get<1>(coords));
-    glm::vec3 doorSize(unit_width, unit_height, 0.0f);
-    auto doorSprite = std::make_unique<Sprite>("door");
-    auto floorSprite = std::make_unique<Sprite>("block");
-    glm::vec4 floorColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
-    std::shared_ptr<Actor> building = std::make_shared<Building>(
-        doorPosition, doorSize, std::move(doorSprite), std::move(floorSprite), floorColor, buildingActors);
-    return building;
-}
-
-void Level::PreprocessBuildingActor(std::tuple<int, int> coords,
-                                    std::vector<std::vector<ActorType> > &buildingActorsTypes,
-                                    std::vector<std::vector<ActorType> > &actorTypes,
-                                    std::vector<std::tuple<int, int, bool> > &knownPositions)
-{
-    std::tuple<int, int> currentCoords = std::make_tuple(
-        get<0>(coords),
-        get<1>(coords));
-
-    bool isBuildingProcessed = false;
-
-    while (!isBuildingProcessed)
-    {
-        int x = get<0>(currentCoords);
-        int y = get<1>(currentCoords);
-        buildingActorsTypes[y][x] = actorTypes[y][x];
-        actorTypes[y][x] = ActorType::NONE;
-
-        // DebugBuildingPath(buildingActorsTypes, x, y);
-
-        std::tuple<int, int, bool> nextTileCoords = GetNextTileCoords(x, y, actorTypes, knownPositions, 0);
-
-        get<0>(currentCoords) = get<0>(nextTileCoords);
-        get<1>(currentCoords) = get<1>(nextTileCoords);
-
-        if (currentCoords == NO_TILE_COORDS)
-        {
-            isBuildingProcessed = true;
-        }
-    }
-}
-
-/**
- * Tile traversing algorithm for buildings.
- *
- * Returns the next tile for a building to store in the list of building actors.
- *
- * @param x
- * @param y Coords of the current building tile (starting at the door).
- * @param actorTypesGrid Matrix with all actor types in the level by coords
- * @param knownPositions Already visited tiles by this algorithm
- * @param directionIndex direction to test from current coords for the next tile
- * 
- * @return tuple with the coords for the next building tile to be stored
- *         or
- *         tuple with (-1, -1) to indicate end of the building.
- */
-std::tuple<int, int, bool> Level::GetNextTileCoords(int x,
-                                                    int y,
-                                                    std::vector<std::vector<ActorType> > grid,
-                                                    std::vector<std::tuple<int, int, bool> > &knownPositions,
-                                                    int directionIndex)
-{
-    // next coords to test (x, y, shouldContinueTestingDirections)
-    auto nextCoords = std::make_tuple(x + DIRECTIONS[directionIndex][0],
-                                      y + DIRECTIONS[directionIndex][1],
-                                      true);
-    auto nextX = get<0>(nextCoords);
-    auto nextY = get<1>(nextCoords);
-    ActorType tileActor = grid[nextY][nextX];
-
-    // Debug next tile
-    // std::cout << "(" << nextX << ", " << nextY << ") ";
-
-    auto foundPosition = FindKnownPosition(nextCoords, knownPositions);
-
-    // if next tile is unknown
-    if (foundPosition == knownPositions.end())
-    {
-        if (tileActor == ActorType::BLOCK || tileActor == ActorType::DOOR)
-        {
-            knownPositions.push_back(nextCoords);
-            return nextCoords;
-        }
-        else
-        {
-            // if not block or door, don't test any direction from this tile
-            get<2>(nextCoords) = false;
-            knownPositions.push_back(nextCoords);
-        }
-    }
-
-    // if not all directions tested, test next direction
-    if (directionIndex < 3)
-    {
-        return GetNextTileCoords(x, y, grid, knownPositions, ++directionIndex);
-    }
-    // if all directions tested, test new directions of previous tiles
-    else
-    {
-        int tileIndex = foundPosition - knownPositions.begin();
-        // if at the origin, finish building actors
-        if (tileIndex == 0)
-        {
-            return NO_TILE_COORDS;
-        }
-        else
-        {
-            SetAllDirectionsTestedForLastBlockTile(foundPosition, directionIndex, knownPositions);
-            auto previousPosition = GetPreviousPosition(knownPositions, tileIndex);
-            return GetNextTileCoords(get<0>(previousPosition), get<1>(previousPosition), grid, knownPositions, 0);
-        }
-    }
-}
-
-std::vector<std::tuple<int, int, bool> >::iterator Level::FindKnownPosition(
-    std::tuple<int, int, bool> &nextCoords,
-    std::vector<std::tuple<int, int, bool> > &knownPositions)
-{
-    auto areNextCoordsKnown = [&nextCoords](const auto position)
-    {
-        return get<0>(position) == get<0>(nextCoords) &&
-               get<1>(position) == get<1>(nextCoords);
-    };
-
-    return std::find_if(knownPositions.begin(), knownPositions.end(), areNextCoordsKnown);
-}
-
-void Level::SetAllDirectionsTestedForLastBlockTile(
-    std::vector<std::tuple<int, int, bool> >::iterator &foundPosition,
-    int directionIndex,
-    std::vector<std::tuple<int, int, bool> > &knownPositions)
-{
-    auto directions = DIRECTIONS;
-    auto isLastBlock = [&foundPosition, directionIndex, directions](const auto position)
-    {
-        return get<0>(position) == get<0>(*foundPosition) - directions[directionIndex][0] &&
-               get<1>(position) == get<1>(*foundPosition) - directions[directionIndex][1];
-    };
-    auto lastBlockPosition = std::find_if(knownPositions.begin(), knownPositions.end(), isLastBlock);
-    get<2>(*lastBlockPosition) = false;
-}
-
-std::tuple<int, int, bool> Level::GetPreviousPosition(std::vector<std::tuple<int, int, bool> > &knownPositions,
-                                                      int tileIndex)
-{
-    std::tuple<int, int, bool> previousPosition;
-    do
-    {
-        --tileIndex;
-        previousPosition = knownPositions[tileIndex];
-    } while (get<2>(previousPosition) == false && tileIndex > 0);
-
-    return previousPosition;
-}
-
-void Level::CreateActors(std::vector<std::vector<ActorType> > actorTypes,
-                         std::list<std::shared_ptr<Actor> > &actors,
-                         unsigned int levelWidth,
-                         unsigned int levelHeight)
-{
-    int height = static_cast<int>(Tiles.size());
-    int width = static_cast<int>(Tiles[0].size());
-    float unit_width = levelWidth / static_cast<float>(width);
-    float unit_height = levelHeight / static_cast<float>(height);
-
-    for (int y = 0; y < height; ++y)
-    {
-        for (int x = 0; x < width; ++x)
-        {
-            // check block type from level data (2D level array)
-            if (actorTypes[y][x] == ActorType::DESTROYABLE_BLOCK)
-            {
-                std::shared_ptr<Actor> blockActor = CreateDestroyableBlock(unit_width, unit_height, x, y);
-                actors.push_back(blockActor);
-            }
-            else if (actorTypes[y][x] == ActorType::BLOCK)
-            {
-                std::shared_ptr<Actor> blockActor = CreateBlock(unit_width, unit_height, x, y);
-                actors.push_back(blockActor);
-            }
-            else if (actorTypes[y][x] == ActorType::DOOR)
-            {
-                std::shared_ptr<Actor> doorActor = CreateDoor(unit_width, unit_height, x, y);
-                actors.push_back(doorActor);
-            }
-        }
-    }
-}
-
-std::shared_ptr<Actor> Level::CreateDestroyableBlock(float unit_width, float unit_height, int x, int y)
-{
-    glm::vec2 pos(unit_width * x, unit_height * y);
-    glm::vec3 size(unit_width, unit_height, 0.0f);
-    auto blockSprite = std::make_unique<Sprite>("block");
-    glm::vec4 color = glm::vec4(0.9f, 0.9f, 1.0f, 1.0f);
-    std::shared_ptr<Actor> blockActor = std::make_shared<Block>(
-        pos, size, std::move(blockSprite), color);
-    blockActor->IsDestroyable = true;
-
-    return blockActor;
-}
-
-std::shared_ptr<Actor> Level::CreateBlock(float unit_width, float unit_height, int x, int y)
-{
-    glm::vec2 pos(unit_width * x, unit_height * y);
-    glm::vec3 size(unit_width, unit_height, 0.0f);
-    BlockLocation location = GetBlockLocation(x, y);
-    auto blockSprite = GetBlockSprite(location);
-    glm::vec4 color = glm::vec4(1.0f);
-    std::shared_ptr<Actor> blockActor = std::make_shared<Block>(
-        pos, size, std::move(blockSprite), color, location);
-
-    return blockActor;
-}
-
-std::shared_ptr<Actor> Level::CreateDoor(float unit_width, float unit_height, int x, int y)
-{
-    glm::vec2 pos(unit_width * x, unit_height * y);
-    glm::vec3 size(unit_width, unit_height, 0.0f);
-    auto blockSprite = std::make_unique<Sprite>("door");
-    glm::vec4 color = glm::vec4(1.0f);
-    std::shared_ptr<Actor> doorActor = std::make_shared<Door>(
-        pos, size, std::move(blockSprite), color);
-
-    return doorActor;
-}
-
-BlockLocation Level::GetBlockLocation(int x, int y)
-{
-    int top, bottom, left, right;
-
-    if (y == 0)
-    {
-        TopBlocks(top, bottom, left, right, x, y);
-    }
-    else if (y == Tiles.size() - 1)
-    {
-        BottomBlocks(top, bottom, left, right, x, y);
-    }
-    else
-    {
-        MiddleBlocks(top, bottom, left, right, x, y);
-    }
-
-    return GetBlockLocationByNeighbors(top, bottom, left, right);
-}
-
-void Level::TopBlocks(int &top, int &bottom, int &left, int &right, int x, int y)
-{
-    if (x == 0)
-    // left blocks
-    {
-        left = 2;
-        right = Tiles[0][1];
-    }
-    else if (x == Tiles[0].size() - 1)
-    // right blocks
-    {
-        left = Tiles[0][x - 1];
-        right = 2;
-    }
-    else
-    // middle blocks
-    {
-        left = Tiles[0][x - 1];
-        right = Tiles[0][x + 1];
-    }
-
-    top = 2;
-    bottom = Tiles[y + 1][x];
-}
-
-void Level::BottomBlocks(int &top, int &bottom, int &left, int &right, int x, int y)
-{
-    if (x == 0)
-    // left blocks
-    {
-        left = 2;
-        right = Tiles[x][y + 1];
-    }
-    else if (x == Tiles[y].size() - 1)
-    // right blocks
-    {
-        left = Tiles[y][x - 1];
-        right = 2;
-    }
-    else
-    // middle blocks
-    {
-        left = Tiles[y][x - 1];
-        right = Tiles[y][x + 1];
-    }
-
-    top = Tiles[y - 1][x];
-    bottom = 2;
-}
-
-void Level::MiddleBlocks(int &top, int &bottom, int &left, int &right, int x, int y)
-{
-    if (x == 0)
-    // left blocks
-    {
-        left = 2;
-        right = Tiles[y][x + 1];
-    }
-    else if (x == Tiles[y].size() - 1)
-    // right blocks
-    {
-        left = Tiles[y][x - 1];
-        right = 2;
-    }
-    else
-    // middle blocks
-    {
-        left = Tiles[y][x - 1];
-        right = Tiles[y][x + 1];
-    }
-
-    top = Tiles[y - 1][x];
-    bottom = Tiles[y + 1][x];
-}
-
-BlockLocation Level::GetBlockLocationByNeighbors(int top, int bottom, int left, int right)
-{
-    if (bottom < 2)
-    {
-        if (left < 2)
-        {
-            return BlockLocation::BOTTOM_LEFT;
-        }
-        if (right < 2)
-        {
-            return BlockLocation::BOTTOM_RIGHT;
-        }
-
-        return BlockLocation::BOTTOM;
-    }
-
-    if (top < 2)
-    {
-        if (left < 2)
-        {
-            return BlockLocation::TOP_LEFT;
-        }
-        if (right < 2)
-        {
-            return BlockLocation::TOP_RIGHT;
-        }
-
-        return BlockLocation::TOP;
-    }
-
-    if (left < 2)
-    {
-        return BlockLocation::LEFT;
-    }
-    if (right < 2)
-    {
-        return BlockLocation::RIGHT;
-    }
-
-    return BlockLocation::MIDDLE;
-}
-
-std::unique_ptr<Sprite> Level::GetBlockSprite(BlockLocation location)
-{
-    std::string spriteName = BLOCK_SPRITES[location];
-    return std::make_unique<Sprite>(spriteName);
+    MapBuilder->CreateActors(Actors, actorTypes, Tiles);
 }
 
 glm::vec2 Level::GetPlayerPosition()
@@ -637,32 +248,4 @@ void Level::CreatePlayer(glm::vec2 playerPosition)
 
     Character = std::make_shared<Player>(playerPosition, charScale, std::move(playerSprite));
     Actors.push_back(Character);
-}
-
-void Level::DebugBuildingPath(std::vector<std::vector<ActorType> > buildingActorsTypes, int x, int y)
-{
-    int i = 0;
-    int j = 0;
-    for (auto line : buildingActorsTypes)
-    {
-        for (auto cell : line)
-        {
-            std::string symbol;
-            if (x == i && y == j)
-                symbol = "o";
-            else if (cell == ActorType::NONE)
-                symbol = ".";
-            else
-                symbol = "x";
-            std::cout << symbol << " ";
-
-            i++;
-        }
-
-        std::cout << endl;
-
-        j++;
-        i = 0;
-    }
-    std::cout << "//////////////////////" << endl;
 }

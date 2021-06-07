@@ -68,6 +68,13 @@ enum class CollisionResponse {
 	BLOCK
 };
 
+enum class ActorType {
+	NONE,
+	DESTROYABLE_BLOCK,
+	BLOCK,
+	DOOR
+};
+
 namespace Aster {
 	struct Rectangle
 	{
