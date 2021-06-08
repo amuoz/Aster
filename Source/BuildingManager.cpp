@@ -152,7 +152,16 @@ tuple<int, int, bool> BuildingManager::GetNextTileCoords(int x,
     // if all directions tested, test new directions of previous tiles
     else
     {
-        int tileIndex = foundPosition - knownPositions.begin();
+        int tileIndex;
+        if (foundPosition == knownPositions.end())
+        {
+            tileIndex = knownPositions.size() - 1;
+        }
+        else
+        {
+            tileIndex = foundPosition - knownPositions.begin();
+        }
+
         // if at the origin, finish building actors
         if (tileIndex == 0)
         {
