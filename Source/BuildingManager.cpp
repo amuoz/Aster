@@ -37,19 +37,26 @@ void BuildingManager::SetLevelSize(int widthInTiles, int heightInTiles)
 
 shared_ptr<Actor> BuildingManager::CreateBuilding(tuple<int, int> doorCoords,
                                                   vector<vector<ActorType> > &actorTypes,
-                                                  vector<vector<int> > tiles)
+                                                  vector<vector<ActorType> > &interiorActorTypes,
+                                                  vector<vector<int> > tiles,
+                                                  vector<vector<int> > interiorTiles)
 {
-    vector<vector<ActorType> > buildingActorsTypes(NumOfTilesY, vector<ActorType>(NumOfTilesX, ActorType::NONE));
+    vector<vector<ActorType> > buildingActorsTypes(NumOfTilesY,
+                                                   vector<ActorType>(NumOfTilesX, ActorType::NONE));
+    vector<vector<ActorType> > buildingInteriorActorsTypes(NumOfTilesY,
+                                                           vector<ActorType>(NumOfTilesX, ActorType::NONE));
     vector<tuple<int, int, bool> > knownPositions;
     knownPositions.push_back(make_tuple(get<0>(doorCoords), get<1>(doorCoords), true));
 
-    PreprocessBuildingActor(doorCoords,
-                            buildingActorsTypes,
-                            actorTypes,
-                            knownPositions);
+    PreprocessBuildingActors(doorCoords,
+                             buildingActorsTypes, buildingInteriorActorsTypes,
+                             actorTypes, interiorActorTypes,
+                             knownPositions);
 
     list<shared_ptr<Actor> > buildingActors;
+    list<shared_ptr<Actor> > buildingInteriorActors;
     MapBuilder->CreateActors(buildingActors, buildingActorsTypes, tiles);
+    MapBuilder->CreateActors(buildingInteriorActors, buildingInteriorActorsTypes, interiorTiles);
 
     glm::vec2 doorPosition(TileWidth * get<0>(doorCoords), TileHeight * get<1>(doorCoords));
     glm::vec3 doorSize(TileWidth, TileHeight, 0.0f);
@@ -62,10 +69,12 @@ shared_ptr<Actor> BuildingManager::CreateBuilding(tuple<int, int> doorCoords,
     return building;
 }
 
-void BuildingManager::PreprocessBuildingActor(tuple<int, int> doorCoords,
-                                              vector<vector<ActorType> > &buildingActorsTypes,
-                                              vector<vector<ActorType> > &actorTypes,
-                                              vector<tuple<int, int, bool> > &knownPositions)
+void BuildingManager::PreprocessBuildingActors(tuple<int, int> doorCoords,
+                                               vector<vector<ActorType> > &buildingActorsTypes,
+                                               vector<vector<ActorType> > &buildingInteriorActorsTypes,
+                                               vector<vector<ActorType> > &actorTypes,
+                                               vector<vector<ActorType> > &interiorActorTypes,
+                                               vector<tuple<int, int, bool> > &knownPositions)
 {
     tuple<int, int> currentCoords = make_tuple(
         get<0>(doorCoords),
@@ -78,7 +87,9 @@ void BuildingManager::PreprocessBuildingActor(tuple<int, int> doorCoords,
         int x = get<0>(currentCoords);
         int y = get<1>(currentCoords);
         buildingActorsTypes[y][x] = actorTypes[y][x];
+        buildingInteriorActorsTypes[y][x] = interiorActorTypes[y][x];
         actorTypes[y][x] = ActorType::NONE;
+        interiorActorTypes[y][x] = ActorType::NONE;
 
         // DebugBuildingPath(buildingActorsTypes, x, y);
 
@@ -101,7 +112,7 @@ void BuildingManager::PreprocessBuildingActor(tuple<int, int> doorCoords,
  *
  * @param x
  * @param y Coords of the current building tile (starting at the door).
- * @param actorTypesGrid Matrix with all actor types in the level by coords
+ * @param grid Matrix with all actor types in the level by coords
  * @param knownPositions Already visited tiles by this algorithm
  * @param directionIndex direction to test from current coords for the next tile
  * 
@@ -110,10 +121,10 @@ void BuildingManager::PreprocessBuildingActor(tuple<int, int> doorCoords,
  *         tuple with (-1, -1) to indicate end of the building.
  */
 tuple<int, int, bool> BuildingManager::GetNextTileCoords(int x,
-                                                           int y,
-                                                           vector<vector<ActorType> > grid,
-                                                           vector<tuple<int, int, bool> > &knownPositions,
-                                                           int directionIndex)
+                                                         int y,
+                                                         vector<vector<ActorType> > grid,
+                                                         vector<tuple<int, int, bool> > &knownPositions,
+                                                         int directionIndex)
 {
     // next coords to test (x, y, shouldContinueTestingDirections)
     auto nextCoords = make_tuple(x + DIRECTIONS[directionIndex][0],

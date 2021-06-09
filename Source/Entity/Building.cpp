@@ -29,6 +29,14 @@ Building::~Building()
 	//std::cout << "Building destroyed" << std::endl;
 }
 
+void Building::BeginPlay()
+{
+    for (auto &actor : Actors)
+    {
+        actor->BeginPlay();
+    }
+}
+
 void Building::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 {
 	auto iterator = Actors.begin();
@@ -50,6 +58,13 @@ void Building::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 
 void Building::Draw(SpriteRenderer &renderer, double deltaTime)
 {
+	auto sortByPosition = [](std::shared_ptr<Actor> a, std::shared_ptr<Actor> b)
+	{
+		return a->GetPosition().y < b->GetPosition().y;
+	};
+	// Sort sprites by z-index
+	Actors.sort(sortByPosition);
+
 	for (auto &actor : Actors)
 	{
 		if (!actor->IsDestroyed)

@@ -20,7 +20,7 @@
 //  |   Actor Sprite   |
 //  |__________________|
 
-Block::Block(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec4 color, BlockLocation location): Actor(pos, size, std::move(sprite), color)
+Block::Block(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec4 color, BlockLocation location) : Actor(pos, size, std::move(sprite), color)
 {
 	Location = location;
 	SizeRatioX = Config::Get()->GetValue(SIZE_RATIO_X);
@@ -29,7 +29,6 @@ Block::Block(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm:
 	if (IsFloor())
 	{
 		ZIndex = 0.05f;
-		Active = false;
 	}
 	else
 	{
@@ -40,16 +39,23 @@ Block::Block(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm:
 
 		if (IsTopLocation())
 		{
-			ZIndex = 0.9f;
+			ZIndex = 0.95f;
+			ActorCollider->bCheckCollision = true;
+			ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::IGNORED;
+			ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::OVERLAP;
+		}
+		else if (IsMiddleLocation())
+		{
+			ZIndex = 0.95f;
 			ActorCollider->bCheckCollision = true;
 			ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::IGNORED;
 			ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::OVERLAP;
 		}
 		else
 		{
+			ZIndex = 0.1f;
 			ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::BLOCK;
 			ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::BLOCK;
-			ZIndex = 0.1f;
 		}
 	}
 }
@@ -61,7 +67,8 @@ Block::~Block()
 
 void Block::Update(float, glm::vec4 attackHitbox)
 {
-	if (IsDestroyable && IsAttacked(attackHitbox)) {
+	if (IsDestroyable && IsAttacked(attackHitbox))
+	{
 		IsDestroyed = true;
 	}
 }
@@ -126,6 +133,11 @@ bool Block::IsTopLocation()
 bool Block::IsFloor()
 {
 	return Location == BlockLocation::FLOOR;
+}
+
+bool Block::IsMiddleLocation()
+{
+	return Location == BlockLocation::MIDDLE;
 }
 
 void Block::OnBeginOverlapFunction(std::shared_ptr<PhysicActor> other)

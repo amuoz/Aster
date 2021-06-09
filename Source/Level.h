@@ -55,8 +55,13 @@ private:
         {"spear_powerup", PowerUpType::SPEAR},
         {"hammer_powerup", PowerUpType::HAMMER}};
 
-    void LoadTiles();
+    void LoadMap();
+    void LoadTiles(std::string tilesName, std::vector<std::vector<int> > &tiles);
     void InitBlocks();
+    void InitActorTypes(std::vector<std::vector<ActorType> > &actorTypes,
+                        std::vector<std::vector<int> > tiles,
+                        std::vector<std::tuple<int, int> > &doorCoordinates,
+                        bool shouldStoreDoors);
     void InitEnemies();
     void InitSpike(nlohmann::json &enemyInfo);
     void InitPowerUps();

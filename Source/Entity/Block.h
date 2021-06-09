@@ -30,4 +30,5 @@ private:
 	glm::vec3 GetPhysicsSize(glm::vec3 size, BlockLocation location);
 	bool IsTopLocation();
 	bool IsFloor();
+	bool IsMiddleLocation();
 };

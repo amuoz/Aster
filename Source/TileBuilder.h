@@ -44,6 +44,7 @@ private:
     shared_ptr<Actor> CreateDestroyableBlock(int x, int y);
     shared_ptr<Actor> CreateBlock(int x, int y, vector<vector<int> > tiles);
     shared_ptr<Actor> CreateDoor(int x, int y);
+    shared_ptr<Actor> CreateFloor(int x, int y);
 
     BlockLocation GetBlockLocation(int x, int y, vector<vector<int> > tiles);
     void TopBlocks(int &top, int &bottom, int &left, int &right, int x, int y, vector<vector<int> > tiles);

@@ -17,6 +17,8 @@ public:
 			std::list<std::shared_ptr<Actor> > roomActors);
 	virtual ~Building();
 
+
+	void BeginPlay();
 	void Update(float deltaTime, glm::vec4 playerAttackHitbox);
 	void Draw(SpriteRenderer &renderer, double deltatime);
 
