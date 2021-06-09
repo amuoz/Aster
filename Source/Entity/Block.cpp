@@ -28,7 +28,7 @@ Block::Block(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm:
 
 	if (IsFloor())
 	{
-		ZIndex = 0.05f;
+		ZIndex = 0.01f;
 	}
 	else
 	{
@@ -39,14 +39,14 @@ Block::Block(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm:
 
 		if (IsTopLocation())
 		{
-			ZIndex = 0.95f;
+			ZIndex = 0.99f;
 			ActorCollider->bCheckCollision = true;
 			ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::IGNORED;
 			ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::OVERLAP;
 		}
 		else if (IsMiddleLocation())
 		{
-			ZIndex = 0.95f;
+			ZIndex = 0.99f;
 			ActorCollider->bCheckCollision = true;
 			ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::IGNORED;
 			ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::OVERLAP;
@@ -142,10 +142,10 @@ bool Block::IsMiddleLocation()
 
 void Block::OnBeginOverlapFunction(std::shared_ptr<PhysicActor> other)
 {
-	Color.a = 0.5f;
+	// Color.a = 0.5f;
 }
 
 void Block::OnEndOverlapFunction(std::shared_ptr<PhysicActor> other)
 {
-	Color.a = 1.0f;
+	// Color.a = 1.0f;
 }

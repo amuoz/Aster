@@ -64,7 +64,9 @@ shared_ptr<Actor> BuildingManager::CreateBuilding(tuple<int, int> doorCoords,
     auto floorSprite = make_unique<Sprite>("block");
     glm::vec4 floorColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
     shared_ptr<Actor> building = make_shared<Building>(
-        doorPosition, doorSize, move(doorSprite), move(floorSprite), floorColor, buildingActors);
+        doorPosition, doorSize, move(doorSprite),
+        move(floorSprite), floorColor,
+        buildingActors, buildingInteriorActors);
 
     return building;
 }
