@@ -117,11 +117,13 @@ void Building::Draw(SpriteRenderer &renderer, double deltaTime)
 	ExteriorActors.sort(sortByPosition);
 	InteriorActors.sort(sortByPosition);
 
-	for (auto &actor : InteriorActors)
-	{
-		if (!actor->IsDestroyed)
+	if (ShowInterior) {
+		for (auto &actor : InteriorActors)
 		{
-			actor->Draw(renderer, deltaTime);
+			if (!actor->IsDestroyed)
+			{
+				actor->Draw(renderer, deltaTime);
+			}
 		}
 	}
 

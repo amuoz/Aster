@@ -110,7 +110,7 @@ shared_ptr<Actor> TileBuilder::CreateFloor(int x, int y)
   glm::vec2 pos(TileWidth * x, TileHeight * y);
   glm::vec3 size(TileWidth, TileHeight, 0.0f);
   auto blockSprite = make_unique<Sprite>("block");
-  glm::vec4 color = glm::vec4(0.5f);
+  glm::vec4 color = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
   shared_ptr<Actor> floorActor = make_shared<Block>(
       pos, size, move(blockSprite), color);
 
