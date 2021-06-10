@@ -40,9 +40,8 @@ Block::Block(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm:
 		if (IsTopLocation())
 		{
 			ZIndex = 0.99f;
-			ActorCollider->bCheckCollision = true;
 			ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::IGNORED;
-			ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::OVERLAP;
+			ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::BLOCK;
 		}
 		else if (IsMiddleLocation())
 		{
@@ -87,11 +86,13 @@ glm::vec2 Block::GetPhysicsPosition(glm::vec2 pos, glm::vec3 size, BlockLocation
 	{
 	case BlockLocation::LEFT:
 		return glm::vec2(pos.x + size.x * (1 - SizeRatioX), pos.y);
+	case BlockLocation::TOP_LEFT:
+		return glm::vec2(pos.x + size.x * (1 - SizeRatioX), pos.y - size.y * (1 - SizeRatioY) / 2);
+	case BlockLocation::TOP_RIGHT:
+	case BlockLocation::TOP:
+		return glm::vec2(pos.x, pos.y - size.y * (1 - SizeRatioY) / 2);
 	case BlockLocation::MIDDLE:
 	case BlockLocation::RIGHT:
-	case BlockLocation::TOP_LEFT:
-	case BlockLocation::TOP:
-	case BlockLocation::TOP_RIGHT:
 	default:
 		return pos;
 	case BlockLocation::BOTTOM_LEFT:
@@ -110,16 +111,16 @@ glm::vec3 Block::GetPhysicsSize(glm::vec3 size, BlockLocation location)
 	case BlockLocation::RIGHT:
 		return glm::vec3(size.x * SizeRatioX, size.y, size.z);
 	case BlockLocation::MIDDLE:
-	case BlockLocation::TOP_LEFT:
-	case BlockLocation::TOP_RIGHT:
-	case BlockLocation::TOP:
 	default:
 		return size;
+	case BlockLocation::TOP_LEFT:
+	case BlockLocation::TOP_RIGHT:
 	case BlockLocation::BOTTOM_LEFT:
 	case BlockLocation::BOTTOM_RIGHT:
-		return glm::vec3(size.x * SizeRatioX, size.y * SizeRatioY, size.z);
+		return glm::vec3(size.x * SizeRatioX, size.y * SizeRatioY / 2, size.z);
+	case BlockLocation::TOP:
 	case BlockLocation::BOTTOM:
-		return glm::vec3(size.x, size.y * SizeRatioY, size.z);
+		return glm::vec3(size.x, size.y * SizeRatioY / 2, size.z);
 	}
 }
 
