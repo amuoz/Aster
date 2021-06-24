@@ -5,7 +5,6 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
-#include <list>
 #include <utility>
 #include <string>
 #include <algorithm>
@@ -14,21 +13,24 @@
 #include "Config.h"
 #include "Sprite.h"
 #include "AsterTypes.h"
+#include "BuildingManager.h"
+#include "TileBuilder.h"
 
-#include "Entity/Block.h"
 #include "Entity/Player.h"
 #include "Entity/SpikeEnemy.h"
 #include "Entity/PowerUp.h"
 
-Level::Level()
+Level::Level(std::shared_ptr<BuildingManager> buildingManager, std::shared_ptr<TileBuilder> tileBuilder)
 {
+    RoomsManager = buildingManager;
+    MapBuilder = tileBuilder;
 }
 
 Level::~Level()
 {
 }
 
-void Level::Load(std::string file, unsigned int levelWidth, unsigned int levelHeight)
+void Level::Load(std::string file)
 {
     // clear old data
     Actors.clear();
@@ -37,7 +39,7 @@ void Level::Load(std::string file, unsigned int levelWidth, unsigned int levelHe
     LevelInfo = nlohmann::json::parse(in);
 
     LoadTiles();
-    InitBlocks(levelWidth, levelHeight);
+    InitBlocks();
     // Create player and add it to shared reference
     CreatePlayer(GetPlayerPosition());
     InitPowerUps();
@@ -48,6 +50,7 @@ void Level::LoadTiles()
 {
     auto &tiles = LevelInfo["tiles"];
     unsigned int i = 0;
+
     for (std::string line : tiles)
     {
         std::vector<int> lineNumbers;
@@ -63,6 +66,11 @@ void Level::LoadTiles()
         Tiles.push_back(lineNumbers);
         i = i + 1;
     }
+
+    NumOfTilesX = static_cast<int>(Tiles[0].size());
+    NumOfTilesY = static_cast<int>(Tiles.size());
+    RoomsManager->SetLevelSize(NumOfTilesX, NumOfTilesY);
+    MapBuilder->SetLevelSize(NumOfTilesX, NumOfTilesY);
 }
 
 void Level::Update(float deltaTime, glm::vec4 playerAttackHitbox)
@@ -115,193 +123,38 @@ std::shared_ptr<Player> Level::GetPlayer()
     return Character;
 }
 
-void Level::InitBlocks(unsigned int levelWidth, unsigned int levelHeight)
+void Level::InitBlocks()
 {
-    int height = static_cast<int>(Tiles.size());
-    int width = static_cast<int>(Tiles[0].size()); // note we can index vector at [0] since this function is only called if height > 0
-    float unit_width = levelWidth / static_cast<float>(width);
-    float unit_height = levelHeight / static_cast<float>(height);
+    std::vector<std::vector<ActorType> > actorTypes(NumOfTilesY, std::vector<ActorType>(NumOfTilesX, ActorType::NONE));
+    std::vector<std::tuple<int, int> > doorCoordinates;
 
-    for (int y = 0; y < height; ++y)
+    for (int y = 0; y < NumOfTilesY; ++y)
     {
-        for (int x = 0; x < width; ++x)
+        for (int x = 0; x < NumOfTilesX; ++x)
         {
-            // check block type from level data (2D level array)
-            if (Tiles[y][x] == 1) // destroyable
+            if (Tiles[y][x] == 1)
             {
-                glm::vec2 pos(unit_width * x, unit_height * y);
-                glm::vec3 size(unit_width, unit_height, 0.0f);
-                auto blockSprite = std::make_unique<Sprite>("block");
-                std::shared_ptr<Actor> blockActor = std::make_shared<Block>(
-                    pos, size, std::move(blockSprite), glm::vec4(0.9f, 0.9f, 1.0f, 1.0f));
-                blockActor->IsDestroyable = true;
-                Actors.push_back(blockActor);
+                actorTypes[y][x] = ActorType::DESTROYABLE_BLOCK;
             }
-            else if (Tiles[y][x] > 1) // non-destroyable; now determine its color based on level data
+            else if (Tiles[y][x] == 2)
             {
-                glm::vec4 color = glm::vec4(1.0f); // original: white
-                if (Tiles[y][x] == 2)
-                    color = glm::vec4(1.0f);
-                else if (Tiles[y][x] == 3)
-                    color = glm::vec4(0.0f, 0.7f, 0.0f, 1.0f);
-                else if (Tiles[y][x] == 4)
-                    color = glm::vec4(0.8f, 0.8f, 0.4f, 1.0f);
-                else if (Tiles[y][x] == 5)
-                    color = glm::vec4(1.0f, 0.5f, 0.0f, 1.0f);
-
-                glm::vec2 pos(unit_width * x, unit_height * y);
-                glm::vec3 size(unit_width, unit_height, 0.0f);
-                BlockLocation location = GetBlockLocation(x, y);
-                auto blockSprite = GetBlockSprite(location);
-                std::shared_ptr<Block> blockPtr = std::make_shared<Block>(
-                    pos, size, std::move(blockSprite), color, location);
-                Actors.push_back(blockPtr);
+                actorTypes[y][x] = ActorType::BLOCK;
+            }
+            else if (Tiles[y][x] == 3)
+            {
+                actorTypes[y][x] = ActorType::DOOR;
+                doorCoordinates.push_back(std::make_tuple(x, y));
             }
         }
     }
-}
 
-BlockLocation Level::GetBlockLocation(int x, int y)
-{
-    int top, bottom, left, right;
-
-    if (y == 0)
+    for (auto coords : doorCoordinates)
     {
-        TopBlocks(top, bottom, left, right, x, y);
-    }
-    else if (y == Tiles.size() - 1)
-    {
-        BottomBlocks(top, bottom, left, right, x, y);
-    }
-    else
-    {
-        MiddleBlocks(top, bottom, left, right, x, y);
+        std::shared_ptr<Actor> building = RoomsManager->CreateBuilding(coords, actorTypes, Tiles);
+        Actors.push_back(building);
     }
 
-    return GetBlockLocationByNeighbors(top, bottom, left, right);
-}
-
-void Level::TopBlocks(int &top, int &bottom, int &left, int &right, int x, int y)
-{
-    if (x == 0)
-    // left blocks
-    {
-        left = 2;
-        right = Tiles[0][1];
-    }
-    else if (x == Tiles[0].size() - 1)
-    // right blocks
-    {
-        left = Tiles[0][x - 1];
-        right = 2;
-    }
-    else
-    // middle blocks
-    {
-        left = Tiles[0][x - 1];
-        right = Tiles[0][x + 1];
-    }
-
-    top = 2;
-    bottom = Tiles[y + 1][x];
-}
-
-void Level::BottomBlocks(int &top, int &bottom, int &left, int &right, int x, int y)
-{
-    if (x == 0)
-    // left blocks
-    {
-        left = 2;
-        right = Tiles[x][y + 1];
-    }
-    else if (x == Tiles[y].size() - 1)
-    // right blocks
-    {
-        left = Tiles[y][x - 1];
-        right = 2;
-    }
-    else
-    // middle blocks
-    {
-        left = Tiles[y][x - 1];
-        right = Tiles[y][x + 1];
-    }
-
-    top = Tiles[y - 1][x];
-    bottom = 2;
-}
-
-void Level::MiddleBlocks(int &top, int &bottom, int &left, int &right, int x, int y)
-{
-    if (x == 0)
-    // left blocks
-    {
-        left = 2;
-        right = Tiles[y][x + 1];
-    }
-    else if (x == Tiles[y].size() - 1)
-    // right blocks
-    {
-        left = Tiles[y][x - 1];
-        right = 2;
-    }
-    else
-    // middle blocks
-    {
-        left = Tiles[y][x - 1];
-        right = Tiles[y][x + 1];
-    }
-
-    top = Tiles[y - 1][x];
-    bottom = Tiles[y + 1][x];
-}
-
-BlockLocation Level::GetBlockLocationByNeighbors(int top, int bottom, int left, int right)
-{
-    if (bottom < 2)
-    {
-        if (left < 2)
-        {
-            return BlockLocation::BOTTOM_LEFT;
-        }
-        if (right < 2)
-        {
-            return BlockLocation::BOTTOM_RIGHT;
-        }
-
-        return BlockLocation::BOTTOM;
-    }
-
-    if (top < 2)
-    {
-        if (left < 2)
-        {
-            return BlockLocation::TOP_LEFT;
-        }
-        if (right < 2)
-        {
-            return BlockLocation::TOP_RIGHT;
-        }
-
-        return BlockLocation::TOP;
-    }
-
-    if (left < 2)
-    {
-        return BlockLocation::LEFT;
-    }
-    if (right < 2)
-    {
-        return BlockLocation::RIGHT;
-    }
-
-    return BlockLocation::MIDDLE;
-}
-
-std::unique_ptr<Sprite> Level::GetBlockSprite(BlockLocation location)
-{
-    std::string spriteName = BLOCK_SPRITES[location];
-    return std::make_unique<Sprite>(spriteName);
+    MapBuilder->CreateActors(Actors, actorTypes, Tiles);
 }
 
 glm::vec2 Level::GetPlayerPosition()
@@ -353,9 +206,7 @@ void Level::InitPowerUps()
     {
         std::string powerUpName = powerUp["type"].get<std::string>();
         InitPowerUp(powerUpName, powerUp);
-    glm::vec4 color = glm::vec4(1.0f);
     }
-    glm::vec4 color = glm::vec4(1.0f);
 }
 
 void Level::InitPowerUp(std::string name, nlohmann::json &info)

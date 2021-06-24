@@ -36,7 +36,7 @@ public:
 	void SetDelete(bool newDelete);
 	void SetColor(glm::vec4 color);
 
-	inline bool IsActive() { return m_active; }
+	inline bool IsActive() { return Active; }
 	inline bool IsDelete() { return m_delete; }
 	inline std::shared_ptr<PhysicActor> GetActorCollider() { return ActorCollider; }
 
@@ -64,7 +64,7 @@ protected:
 	glm::vec3 m_rotAxis;
 	glm::vec4 Color;
 
-	bool m_active;
+	bool Active;
 
 	// Actor should be deleted on restart
 	bool m_delete;

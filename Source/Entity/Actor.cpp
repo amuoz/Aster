@@ -20,7 +20,7 @@ Actor::Actor()
 	
 	m_rotAngle = 0.0f;
 	m_rotAxis = glm::vec3(0.0f);
-	m_active = true;
+	Active = true;
 	m_delete = false;
 	IsDestroyable = false;
 	IsDestroyed = false;
@@ -60,7 +60,10 @@ void Actor::BeginPlay()
 
 void Actor::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 {
-	Position = ActorCollider->pos;
+	if (ActorCollider != nullptr)
+	{
+		Position = ActorCollider->pos;
+	}
 }
 
 void Actor::Draw(SpriteRenderer &renderer, double)
@@ -103,7 +106,7 @@ void Actor::SetState(ActorState state)
 
 void Actor::SetActive(bool newActive)
 {
-	m_active = newActive;
+	Active = newActive;
 }
 
 void Actor::SetDelete(bool newDelete)

@@ -51,7 +51,9 @@ enum class PowerUpType {
 enum class BlockLocation {
 		TOP_LEFT, 		TOP, 			TOP_RIGHT,
 		LEFT, 				MIDDLE, 	RIGHT,
-		BOTTOM_LEFT, 	BOTTOM, 	BOTTOM_RIGHT
+		BOTTOM_LEFT, 	BOTTOM, 	BOTTOM_RIGHT,
+
+		FLOOR,
 	};
 
 enum class CollisionChannel {
@@ -64,6 +66,13 @@ enum class CollisionResponse {
 	IGNORED,
 	OVERLAP,
 	BLOCK
+};
+
+enum class ActorType {
+	NONE,
+	DESTROYABLE_BLOCK,
+	BLOCK,
+	DOOR
 };
 
 namespace Aster {

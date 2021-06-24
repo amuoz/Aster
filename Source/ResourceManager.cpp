@@ -8,15 +8,16 @@
 #include "Config.h"
 #include "Level.h"
 #include "Common.h"
+#include "BuildingManager.h"
+#include "TileBuilder.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 // Instantiate static variables
-ResourceManager* ResourceManager::m_instance = nullptr;
+ResourceManager *ResourceManager::m_instance = nullptr;
 
 ResourceManager::ResourceManager()
 {
-
 }
 
 ResourceManager::~ResourceManager()
@@ -38,7 +39,7 @@ Shader ResourceManager::GetShader(std::string name)
 	return Shaders[name];
 }
 
-Texture2D ResourceManager::LoadTexture(const char* file, bool alpha, std::string name)
+Texture2D ResourceManager::LoadTexture(const char *file, bool alpha, std::string name)
 {
 	Textures[name] = LoadTextureFromFile(file, alpha);
 	return Textures[name];
@@ -62,7 +63,7 @@ std::shared_ptr<Level> ResourceManager::GetLevel(std::string name)
 
 void ResourceManager::Clear()
 {
-	// (properly) delete all shaders	
+	// (properly) delete all shaders
 	for (auto iter : Shaders)
 		glDeleteProgram(iter.second.ID);
 	// (properly) delete all textures
@@ -70,7 +71,7 @@ void ResourceManager::Clear()
 		glDeleteTextures(1, &iter.second.ID);
 }
 
-ResourceManager* ResourceManager::GetInstance()
+ResourceManager *ResourceManager::GetInstance()
 {
 	if (m_instance == nullptr)
 	{
@@ -123,7 +124,7 @@ Shader ResourceManager::LoadShaderFromFile(const char *vShaderFile, const char *
 	return shader;
 }
 
-Texture2D ResourceManager::LoadTextureFromFile(const char* file, bool alpha)
+Texture2D ResourceManager::LoadTextureFromFile(const char *file, bool alpha)
 {
 	// create texture object
 	Texture2D texture;
@@ -134,7 +135,7 @@ Texture2D ResourceManager::LoadTextureFromFile(const char* file, bool alpha)
 	}
 	// load image
 	int width, height, nrChannels;
-	unsigned char* data = stbi_load(file, &width, &height, &nrChannels, 0);
+	unsigned char *data = stbi_load(file, &width, &height, &nrChannels, 0);
 	// now generate texture
 	texture.Generate(width, height, data);
 	// and finally free image data
@@ -142,10 +143,12 @@ Texture2D ResourceManager::LoadTextureFromFile(const char* file, bool alpha)
 	return texture;
 }
 
-std::shared_ptr<Level> ResourceManager::LoadLevelFromFile(const char* file)
+std::shared_ptr<Level> ResourceManager::LoadLevelFromFile(const char *file)
 {
-	auto level = std::make_shared<Level>();
-	level->Load(file, Config::Get()->GetValue(LVL_WIDTH), Config::Get()->GetValue(LVL_HEIGHT));
+	auto tileBuilder = std::make_shared<TileBuilder>();
+	auto buildingManager = std::make_shared<BuildingManager>(tileBuilder);
+	auto level = std::make_shared<Level>(buildingManager, tileBuilder);
+	level->Load(file);
 
 	return level;
 }
