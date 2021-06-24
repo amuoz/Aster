@@ -66,11 +66,7 @@ void Actor::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 void Actor::Draw(SpriteRenderer &renderer, double)
 {
 	Texture2D texture = ActorSprite->GetTexture();
-
-	float dynamicZIndex = GetZIndex(Position.y);
-
-	//glm::vec3 spritePosition(Position, ZIndex);
-	glm::vec3 spritePosition(Position, dynamicZIndex);
+	glm::vec3 spritePosition(Position, ZIndex);
 	renderer.DrawTexture(texture, spritePosition, m_scale, m_rotAngle, Color);
 }
 
@@ -157,5 +153,6 @@ void Actor::OnEndOverlapFunction(std::shared_ptr<PhysicActor> other)
 float Actor::GetZIndex(float posY)
 {
 	float maxHeight = Config::Get()->GetValue(LVL_HEIGHT);
-	return posY * 0.99 / maxHeight;
+	// NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
+	return (((posY - 0) * (0.99f - 0.01f)) / (maxHeight - 0)) + 0.01f;
 }
