@@ -77,6 +77,11 @@ void Level::LoadTiles(std::string tilesName, std::vector<std::vector<int> > &til
         tiles.push_back(lineNumbers);
         i = i + 1;
     }
+
+    NumOfTilesX = static_cast<int>(Tiles[0].size());
+    NumOfTilesY = static_cast<int>(Tiles.size());
+    RoomsManager->SetLevelSize(NumOfTilesX, NumOfTilesY);
+    MapBuilder->SetLevelSize(NumOfTilesX, NumOfTilesY);
 }
 
 void Level::Update(float deltaTime, glm::vec4 playerAttackHitbox)
@@ -100,12 +105,12 @@ void Level::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 
 void Level::Draw(SpriteRenderer &renderer, double deltaTime)
 {
-    auto sortByPosition = [](std::shared_ptr<Actor> a, std::shared_ptr<Actor> b)
+    auto sortByZIndex = [](std::shared_ptr<Actor> a, std::shared_ptr<Actor> b)
     {
-        return a->GetPosition().y < b->GetPosition().y;
+        return a->ZIndex < b->ZIndex;
     };
     // Sort sprites by z-index
-    Actors.sort(sortByPosition);
+    Actors.sort(sortByZIndex);
 
     for (auto &actor : Actors)
     {

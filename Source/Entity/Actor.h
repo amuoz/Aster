@@ -16,6 +16,8 @@ protected:
 	
 	Actor(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec4 color = glm::vec4(1.0f));
 
+	float GetZIndex(float posY);
+
 public:
 	
 	virtual ~Actor() = 0;
@@ -54,8 +56,6 @@ public:
 private:
 
 	Actor();
-
-	float GetZIndex(float posY);
 
 protected:
 	// actor state
