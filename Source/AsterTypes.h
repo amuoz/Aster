@@ -72,7 +72,8 @@ enum class ActorType {
 	NONE,
 	DESTROYABLE_BLOCK,
 	BLOCK,
-	DOOR
+	DOOR,
+	FLOOR
 };
 
 namespace Aster {

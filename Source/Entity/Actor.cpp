@@ -119,6 +119,11 @@ void Actor::SetColor(glm::vec4 color)
 	Color = color;
 }
 
+void Actor::SetAlpha(float alpha)
+{
+	Color.a = alpha;
+}
+
 void Actor::SetPosition(glm::vec2 pos)
 {
 	Position += pos;

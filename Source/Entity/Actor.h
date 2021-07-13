@@ -35,6 +35,7 @@ public:
 	void SetActive(bool newActive);
 	void SetDelete(bool newDelete);
 	void SetColor(glm::vec4 color);
+	void SetAlpha(float alpha);
 
 	inline bool IsActive() { return Active; }
 	inline bool IsDelete() { return m_delete; }

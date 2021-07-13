@@ -58,6 +58,11 @@ void TileBuilder::CreateActors(list<shared_ptr<Actor> > &actors,
         shared_ptr<Actor> doorActor = CreateDoor(x, y);
         actors.push_back(doorActor);
       }
+      else if (actorTypes[y][x] == ActorType::FLOOR)
+      {
+        shared_ptr<Actor> floorActor = CreateFloor(x, y);
+        actors.push_back(floorActor);
+      }
     }
   }
 }
@@ -98,6 +103,18 @@ shared_ptr<Actor> TileBuilder::CreateDoor(int x, int y)
       pos, size, move(blockSprite), color);
 
   return doorActor;
+}
+
+shared_ptr<Actor> TileBuilder::CreateFloor(int x, int y)
+{
+  glm::vec2 pos(TileWidth * x, TileHeight * y);
+  glm::vec3 size(TileWidth, TileHeight, 0.0f);
+  auto blockSprite = make_unique<Sprite>("block");
+  glm::vec4 color = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+  shared_ptr<Actor> floorActor = make_shared<Block>(
+      pos, size, move(blockSprite), color);
+
+  return floorActor;
 }
 
 BlockLocation TileBuilder::GetBlockLocation(int x, int y, vector<vector<int> > tiles)

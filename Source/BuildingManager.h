@@ -21,7 +21,9 @@ public:
 
     shared_ptr<Actor> CreateBuilding(tuple<int, int> doorCoords,
                                      vector<vector<ActorType> > &actorTypes,
-                                     vector<vector<int> > tiles);
+                                     vector<vector<ActorType> > &interiorActorTypes,
+                                     vector<vector<int> > tiles,
+                                     vector<vector<int> > interiorTiles);
 
 private:
     vector<vector<int> > DIRECTIONS = {
@@ -38,10 +40,12 @@ private:
     float TileHeight;
     shared_ptr<TileBuilder> MapBuilder;
 
-    void PreprocessBuildingActor(tuple<int, int> coords,
-                                 vector<vector<ActorType> > &buildingActorsTypes,
-                                 vector<vector<ActorType> > &actorTypes,
-                                 vector<tuple<int, int, bool> > &knownPositions);
+    void PreprocessBuildingActors(tuple<int, int> coords,
+                                  vector<vector<ActorType> > &buildingActorsTypes,
+                                  vector<vector<ActorType> > &buildingInteriorActorsTypes,
+                                  vector<vector<ActorType> > &actorTypes,
+                                  vector<vector<ActorType> > &interiorActorTypes,
+                                  vector<tuple<int, int, bool> > &knownPositions);
 
     tuple<int, int, bool> GetNextTileCoords(int x,
                                             int y,

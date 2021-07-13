@@ -38,7 +38,7 @@ void Level::Load(std::string file)
     std::ifstream in(file);
     LevelInfo = nlohmann::json::parse(in);
 
-    LoadTiles();
+    LoadMap();
     InitBlocks();
     // Create player and add it to shared reference
     CreatePlayer(GetPlayerPosition());
@@ -46,12 +46,23 @@ void Level::Load(std::string file)
     InitEnemies();
 }
 
-void Level::LoadTiles()
+void Level::LoadMap()
 {
-    auto &tiles = LevelInfo["tiles"];
+    LoadTiles("tiles", Tiles);
+    LoadTiles("interiorTiles", InteriorTiles);
+
+    NumOfTilesX = static_cast<int>(Tiles[0].size());
+    NumOfTilesY = static_cast<int>(Tiles.size());
+    RoomsManager->SetLevelSize(NumOfTilesX, NumOfTilesY);
+    MapBuilder->SetLevelSize(NumOfTilesX, NumOfTilesY);
+}
+
+void Level::LoadTiles(std::string tilesName, std::vector<std::vector<int> > &tiles)
+{
+    auto &tileInfo = LevelInfo[tilesName];
     unsigned int i = 0;
 
-    for (std::string line : tiles)
+    for (std::string line : tileInfo)
     {
         std::vector<int> lineNumbers;
 
@@ -63,7 +74,7 @@ void Level::LoadTiles()
             last = next + 1;
         }
         lineNumbers.push_back(stoi(line.substr(last)));
-        Tiles.push_back(lineNumbers);
+        tiles.push_back(lineNumbers);
         i = i + 1;
     }
 
@@ -125,36 +136,57 @@ std::shared_ptr<Player> Level::GetPlayer()
 
 void Level::InitBlocks()
 {
-    std::vector<std::vector<ActorType> > actorTypes(NumOfTilesY, std::vector<ActorType>(NumOfTilesX, ActorType::NONE));
+    std::vector<std::vector<ActorType> > actorTypes(NumOfTilesY,
+                                                    std::vector<ActorType>(NumOfTilesX, ActorType::NONE));
+    std::vector<std::vector<ActorType> > interiorActorTypes(NumOfTilesY,
+                                                            std::vector<ActorType>(NumOfTilesX, ActorType::NONE));
     std::vector<std::tuple<int, int> > doorCoordinates;
 
-    for (int y = 0; y < NumOfTilesY; ++y)
-    {
-        for (int x = 0; x < NumOfTilesX; ++x)
-        {
-            if (Tiles[y][x] == 1)
-            {
-                actorTypes[y][x] = ActorType::DESTROYABLE_BLOCK;
-            }
-            else if (Tiles[y][x] == 2)
-            {
-                actorTypes[y][x] = ActorType::BLOCK;
-            }
-            else if (Tiles[y][x] == 3)
-            {
-                actorTypes[y][x] = ActorType::DOOR;
-                doorCoordinates.push_back(std::make_tuple(x, y));
-            }
-        }
-    }
+    InitActorTypes(actorTypes, Tiles, doorCoordinates, true);
+    InitActorTypes(interiorActorTypes, InteriorTiles, doorCoordinates, false);
 
     for (auto coords : doorCoordinates)
     {
-        std::shared_ptr<Actor> building = RoomsManager->CreateBuilding(coords, actorTypes, Tiles);
+        std::shared_ptr<Actor> building = RoomsManager->CreateBuilding(coords,
+                                                                       actorTypes, interiorActorTypes,
+                                                                       Tiles, InteriorTiles);
         Actors.push_back(building);
     }
 
     MapBuilder->CreateActors(Actors, actorTypes, Tiles);
+}
+
+void Level::InitActorTypes(std::vector<std::vector<ActorType> > &actorTypes,
+                           std::vector<std::vector<int> > tiles,
+                           std::vector<std::tuple<int, int> > &doorCoordinates,
+                           bool shouldStoreDoors)
+{
+    for (int y = 0; y < NumOfTilesY; ++y)
+    {
+        for (int x = 0; x < NumOfTilesX; ++x)
+        {
+            if (tiles[y][x] == 1)
+            {
+                actorTypes[y][x] = ActorType::DESTROYABLE_BLOCK;
+            }
+            else if (tiles[y][x] == 2)
+            {
+                actorTypes[y][x] = ActorType::BLOCK;
+            }
+            else if (tiles[y][x] == 3)
+            {
+                actorTypes[y][x] = ActorType::DOOR;
+                if (shouldStoreDoors)
+                {
+                    doorCoordinates.push_back(std::make_tuple(x, y));
+                }
+            }
+            else if (tiles[y][x] == 4)
+            {
+                actorTypes[y][x] = ActorType::FLOOR;
+            }
+        }
+    }
 }
 
 glm::vec2 Level::GetPlayerPosition()
