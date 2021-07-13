@@ -42,6 +42,8 @@ private:
 	float DashIFramesEnd;
 	float HammerBlockRate;
 	float MaxSpeed;
+	float DashSlowSpeed;
+	float DashSpeed;
 
 	std::vector<PowerUpType> Inventory;
 	AnimationType CurrentAnimation;
