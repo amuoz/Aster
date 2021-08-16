@@ -18,6 +18,7 @@ Sprite::Sprite(std::string filename)
   Texture = ResourceManager::GetInstance()->GetTexture(filename);
   SubspriteRectangle = RectangleSystem::GetInstance()->Generate();
   HasAnimation = false;
+  CurrentAnimationType = AnimationType::IDLE;
 }
 
 Sprite::~Sprite()

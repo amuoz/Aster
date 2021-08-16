@@ -39,6 +39,9 @@
   "enemies": [{
     "type": "Spike",
     "position": [700, 200]
+  }, {
+    "type": "Shooty",
+    "position": [1600, 700]
   }],
   "powerUps": [{
     "type": "sword_powerup",

@@ -17,7 +17,8 @@
 #include "TileBuilder.h"
 
 #include "Entity/Player.h"
-#include "Entity/SpikeEnemy.h"
+#include "Entity/Enemy/SpikeEnemy.h"
+#include "Entity/Enemy/ShootyEnemy.h"
 #include "Entity/PowerUp.h"
 
 Level::Level(std::shared_ptr<BuildingManager> buildingManager, std::shared_ptr<TileBuilder> tileBuilder)
@@ -208,6 +209,10 @@ void Level::InitEnemies()
         {
             InitSpike(enemy);
         }
+        if (enemyType == "Shooty")
+        {
+            InitShooty(enemy);
+        }
     }
 }
 
@@ -222,12 +227,39 @@ void Level::InitSpike(nlohmann::json &enemyInfo)
     charScale.x = Config::Get()->GetValue(SRC_WIDTH) / ENEMY_SIZE.x;
     charScale.y = Config::Get()->GetValue(SRC_HEIGHT) / ENEMY_SIZE.y;
 
-    auto spikeEnemySprite = std::make_unique<Sprite>("spike_enemy");
+    auto enemySprite = std::make_unique<Sprite>("spike_enemy");
     float framePeriod = 0.06f;
-    spikeEnemySprite->AddAnimation("spike_enemy_idle", AnimationType::IDLE, framePeriod);
+    enemySprite->AddAnimation("spike_enemy_idle", AnimationType::IDLE, framePeriod);
 
-    std::shared_ptr<SpikeEnemy> spikeEnemyPtr = std::make_shared<SpikeEnemy>(pos, charScale, std::move(spikeEnemySprite), framePeriod);
-    Actors.push_back(spikeEnemyPtr);
+    std::shared_ptr<SpikeEnemy> enemyPtr = std::make_shared<SpikeEnemy>(pos, charScale, std::move(enemySprite), framePeriod);
+    Actors.push_back(enemyPtr);
+}
+
+void Level::InitShooty(nlohmann::json &enemyInfo)
+{
+    const glm::vec3 ENEMY_SIZE(16.0f, 9.0f, 0.0f);
+
+    auto position = enemyInfo["position"];
+    const glm::vec2 pos(position[0], position[1]);
+
+    glm::vec3 charScale(1.0f, 1.0f, 1.0f);
+    charScale.x = Config::Get()->GetValue(SRC_WIDTH) / ENEMY_SIZE.x;
+    charScale.y = Config::Get()->GetValue(SRC_HEIGHT) / ENEMY_SIZE.y;
+
+    auto enemySprite = std::make_unique<Sprite>("shooty_enemy");
+    float framePeriod = 0.09f;
+    enemySprite->AddAnimation("shooty_enemy_idle_up", AnimationType::IDLE, framePeriod);
+    enemySprite->AddAnimation("shooty_enemy_idle_up", AnimationType::IDLE_UP, framePeriod);
+    enemySprite->AddAnimation("shooty_enemy_idle_right", AnimationType::IDLE_RIGHT, framePeriod);
+    enemySprite->AddAnimation("shooty_enemy_idle_down", AnimationType::IDLE_DOWN, framePeriod);
+    enemySprite->AddAnimation("shooty_enemy_idle_left", AnimationType::IDLE_LEFT, framePeriod);
+    enemySprite->AddAnimation("shooty_enemy_shoot_up", AnimationType::WALK_UP, framePeriod);
+    enemySprite->AddAnimation("shooty_enemy_shoot_right", AnimationType::WALK_RIGHT, framePeriod);
+    enemySprite->AddAnimation("shooty_enemy_shoot_down", AnimationType::WALK_DOWN, framePeriod);
+    enemySprite->AddAnimation("shooty_enemy_shoot_left", AnimationType::WALK_LEFT, framePeriod);
+
+    std::shared_ptr<ShootyEnemy> enemyPtr = std::make_shared<ShootyEnemy>(pos, charScale, std::move(enemySprite), framePeriod);
+    Actors.push_back(enemyPtr);
 }
 
 void Level::InitPowerUps()

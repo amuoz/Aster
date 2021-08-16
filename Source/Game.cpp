@@ -71,6 +71,7 @@ void Game::InitGame(GLFWwindow *window)
 	// load textures
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/player.png", true, "player");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/spike_enemy.png", true, "spike_enemy");
+	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/shooty.png", true, "shooty_enemy");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/bone.png", true, "spear_powerup");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/anvil.png", true, "sword_powerup");
 	ResourceManager::GetInstance()->LoadTexture(PROJECT_SOURCE_DIR "/Textures/rock.png", true, "hammer_powerup");

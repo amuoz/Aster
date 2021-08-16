@@ -17,7 +17,7 @@ Actor::Actor()
 	m_scale = glm::vec3(1.0f);
 	ActorSprite = nullptr;
 	Color = glm::vec4(1.0f);
-	
+
 	m_rotAngle = 0.0f;
 	m_rotAxis = glm::vec3(0.0f);
 	Active = true;
@@ -29,7 +29,7 @@ Actor::Actor()
 	LastState = ActorState::IDLE;
 }
 
-Actor::Actor(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec4 color): Actor()
+Actor::Actor(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm::vec4 color) : Actor()
 {
 	Position = pos;
 	ZIndex = 0.5f;
@@ -49,10 +49,12 @@ void Actor::BeginPlay()
 	{
 		ActorCollider->report = shared_from_this();
 		// C++ 11 lambda for setting class function to a function ptr
-		ActorCollider->OnBeginOverlapPtr = [=](std::shared_ptr<PhysicActor> other) {
+		ActorCollider->OnBeginOverlapPtr = [=](std::shared_ptr<PhysicActor> other)
+		{
 			this->OnBeginOverlapFunction(other);
 		};
-		ActorCollider->OnEndOverlapPtr = [=](std::shared_ptr<PhysicActor> other) {
+		ActorCollider->OnEndOverlapPtr = [=](std::shared_ptr<PhysicActor> other)
+		{
 			this->OnEndOverlapFunction(other);
 		};
 	}
@@ -146,6 +148,14 @@ bool Actor::IsAttacked(glm::vec4 attackHitbox)
 	bool yCollision = Position.y + blockHeight >= yHitbox && yHitbox + heightHitbox >= Position.y;
 
 	return xCollision && yCollision;
+}
+
+bool Actor::IsAttackState()
+{
+	return State == ActorState::ATTACK_UP ||
+				 State == ActorState::ATTACK_RIGHT ||
+				 State == ActorState::ATTACK_DOWN ||
+				 State == ActorState::ATTACK_LEFT;
 }
 
 void Actor::OnBeginOverlapFunction(std::shared_ptr<PhysicActor> other)

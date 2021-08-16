@@ -35,7 +35,9 @@ file(GLOB VENDORS_SOURCES ThirdParty/glad/src/glad.c)
 file(GLOB PROJECT_SOURCES Source/*.h
                           Source/*.cpp
                           Source/Entity/*.h
-                          Source/Entity/*.cpp)
+                          Source/Entity/*.cpp
+                          Source/Entity/Enemy/*.h
+                          Source/Entity/Enemy/*.cpp)
 file(GLOB PROJECT_SHADERS Shaders/*.fs
                           Shaders/*.gs
                           Shaders/*.vs)
