@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <time.h>
+#include <cmath> // std::abs
 #include <iostream>
 #include <glm/glm.hpp>
 
@@ -70,23 +71,23 @@ void ShootyEnemy::Draw(SpriteRenderer &renderer, double deltatime)
 
 AnimationType ShootyEnemy::GetAnimationFromState()
 {
-	switch (State)
+	if (Direction.y < 0)
 	{
-	case ActorState::IDLE:
-		if (Direction.x > 0)
-			return AnimationType::IDLE_RIGHT;
-		else if (Direction.x < 0)
-			return AnimationType::IDLE_LEFT;
-		else if (Direction.y > 0)
-			return AnimationType::IDLE_DOWN;
-		else
+		if (std::abs(Direction.y) > std::abs(Direction.x))
 			return AnimationType::IDLE_UP;
-
-	case ActorState::AGGRO:
-		return AnimationType::IDLE_LEFT;
-
-	default:
-		break;
+		else if (Direction.x > 0)
+			return AnimationType::IDLE_RIGHT;
+		else
+			return AnimationType::IDLE_LEFT;
+	}
+	else
+	{
+		if (std::abs(Direction.y) > std::abs(Direction.x))
+			return AnimationType::IDLE_DOWN;
+		else if (Direction.x > 0)
+			return AnimationType::IDLE_RIGHT;
+		else
+			return AnimationType::IDLE_LEFT;
 	}
 }
 
