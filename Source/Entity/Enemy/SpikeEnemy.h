@@ -19,7 +19,6 @@ public:
 	void BeginPlay() override;
 	void Update(float, glm::vec4) override;
 	void Draw(SpriteRenderer &renderer, double deltaTime) override;
-	void Destroy() override;
 
 	void OnBeginOverlapFunction(std::shared_ptr<PhysicActor> other) override;
 	void OnEndOverlapFunction(std::shared_ptr<PhysicActor> other) override;
@@ -29,19 +28,7 @@ public:
 
 private:
 
-	bool PassRandomChance(float chance);
-	float GetRandomDirectionComponent();
-	glm::vec2 GetRandomDirection();
-	glm::vec2 SetWanderMovement();
-	glm::vec2 SetAggroMovement();
-	void SetSpeed();
-	glm::vec2 GetAggroPosition(glm::vec2 actorPosition, glm::vec3 actorSize);
+	void SetSpeed() override;
 
-	float AnimationPeriod;
-	AnimationType CurrentAnimation;
-	glm::vec2 Direction;
-	float ChangeDirectionPeriod;
-	float LastDirectionChange;
-	float AnimationProgress;
 	const float MAX_SPEED = 100.0f;
 };

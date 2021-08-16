@@ -28,25 +28,28 @@ protected:
 	float StillChance;
 	float ChangeDirectionChance;
 	float AggroSize;
+	float AnimationPeriod;
+	float AnimationProgress;
+	float ChangeDirectionPeriod;
+	float LastDirectionChange;
+	glm::vec2 Direction;
+	AnimationType CurrentAnimation;
 
 	std::shared_ptr<PhysicActor> AggroCollider = nullptr;
 	std::shared_ptr<Actor> AggroedActor = nullptr;
+
+	virtual glm::vec2 SetWanderMovement();
+	virtual glm::vec2 SetAggroMovement();
+	virtual void SetSpeed() = 0;
+	virtual AnimationType GetAnimationFromState();
+	glm::vec4 GetColorFromState();
+	glm::vec2 GetAggroPosition(glm::vec2 actorPosition, glm::vec3 actorSize);
 
 private:
 
 	bool PassRandomChance(float chance);
 	float GetRandomDirectionComponent();
 	glm::vec2 GetRandomDirection();
-	glm::vec2 SetWanderMovement();
-	glm::vec2 SetAggroMovement();
-	void SetSpeed();
-	glm::vec2 GetAggroPosition(glm::vec2 actorPosition, glm::vec3 actorSize);
 
-	float AnimationPeriod;
-	AnimationType CurrentAnimation;
-	glm::vec2 Direction;
-	float ChangeDirectionPeriod;
-	float LastDirectionChange;
-	float AnimationProgress;
 	const float MAX_SPEED = 100.0f;
 };

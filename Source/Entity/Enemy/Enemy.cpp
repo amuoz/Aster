@@ -23,6 +23,7 @@ Enemy::Enemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, floa
 	LastState = ActorState::IDLE;
 	Direction = glm::vec2(0, 0);
 	Speed = MAX_SPEED;
+	CurrentAnimation = AnimationType::IDLE;
 	ChangeDirectionPeriod = 1.0f;
 	LastDirectionChange = 0.0f;
 	ZIndex = 0.7f;
@@ -37,8 +38,6 @@ Enemy::~Enemy()
 void Enemy::BeginPlay()
 {
 	Actor::BeginPlay();
-
-	AggroCollider->report = shared_from_this();
 }
 
 void Enemy::Update(float deltaTime, glm::vec4 attackHitbox)
@@ -50,7 +49,11 @@ void Enemy::Update(float deltaTime, glm::vec4 attackHitbox)
 		IsDestroyed = true;
 	}
 
+	int animationFrames = ActorSprite->GetFramesCount();
+	float framePeriod = ActorSprite->GetAnimationSpeed();
+	AnimationPeriod = framePeriod * animationFrames;
 	AnimationProgress += deltaTime;
+
 	if (AnimationProgress > AnimationPeriod)
 	{
 		AnimationProgress -= AnimationPeriod;
@@ -76,22 +79,9 @@ void Enemy::Update(float deltaTime, glm::vec4 attackHitbox)
 
 void Enemy::Draw(SpriteRenderer &renderer, double deltatime)
 {
-	switch (State)
-	{
-	case ActorState::IDLE:
-		Color = glm::vec4(1, 1, 1, 1);
-		CurrentAnimation = AnimationType::IDLE;
-		break;
-	case ActorState::AGGRO:
-		Color = glm::vec4(1, 0.5, 0.5, 1);
-		CurrentAnimation = AnimationType::IDLE;
-		break;
-	default:
-		break;
-	}
-
+	Color = GetColorFromState();
+	CurrentAnimation = GetAnimationFromState();
 	glm::vec3 spritePosition(Position, ZIndex);
-
 	ActorSprite->Draw(
 			CurrentAnimation,
 			renderer,
@@ -100,6 +90,24 @@ void Enemy::Draw(SpriteRenderer &renderer, double deltatime)
 			m_scale,
 			m_rotAngle,
 			Color);
+}
+
+glm::vec4 Enemy::GetColorFromState()
+{
+	switch (State)
+	{
+	case ActorState::IDLE:
+		return glm::vec4(1, 1, 1, 1);
+	case ActorState::AGGRO:
+		return glm::vec4(1, 0.5, 0.5, 1);
+	default:
+		break;
+	}
+}
+
+AnimationType Enemy::GetAnimationFromState()
+{
+	return AnimationType::IDLE;
 }
 
 void Enemy::Destroy()
@@ -152,19 +160,6 @@ glm::vec2 Enemy::SetWanderMovement()
 glm::vec2 Enemy::SetAggroMovement()
 {
 	return glm::normalize(AggroedActor->GetPosition() - Position);
-}
-
-void Enemy::SetSpeed()
-{
-	if (
-			AnimationProgress < AnimationPeriod / 5 || AnimationProgress > AnimationPeriod / 2)
-	{
-		Speed = MAX_SPEED / 5;
-	}
-	else
-	{
-		Speed = MAX_SPEED;
-	}
 }
 
 glm::vec2 Enemy::GetAggroPosition(glm::vec2 actorPosition, glm::vec3 actorSize)
