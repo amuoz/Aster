@@ -23,6 +23,8 @@ Player::Player(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, gl
 	DashIFramesEnd = DashPeriod * Config::Get()->GetValue(DASH_IFRAMES_END);
 	HammerBlockRate = Config::Get()->GetValue(HAMMER_BLOCK_RATE);
 	MaxSpeed = Config::Get()->GetValue(BASE_SPEED);
+	DashSlowSpeed = Config::Get()->GetValue(DASH_SLOW_SPEED);
+	DashSpeed = Config::Get()->GetValue(DASH_SPEED);
 
 	State = ActorState::IDLE;
 	LastState = ActorState::IDLE;
@@ -63,6 +65,7 @@ void Player::Update(float deltaTime, glm::vec4 playerAttackHitbox)
 	}
 	else if (!IsBlockedByHammer())
 	{
+		Speed = MaxSpeed;
 		Move(deltaTime, InputDirection);
 	}
 
@@ -167,10 +170,9 @@ AnimationType Player::GetAnimationFromState()
 	case ActorState::DASH_LEFT:
 		return AnimationType::DASH_LEFT;
 	case ActorState::DASH_DOWN:
+		return AnimationType::DASH_DOWN;
 	case ActorState::DASH_UP:
-		bool isMovingRight = MovementDirection.x > 0 ||
-												 (MovementDirection.x == 0 && LastMovementDirection.x >= 0);
-		return isMovingRight ? AnimationType::DASH_RIGHT : AnimationType::DASH_LEFT;
+		return AnimationType::DASH_UP;
 	}
 }
 
@@ -272,11 +274,11 @@ void Player::SetDashSpeed()
 
 	if (DashTime < DashSpeedUpStart || DashTime > DashSpeedUpEnd)
 	{
-		Speed = MaxSpeed;
+		Speed = DashSlowSpeed;
 	}
 	else
 	{
-		Speed = 2 * MaxSpeed;
+		Speed = DashSpeed;
 	}
 }
 

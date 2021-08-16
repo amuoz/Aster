@@ -275,7 +275,9 @@ void Level::CreatePlayer(glm::vec2 playerPosition)
     playerSprite->AddAnimation("sword_left", AnimationType::SWORD_LEFT, 0.03f);
     playerSprite->AddAnimation("hammer_right", AnimationType::HAMMER_RIGHT, 0.06f);
     playerSprite->AddAnimation("hammer_left", AnimationType::HAMMER_LEFT, 0.06f);
+    playerSprite->AddAnimation("roll_up", AnimationType::DASH_UP, 0.018f);
     playerSprite->AddAnimation("roll_right", AnimationType::DASH_RIGHT, 0.018f);
+    playerSprite->AddAnimation("roll_down", AnimationType::DASH_DOWN, 0.018f);
     playerSprite->AddAnimation("roll_left", AnimationType::DASH_LEFT, 0.018f);
 
     Character = std::make_shared<Player>(playerPosition, charScale, std::move(playerSprite));
