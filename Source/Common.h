@@ -29,4 +29,3 @@ static const std::string SPIKE_AGGRO_SIZE = "SPIKE_AGGRO_SIZE";
 static const std::string SHOOTY_STILL_CHANCE = "SHOOTY_STILL_CHANCE";
 static const std::string SHOOTY_CHANGE_DIRECTION_CHANCE = "SHOOTY_CHANGE_DIRECTION_CHANCE";
 static const std::string SHOOTY_AGGRO_SIZE = "SHOOTY_AGGRO_SIZE";
-static const std::string SHOOTY_SHOOT_PERIOD = "SHOOTY_SHOOT_PERIOD";

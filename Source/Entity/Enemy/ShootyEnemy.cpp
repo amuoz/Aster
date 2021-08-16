@@ -20,8 +20,6 @@ ShootyEnemy::ShootyEnemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> 
 	StillChance = Config::Get()->GetValue(SHOOTY_STILL_CHANCE);
 	ChangeDirectionChance = Config::Get()->GetValue(SHOOTY_CHANGE_DIRECTION_CHANCE);
 	AggroSize = Config::Get()->GetValue(SHOOTY_AGGRO_SIZE);
-	ShootPeriod = Config::Get()->GetValue(SHOOTY_SHOOT_PERIOD);
-	ShootProgress = 0.0f;
 	IsShooting = false;
 
 	ActorCollider = Physics::Get()->AddDynamicActor(pos, size, CollisionChannel::DYNAMIC);
@@ -65,16 +63,46 @@ void ShootyEnemy::BeginPlay()
 void ShootyEnemy::Update(float deltaTime, glm::vec4 attackHitbox)
 {
 	Enemy::Update(deltaTime, attackHitbox);
+}
 
-	if (State == ActorState::AGGRO)
+void ShootyEnemy::OnAnimationEnd()
+{
+	if (State == ActorState::AGGRO || IsAttackState())
 	{
-		ShootProgress += deltaTime;
-		std::cout << "ShootProgress: " << ShootProgress << std::endl;
-		if (ShootProgress > ShootPeriod)
+		IsShooting = !IsShooting;
+
+		if (IsShooting)
 		{
-			IsShooting = !IsShooting;
-			ShootProgress -= ShootPeriod;
+			SetAttackState();
 		}
+		else
+		{
+			SetState(ActorState::AGGRO);
+		}
+	}
+}
+
+void ShootyEnemy::SetAttackState()
+{
+	auto objectiveDirection = GetAggroDirection();
+
+	if (objectiveDirection.y < 0)
+	{
+		if (std::abs(objectiveDirection.y) > std::abs(objectiveDirection.x))
+			SetState(ActorState::ATTACK_UP);
+		else if (objectiveDirection.x > 0)
+			SetState(ActorState::ATTACK_RIGHT);
+		else
+			SetState(ActorState::ATTACK_LEFT);
+	}
+	else
+	{
+		if (std::abs(objectiveDirection.y) > std::abs(objectiveDirection.x))
+			SetState(ActorState::ATTACK_DOWN);
+		else if (objectiveDirection.x > 0)
+			SetState(ActorState::ATTACK_RIGHT);
+		else
+			SetState(ActorState::ATTACK_LEFT);
 	}
 }
 
@@ -85,23 +113,38 @@ void ShootyEnemy::Draw(SpriteRenderer &renderer, double deltatime)
 
 AnimationType ShootyEnemy::GetAnimationFromState()
 {
-	if (Direction.y < 0)
+	switch (State)
 	{
-		if (std::abs(Direction.y) > std::abs(Direction.x))
-			return AnimationType::IDLE_UP;
-		else if (Direction.x > 0)
-			return AnimationType::IDLE_RIGHT;
+	case ActorState::IDLE:
+	case ActorState::AGGRO:
+	default:
+		if (Direction.y < 0)
+		{
+			if (std::abs(Direction.y) > std::abs(Direction.x))
+				return AnimationType::IDLE_UP;
+			else if (Direction.x > 0)
+				return AnimationType::IDLE_RIGHT;
+			else
+				return AnimationType::IDLE_LEFT;
+		}
 		else
-			return AnimationType::IDLE_LEFT;
-	}
-	else
-	{
-		if (std::abs(Direction.y) > std::abs(Direction.x))
-			return AnimationType::IDLE_DOWN;
-		else if (Direction.x > 0)
-			return AnimationType::IDLE_RIGHT;
-		else
-			return AnimationType::IDLE_LEFT;
+		{
+			if (std::abs(Direction.y) > std::abs(Direction.x))
+				return AnimationType::IDLE_DOWN;
+			else if (Direction.x > 0)
+				return AnimationType::IDLE_RIGHT;
+			else
+				return AnimationType::IDLE_LEFT;
+		}
+
+	case ActorState::ATTACK_UP:
+		return AnimationType::WALK_UP;
+	case ActorState::ATTACK_RIGHT:
+		return AnimationType::WALK_RIGHT;
+	case ActorState::ATTACK_DOWN:
+		return AnimationType::WALK_DOWN;
+	case ActorState::ATTACK_LEFT:
+		return AnimationType::WALK_LEFT;
 	}
 }
 
@@ -114,14 +157,13 @@ void ShootyEnemy::SetSpeed()
 		Speed = MAX_SPEED;
 		break;
 	case ActorState::AGGRO:
-		if (IsShooting)
-		{
-			Speed = 0.0f;
-		}
-		else
-		{
-			Speed = MAX_SPEED / 5;
-		}
+		Speed = MAX_SPEED / 5;
+		break;
+	case ActorState::ATTACK_UP:
+	case ActorState::ATTACK_RIGHT:
+	case ActorState::ATTACK_DOWN:
+	case ActorState::ATTACK_LEFT:
+		Speed = 0.0f;
 		break;
 	}
 }

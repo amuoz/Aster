@@ -28,13 +28,13 @@ public:
 
 private:
 
-	float ShootPeriod;
-	float ShootProgress;
 	bool IsShooting;
 
 	AnimationType GetAnimationFromState() override;
 	void SetSpeed() override;
 	virtual glm::vec2 GetAggroDirection() override;
+	void SetAttackState();
+	void OnAnimationEnd();
 
 	const float MAX_SPEED = 100.0f;
 };

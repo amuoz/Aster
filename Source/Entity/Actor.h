@@ -44,6 +44,7 @@ public:
 	inline glm::vec2 GetPosition() { return Position; }
 	void SetPosition(glm::vec2 pos);
 	bool IsAttacked(glm::vec4 attackHitbox);
+	bool IsAttackState();
 
 	virtual void OnBeginOverlapFunction(std::shared_ptr<PhysicActor> other);
 

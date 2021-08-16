@@ -42,6 +42,7 @@ protected:
 	virtual glm::vec2 GetAggroDirection();
 	virtual void SetSpeed() = 0;
 	virtual AnimationType GetAnimationFromState();
+	virtual void OnAnimationEnd();
 	glm::vec4 GetColorFromState();
 	glm::vec2 GetAggroPosition(glm::vec2 actorPosition, glm::vec3 actorSize);
 
