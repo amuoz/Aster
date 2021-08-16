@@ -20,6 +20,9 @@ ShootyEnemy::ShootyEnemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> 
 	StillChance = Config::Get()->GetValue(SHOOTY_STILL_CHANCE);
 	ChangeDirectionChance = Config::Get()->GetValue(SHOOTY_CHANGE_DIRECTION_CHANCE);
 	AggroSize = Config::Get()->GetValue(SHOOTY_AGGRO_SIZE);
+	ShootPeriod = Config::Get()->GetValue(SHOOTY_SHOOT_PERIOD);
+	ShootProgress = 0.0f;
+	IsShooting = false;
 
 	ActorCollider = Physics::Get()->AddDynamicActor(pos, size, CollisionChannel::DYNAMIC);
 	ActorCollider->bCheckCollision = true;
@@ -62,6 +65,17 @@ void ShootyEnemy::BeginPlay()
 void ShootyEnemy::Update(float deltaTime, glm::vec4 attackHitbox)
 {
 	Enemy::Update(deltaTime, attackHitbox);
+
+	if (State == ActorState::AGGRO)
+	{
+		ShootProgress += deltaTime;
+		std::cout << "ShootProgress: " << ShootProgress << std::endl;
+		if (ShootProgress > ShootPeriod)
+		{
+			IsShooting = !IsShooting;
+			ShootProgress -= ShootPeriod;
+		}
+	}
 }
 
 void ShootyEnemy::Draw(SpriteRenderer &renderer, double deltatime)
@@ -93,7 +107,28 @@ AnimationType ShootyEnemy::GetAnimationFromState()
 
 void ShootyEnemy::SetSpeed()
 {
-	Speed = MAX_SPEED;
+	switch (State)
+	{
+	case ActorState::IDLE:
+	default:
+		Speed = MAX_SPEED;
+		break;
+	case ActorState::AGGRO:
+		if (IsShooting)
+		{
+			Speed = 0.0f;
+		}
+		else
+		{
+			Speed = MAX_SPEED / 5;
+		}
+		break;
+	}
+}
+
+glm::vec2 ShootyEnemy::GetAggroDirection()
+{
+	return glm::normalize(AggroedActor->GetPosition() - Position);
 }
 
 void ShootyEnemy::OnBeginOverlapFunction(std::shared_ptr<PhysicActor> other)

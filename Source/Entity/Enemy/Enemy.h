@@ -38,8 +38,8 @@ protected:
 	std::shared_ptr<PhysicActor> AggroCollider = nullptr;
 	std::shared_ptr<Actor> AggroedActor = nullptr;
 
-	virtual glm::vec2 SetWanderMovement();
-	virtual glm::vec2 SetAggroMovement();
+	virtual glm::vec2 GetWanderDirection();
+	virtual glm::vec2 GetAggroDirection();
 	virtual void SetSpeed() = 0;
 	virtual AnimationType GetAnimationFromState();
 	glm::vec4 GetColorFromState();

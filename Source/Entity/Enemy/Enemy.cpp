@@ -62,10 +62,10 @@ void Enemy::Update(float deltaTime, glm::vec4 attackHitbox)
 		{
 		case ActorState::IDLE:
 		default:
-			Direction = SetWanderMovement();
+			Direction = GetWanderDirection();
 			break;
 		case ActorState::AGGRO:
-			Direction = SetAggroMovement();
+			Direction = GetAggroDirection();
 			break;
 		}
 	}
@@ -134,7 +134,7 @@ glm::vec2 Enemy::GetRandomDirection()
 			GetRandomDirectionComponent());
 }
 
-glm::vec2 Enemy::SetWanderMovement()
+glm::vec2 Enemy::GetWanderDirection()
 {
 	// 30% still
 	if (PassRandomChance(StillChance))
@@ -157,7 +157,7 @@ glm::vec2 Enemy::SetWanderMovement()
 	}
 }
 
-glm::vec2 Enemy::SetAggroMovement()
+glm::vec2 Enemy::GetAggroDirection()
 {
 	return glm::normalize(AggroedActor->GetPosition() - Position);
 }
