@@ -36,6 +36,6 @@ private:
 	Texture2D Texture;
 	Aster::Rectangle SubspriteRectangle;
 	bool HasAnimation;
-	AnimationType CurrentAnimationType = AnimationType::IDLE;
+	AnimationType CurrentAnimationType;
 	std::map<AnimationType, std::unique_ptr<Animation>> Animations;
 };

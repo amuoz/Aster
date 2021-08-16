@@ -9,11 +9,11 @@
 enum class AnimationType;
 class Sprite;
 
-class SpikeEnemy : public Actor
+class ShootyEnemy : public Actor
 {
 public:
-	SpikeEnemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, float framePeriod, glm::vec4 color = glm::vec4(1.0f));
-	~SpikeEnemy();
+	ShootyEnemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, float framePeriod, glm::vec4 color = glm::vec4(1.0f));
+	~ShootyEnemy();
 
 	void BeginPlay() override;
 	void Update(float, glm::vec4) override;
@@ -31,6 +31,8 @@ private:
 	float ChangeDirectionChance;
 	float AggroSize;
 
+	glm::vec4 GetColorFromState();
+	AnimationType GetAnimationFromState();
 	bool PassRandomChance(float chance);
 	float GetRandomDirectionComponent();
 	glm::vec2 GetRandomDirection();

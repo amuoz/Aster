@@ -64,6 +64,7 @@ private:
                         bool shouldStoreDoors);
     void InitEnemies();
     void InitSpike(nlohmann::json &enemyInfo);
+    void InitShooty(nlohmann::json &enemyInfo);
     void InitPowerUps();
     void InitPowerUp(std::string name, nlohmann::json &info);
 
