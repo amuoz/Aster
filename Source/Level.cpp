@@ -17,8 +17,8 @@
 #include "TileBuilder.h"
 
 #include "Entity/Player.h"
-#include "Entity/SpikeEnemy.h"
-#include "Entity/ShootyEnemy.h"
+#include "Entity/Enemy/SpikeEnemy.h"
+#include "Entity/Enemy/ShootyEnemy.h"
 #include "Entity/PowerUp.h"
 
 Level::Level(std::shared_ptr<BuildingManager> buildingManager, std::shared_ptr<TileBuilder> tileBuilder)

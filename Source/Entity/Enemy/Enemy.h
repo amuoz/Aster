@@ -3,33 +3,36 @@
 #include <glm/glm.hpp>
 #include <utility>
 
-#include "Actor.h"
+#include "Entity/Actor.h"
 #include "Physics.h"
 
 enum class AnimationType;
 class Sprite;
 
-class SpikeEnemy : public Actor
+class Enemy : public Actor
 {
 public:
-	SpikeEnemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, float framePeriod, glm::vec4 color = glm::vec4(1.0f));
-	~SpikeEnemy();
+	Enemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, float framePeriod, glm::vec4 color = glm::vec4(1.0f));
+	~Enemy();
 
 	void BeginPlay() override;
 	void Update(float, glm::vec4) override;
 	void Draw(SpriteRenderer &renderer, double deltaTime) override;
 	void Destroy() override;
 
-	void OnBeginOverlapFunction(std::shared_ptr<PhysicActor> other) override;
-	void OnEndOverlapFunction(std::shared_ptr<PhysicActor> other) override;
+	virtual void OnBeginOverlapAggro(std::shared_ptr<PhysicActor> other) = 0;
+	virtual void OnEndOverlapAggro(std::shared_ptr<PhysicActor> other) = 0;
 
-	void OnBeginOverlapAggro(std::shared_ptr<PhysicActor> other);
-	void OnEndOverlapAggro(std::shared_ptr<PhysicActor> other);
+protected:
 
-private:
 	float StillChance;
 	float ChangeDirectionChance;
 	float AggroSize;
+
+	std::shared_ptr<PhysicActor> AggroCollider = nullptr;
+	std::shared_ptr<Actor> AggroedActor = nullptr;
+
+private:
 
 	bool PassRandomChance(float chance);
 	float GetRandomDirectionComponent();
@@ -46,8 +49,4 @@ private:
 	float LastDirectionChange;
 	float AnimationProgress;
 	const float MAX_SPEED = 100.0f;
-
-	std::shared_ptr<PhysicActor> AggroCollider = nullptr;
-
-	std::shared_ptr<Actor> AggroedActor = nullptr;
 };

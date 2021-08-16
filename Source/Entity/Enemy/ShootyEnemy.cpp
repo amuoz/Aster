@@ -1,4 +1,4 @@
-#include "SpikeEnemy.h"
+#include "ShootyEnemy.h"
 
 #include <cstdlib>
 #include <time.h>
@@ -8,16 +8,17 @@
 #include "Common.h"
 #include "Config.h"
 #include "Sprite.h"
-#include "Player.h"
+#include "Entity/Player.h"
 #include "Physics.h"
 #include "SpriteRenderer.h"
 #include "PhysicActor.h"
 
-SpikeEnemy::SpikeEnemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, float framePeriod, glm::vec4 color) : Actor(pos, size, std::move(sprite), color)
+ShootyEnemy::ShootyEnemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, float framePeriod, glm::vec4 color)
+		: Enemy(pos, size, std::move(sprite), framePeriod, color)
 {
-	StillChance = Config::Get()->GetValue(SPIKE_STILL_CHANCE);
-	ChangeDirectionChance = Config::Get()->GetValue(SPIKE_CHANGE_DIRECTION_CHANCE);
-	AggroSize = Config::Get()->GetValue(SPIKE_AGGRO_SIZE);
+	StillChance = Config::Get()->GetValue(SHOOTY_STILL_CHANCE);
+	ChangeDirectionChance = Config::Get()->GetValue(SHOOTY_CHANGE_DIRECTION_CHANCE);
+	AggroSize = Config::Get()->GetValue(SHOOTY_AGGRO_SIZE);
 
 	ActorCollider = Physics::Get()->AddDynamicActor(pos, size, CollisionChannel::DYNAMIC);
 	ActorCollider->bCheckCollision = true;
@@ -33,10 +34,12 @@ SpikeEnemy::SpikeEnemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sp
 	AggroCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::IGNORED;
 	AggroCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::OVERLAP;
 	// C++ 11 lambda for setting class function to a function ptr
-	AggroCollider->OnBeginOverlapPtr = [=](std::shared_ptr<PhysicActor> other) {
+	AggroCollider->OnBeginOverlapPtr = [=](std::shared_ptr<PhysicActor> other)
+	{
 		this->OnBeginOverlapAggro(other);
 	};
-	AggroCollider->OnEndOverlapPtr = [=](std::shared_ptr<PhysicActor> other) {
+	AggroCollider->OnEndOverlapPtr = [=](std::shared_ptr<PhysicActor> other)
+	{
 		this->OnEndOverlapAggro(other);
 	};
 
@@ -53,19 +56,19 @@ SpikeEnemy::SpikeEnemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sp
 	srand(time(NULL));
 }
 
-SpikeEnemy::~SpikeEnemy()
+ShootyEnemy::~ShootyEnemy()
 {
-	//std::cout << "SpikeEnemy destroyed" << std::endl;
+	//std::cout << "ShootyEnemy destroyed" << std::endl;
 }
 
-void SpikeEnemy::BeginPlay()
+void ShootyEnemy::BeginPlay()
 {
 	Actor::BeginPlay();
 
 	AggroCollider->report = shared_from_this();
 }
 
-void SpikeEnemy::Update(float deltaTime, glm::vec4 attackHitbox)
+void ShootyEnemy::Update(float deltaTime, glm::vec4 attackHitbox)
 {
 	Actor::Update(deltaTime, attackHitbox);
 
@@ -73,6 +76,10 @@ void SpikeEnemy::Update(float deltaTime, glm::vec4 attackHitbox)
 	{
 		IsDestroyed = true;
 	}
+
+	int animationFrames = ActorSprite->GetFramesCount();
+	int framePeriod = ActorSprite->GetAnimationSpeed();
+	AnimationPeriod = framePeriod * animationFrames;
 
 	AnimationProgress += deltaTime;
 	if (AnimationProgress > AnimationPeriod)
@@ -98,24 +105,11 @@ void SpikeEnemy::Update(float deltaTime, glm::vec4 attackHitbox)
 	AggroCollider->pos = GetAggroPosition(Position, m_scale);
 }
 
-void SpikeEnemy::Draw(SpriteRenderer &renderer, double deltatime)
+void ShootyEnemy::Draw(SpriteRenderer &renderer, double deltatime)
 {
-	switch (State)
-	{
-	case ActorState::IDLE:
-		Color = glm::vec4(1, 1, 1, 1);
-		CurrentAnimation = AnimationType::IDLE;
-		break;
-	case ActorState::AGGRO:
-		Color = glm::vec4(1, 0.5, 0.5, 1);
-		CurrentAnimation = AnimationType::IDLE;
-		break;
-	default:
-		break;
-	}
-
+	Color = GetColorFromState();
+	CurrentAnimation = GetAnimationFromState();
 	glm::vec3 spritePosition(Position, ZIndex);
-
 	ActorSprite->Draw(
 			CurrentAnimation,
 			renderer,
@@ -126,46 +120,81 @@ void SpikeEnemy::Draw(SpriteRenderer &renderer, double deltatime)
 			Color);
 }
 
-void SpikeEnemy::Destroy()
+glm::vec4 ShootyEnemy::GetColorFromState()
+{
+	switch (State)
+	{
+	case ActorState::IDLE:
+		return glm::vec4(1, 1, 1, 1);
+	case ActorState::AGGRO:
+		return glm::vec4(1, 0.5, 0.5, 1);
+	default:
+		break;
+	}
+}
+
+AnimationType ShootyEnemy::GetAnimationFromState()
+{
+	switch (State)
+	{
+	case ActorState::IDLE:
+		if (Direction.x > 0)
+			return AnimationType::IDLE_RIGHT;
+		else if (Direction.x < 0)
+			return AnimationType::IDLE_LEFT;
+		else if (Direction.y > 0)
+			return AnimationType::IDLE_DOWN;
+		else
+			return AnimationType::IDLE_UP;
+
+	case ActorState::AGGRO:
+		return AnimationType::IDLE_LEFT;
+
+	default:
+		break;
+	}
+}
+
+void ShootyEnemy::Destroy()
 {
 	Physics::Get()->DeleteDynamicActor(AggroCollider);
 
 	Actor::Destroy();
 }
 
-bool SpikeEnemy::PassRandomChance(float chance)
+bool ShootyEnemy::PassRandomChance(float chance)
 {
 	return (float(rand()) / float(RAND_MAX)) < chance;
 }
 
-float SpikeEnemy::GetRandomDirectionComponent()
+float ShootyEnemy::GetRandomDirectionComponent()
 {
 	return (float(rand()) / float(RAND_MAX)) * 2 - 1;
 }
 
-glm::vec2 SpikeEnemy::GetRandomDirection()
+glm::vec2 ShootyEnemy::GetRandomDirection()
 {
 	return glm::vec2(
 			GetRandomDirectionComponent(),
 			GetRandomDirectionComponent());
 }
 
-glm::vec2 SpikeEnemy::SetWanderMovement()
+glm::vec2 ShootyEnemy::SetWanderMovement()
 {
-	// 30% still
+	// 1% still
 	if (PassRandomChance(StillChance))
 	{
 		return glm::vec2(0, 0);
 	}
-	// 70% moving
+	// 99% moving
 	else
 	{
-		// 20% change direction
+		// 1% change direction
 		if (PassRandomChance(ChangeDirectionChance))
 		{
 			return GetRandomDirection();
 		}
-		// 80% maintain direction
+		// 99% maintain direction
 		else
 		{
 			return Direction;
@@ -173,25 +202,17 @@ glm::vec2 SpikeEnemy::SetWanderMovement()
 	}
 }
 
-glm::vec2 SpikeEnemy::SetAggroMovement()
+glm::vec2 ShootyEnemy::SetAggroMovement()
 {
 	return glm::normalize(AggroedActor->GetPosition() - Position);
 }
 
-void SpikeEnemy::SetSpeed()
+void ShootyEnemy::SetSpeed()
 {
-	if (
-			AnimationProgress < AnimationPeriod / 5 || AnimationProgress > AnimationPeriod / 2)
-	{
-		Speed = MAX_SPEED / 5;
-	}
-	else
-	{
-		Speed = MAX_SPEED;
-	}
+	Speed = MAX_SPEED;
 }
 
-glm::vec2 SpikeEnemy::GetAggroPosition(glm::vec2 actorPosition, glm::vec3 actorSize)
+glm::vec2 ShootyEnemy::GetAggroPosition(glm::vec2 actorPosition, glm::vec3 actorSize)
 {
 	float posCorrectionX = (AggroSize - actorSize.x) / 2;
 	float posCorrectionY = (AggroSize - actorSize.y) / 2;
@@ -201,16 +222,16 @@ glm::vec2 SpikeEnemy::GetAggroPosition(glm::vec2 actorPosition, glm::vec3 actorS
 			actorPosition.y + posCorrectionY);
 }
 
-void SpikeEnemy::OnBeginOverlapFunction(std::shared_ptr<PhysicActor> other)
+void ShootyEnemy::OnBeginOverlapFunction(std::shared_ptr<PhysicActor> other)
 {
 	other->report->TakeDamage();
 }
 
-void SpikeEnemy::OnEndOverlapFunction(std::shared_ptr<PhysicActor> other)
+void ShootyEnemy::OnEndOverlapFunction(std::shared_ptr<PhysicActor> other)
 {
 }
 
-void SpikeEnemy::OnBeginOverlapAggro(std::shared_ptr<PhysicActor> other)
+void ShootyEnemy::OnBeginOverlapAggro(std::shared_ptr<PhysicActor> other)
 {
 	if (other->report->IsPlayer())
 	{
@@ -219,7 +240,7 @@ void SpikeEnemy::OnBeginOverlapAggro(std::shared_ptr<PhysicActor> other)
 	}
 }
 
-void SpikeEnemy::OnEndOverlapAggro(std::shared_ptr<PhysicActor> other)
+void ShootyEnemy::OnEndOverlapAggro(std::shared_ptr<PhysicActor> other)
 {
 	if (other->report->IsPlayer())
 	{

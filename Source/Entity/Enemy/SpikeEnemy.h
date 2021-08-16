@@ -3,17 +3,18 @@
 #include <glm/glm.hpp>
 #include <utility>
 
-#include "Actor.h"
+#include "Entity/Actor.h"
+#include "Entity/Enemy/Enemy.h"
 #include "Physics.h"
 
 enum class AnimationType;
 class Sprite;
 
-class ShootyEnemy : public Actor
+class SpikeEnemy : public Enemy
 {
 public:
-	ShootyEnemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, float framePeriod, glm::vec4 color = glm::vec4(1.0f));
-	~ShootyEnemy();
+	SpikeEnemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, float framePeriod, glm::vec4 color = glm::vec4(1.0f));
+	~SpikeEnemy();
 
 	void BeginPlay() override;
 	void Update(float, glm::vec4) override;
@@ -27,12 +28,7 @@ public:
 	void OnEndOverlapAggro(std::shared_ptr<PhysicActor> other);
 
 private:
-	float StillChance;
-	float ChangeDirectionChance;
-	float AggroSize;
 
-	glm::vec4 GetColorFromState();
-	AnimationType GetAnimationFromState();
 	bool PassRandomChance(float chance);
 	float GetRandomDirectionComponent();
 	glm::vec2 GetRandomDirection();
@@ -48,8 +44,4 @@ private:
 	float LastDirectionChange;
 	float AnimationProgress;
 	const float MAX_SPEED = 100.0f;
-
-	std::shared_ptr<PhysicActor> AggroCollider = nullptr;
-
-	std::shared_ptr<Actor> AggroedActor = nullptr;
 };
