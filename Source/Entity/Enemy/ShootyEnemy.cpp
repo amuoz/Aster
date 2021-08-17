@@ -10,6 +10,7 @@
 #include "Config.h"
 #include "Sprite.h"
 #include "Entity/Player.h"
+#include "Entity/Projectile.h"
 #include "Physics.h"
 #include "SpriteRenderer.h"
 #include "PhysicActor.h"
@@ -20,6 +21,7 @@ ShootyEnemy::ShootyEnemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> 
 	StillChance = Config::Get()->GetValue(SHOOTY_STILL_CHANCE);
 	ChangeDirectionChance = Config::Get()->GetValue(SHOOTY_CHANGE_DIRECTION_CHANCE);
 	AggroSize = Config::Get()->GetValue(SHOOTY_AGGRO_SIZE);
+	ProjectileDelay = Config::Get()->GetValue(SHOOTY_PROJECTILE_DELAY);
 	IsShooting = false;
 
 	ActorCollider = Physics::Get()->AddDynamicActor(pos, size, CollisionChannel::DYNAMIC);
@@ -63,6 +65,23 @@ void ShootyEnemy::BeginPlay()
 void ShootyEnemy::Update(float deltaTime, glm::vec4 attackHitbox)
 {
 	Enemy::Update(deltaTime, attackHitbox);
+
+	if (IsAttackState() && AnimationProgress > ProjectileDelay)
+	{
+		CreateArrow(State);
+	}
+
+	if (Arrow)
+	{
+		if (Arrow->IsDestroyed)
+		{
+			Arrow->Destroy();
+		}
+		else
+		{
+			Arrow->Update(deltaTime, attackHitbox);
+		}
+	}
 }
 
 void ShootyEnemy::OnAnimationEnd()
@@ -84,6 +103,11 @@ void ShootyEnemy::OnAnimationEnd()
 
 void ShootyEnemy::SetAttackState()
 {
+	if (Arrow)
+	{
+		return;
+	}
+
 	auto objectiveDirection = GetAggroDirection();
 
 	if (objectiveDirection.y < 0)
@@ -106,9 +130,62 @@ void ShootyEnemy::SetAttackState()
 	}
 }
 
+void ShootyEnemy::CreateArrow(ActorState attackDirection)
+{
+	const glm::vec3 ARROW_SIZE(16.0f, 9.0f, 0.0f);
+	glm::vec3 scale(1.0f, 1.0f, 1.0f);
+	scale.x = Config::Get()->GetValue(SRC_WIDTH) / ARROW_SIZE.x;
+	scale.y = Config::Get()->GetValue(SRC_HEIGHT) / ARROW_SIZE.y;
+
+	std::string spriteName;
+	glm::vec2 arrowSpeed;
+	switch (attackDirection)
+	{
+	case ActorState::ATTACK_UP:
+	default:
+		spriteName = "shooty_arrow_up";
+		arrowSpeed = glm::vec2(0, -1);
+		break;
+	case ActorState::ATTACK_RIGHT:
+		spriteName = "shooty_arrow_right";
+		arrowSpeed = glm::vec2(1, 0);
+		break;
+	case ActorState::ATTACK_DOWN:
+		spriteName = "shooty_arrow_down";
+		arrowSpeed = glm::vec2(0, 1);
+		break;
+	case ActorState::ATTACK_LEFT:
+		spriteName = "shooty_arrow_left";
+		arrowSpeed = glm::vec2(0, -1);
+		break;
+	}
+
+	auto sprite = std::make_unique<Sprite>(spriteName);
+	float framePeriod = 0.10f;
+	sprite->AddAnimation("shooty_arrow_fire", AnimationType::IDLE, framePeriod);
+
+	Arrow = std::make_unique<Projectile>(
+			GetArrowPosition(),
+			scale,
+			arrowSpeed,
+			std::move(sprite));
+}
+
+glm::vec2 ShootyEnemy::GetArrowPosition()
+{
+	return glm::vec2(
+			Position.x,
+			Position.y - Config::Get()->GetValue(CELL_HEIGHT));
+}
+
 void ShootyEnemy::Draw(SpriteRenderer &renderer, double deltatime)
 {
 	Enemy::Draw(renderer, deltatime);
+
+	if (Arrow && !Arrow->IsDestroyed)
+	{
+		Arrow->Draw(renderer, deltatime);
+	}
 }
 
 AnimationType ShootyEnemy::GetAnimationFromState()

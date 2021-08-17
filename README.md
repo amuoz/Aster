@@ -83,14 +83,14 @@ Override **OnBeginOverlapFunction** and **OnEndOverlapFunction** for gameplay lo
 An entity can have multiple collisions (PhysicActor). Check **SpikeEnemy** for an example.
 
 ## Animation
-Draws a piece of a texture that change over time
+Draws a piece of a texture that changes over time
 
 ### .anim files
 Each row represents a frame of the animation. The format of the rows is:
 `Sx Sy Sw Sh Ax Ay`
 * **Sx, Sy**: Coordinates of the upper-left corner of the sprite inside the spritesheet (in number of cells)
 * **Sw, Sh**: Width and Height of the sprite (in number of cells)
-* **Ax, Ay**: Coordinates of the actor inside of the sprite (in number of cells)
+* **Ax, Ay**: Coordinates of the upper-left corner of the actor inside of the sprite (in number of cells)
 
 For example, for the sprite marked in blue in the player spritesheet:
 ![anim1](Docs/1.png) ![anim1](Docs/2.png)

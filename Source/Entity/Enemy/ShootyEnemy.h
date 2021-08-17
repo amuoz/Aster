@@ -9,6 +9,7 @@
 
 enum class AnimationType;
 class Sprite;
+class Projectile;
 
 class ShootyEnemy : public Enemy
 {
@@ -29,12 +30,16 @@ public:
 private:
 
 	bool IsShooting;
+	float ProjectileDelay;
+	std::unique_ptr<Projectile> Arrow;
 
 	AnimationType GetAnimationFromState() override;
 	void SetSpeed() override;
 	virtual glm::vec2 GetAggroDirection() override;
 	void SetAttackState();
 	void OnAnimationEnd();
+	void CreateArrow(ActorState attackDirection);
+	glm::vec2 GetArrowPosition();
 
 	const float MAX_SPEED = 100.0f;
 };
