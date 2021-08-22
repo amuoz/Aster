@@ -61,7 +61,7 @@ private:
 protected:
 	// actor state
 	glm::vec2 Position;
-	glm::vec3 m_scale;
+	glm::vec3 Scale;
 	float m_rotAngle;
 	glm::vec3 m_rotAxis;
 	glm::vec4 Color;

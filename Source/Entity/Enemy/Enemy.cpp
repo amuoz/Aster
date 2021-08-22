@@ -76,7 +76,7 @@ void Enemy::Update(float deltaTime, glm::vec4 attackHitbox)
 
 	Move(deltaTime, Direction);
 
-	AggroCollider->pos = GetAggroPosition(Position, m_scale);
+	AggroCollider->pos = GetAggroPosition(Position, Scale);
 }
 
 void Enemy::OnAnimationEnd()
@@ -93,7 +93,7 @@ void Enemy::Draw(SpriteRenderer &renderer, double deltatime)
 			renderer,
 			deltatime,
 			spritePosition,
-			m_scale,
+			Scale,
 			m_rotAngle,
 			Color);
 }
@@ -106,6 +106,7 @@ glm::vec4 Enemy::GetColorFromState()
 	default:
 		return glm::vec4(1, 1, 1, 1);
 	case ActorState::AGGRO:
+	case ActorState::SHOOT:
 	case ActorState::ATTACK_UP:
 	case ActorState::ATTACK_RIGHT:
 	case ActorState::ATTACK_DOWN:

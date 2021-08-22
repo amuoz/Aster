@@ -78,7 +78,7 @@ void Player::Draw(SpriteRenderer &renderer, double deltatime)
 	{
 		CurrentAnimation = GetAnimationFromState();
 		glm::vec3 spritePosition(Position, ZIndex);
-		ActorSprite->Draw(CurrentAnimation, renderer, deltatime, spritePosition, m_scale, m_rotAngle, Color);
+		ActorSprite->Draw(CurrentAnimation, renderer, deltatime, spritePosition, Scale, m_rotAngle, Color);
 	}
 }
 

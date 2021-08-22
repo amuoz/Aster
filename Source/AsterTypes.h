@@ -50,7 +50,8 @@ enum class ActorState {
 	ATTACK_RIGHT,
 	ATTACK_DOWN,
 	ATTACK_LEFT,
-	AGGRO
+	AGGRO,
+	SHOOT
 };
 
 enum class PowerUpType {
