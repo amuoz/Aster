@@ -18,11 +18,18 @@
 ShootyEnemy::ShootyEnemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, float framePeriod, glm::vec4 color)
 		: Enemy(pos, size, std::move(sprite), framePeriod, color)
 {
+
+	// std::cout << "Enemy pos: " << pos.x << ", " << pos.y << std::endl;
+	// std::cout << "Enemy size: " << size.x << ", " << size.y << std::endl;
+
 	StillChance = Config::Get()->GetValue(SHOOTY_STILL_CHANCE);
 	ChangeDirectionChance = Config::Get()->GetValue(SHOOTY_CHANGE_DIRECTION_CHANCE);
 	AggroSize = Config::Get()->GetValue(SHOOTY_AGGRO_SIZE);
-	ProjectileDelay = Config::Get()->GetValue(SHOOTY_PROJECTILE_DELAY);
-	IsShooting = false;
+	ShootDelay = Config::Get()->GetValue(SHOOTY_SHOOT_DELAY);
+	ShootInterval = Config::Get()->GetValue(SHOOTY_SHOOT_INTERVAL);
+	AggroProgress = 0;
+	AttackProgress = 0;
+	hasShot = false;
 
 	ActorCollider = Physics::Get()->AddDynamicActor(pos, size, CollisionChannel::DYNAMIC);
 	ActorCollider->bCheckCollision = true;
@@ -66,11 +73,63 @@ void ShootyEnemy::Update(float deltaTime, glm::vec4 attackHitbox)
 {
 	Enemy::Update(deltaTime, attackHitbox);
 
-	if (IsAttackState() && AnimationProgress > ProjectileDelay)
+	switch (State)
 	{
-		CreateArrow(State);
+	case ActorState::IDLE:
+	default:
+		break;
+	case ActorState::AGGRO:
+		UpdateAggroState(deltaTime, attackHitbox);
+		break;
+	case ActorState::SHOOT:
+		UpdateShootState(deltaTime, attackHitbox);
+		break;
+	case ActorState::ATTACK_UP:
+	case ActorState::ATTACK_RIGHT:
+	case ActorState::ATTACK_DOWN:
+	case ActorState::ATTACK_LEFT:
+		UpdateAttackState(deltaTime, attackHitbox);
+		break;
 	}
 
+	UpdateArrow(deltaTime, attackHitbox);
+}
+
+void ShootyEnemy::UpdateAggroState(float deltaTime, glm::vec4 attackHitbox)
+{
+	AggroProgress += deltaTime;
+
+	if (AggroProgress > ShootInterval)
+	{
+		std::cout << "Shooty SHOOT" << std::endl;
+		SetState(ActorState::SHOOT);
+		AggroProgress = 0;
+	}
+}
+
+void ShootyEnemy::UpdateShootState(float deltaTime, glm::vec4 attackHitbox)
+{
+	AttackProgress += deltaTime;
+
+	if (AttackProgress > ShootDelay)
+	{
+		std::cout << "Shooty ATTACK" << std::endl;
+		SetAttackState();
+		AttackProgress = 0;
+	}
+}
+
+void ShootyEnemy::UpdateAttackState(float deltaTime, glm::vec4 attackHitbox)
+{
+	if (!hasShot)
+	{
+		CreateArrow(State);
+		hasShot = true;
+	}
+}
+
+void ShootyEnemy::UpdateArrow(float deltaTime, glm::vec4 attackHitbox)
+{
 	if (Arrow)
 	{
 		if (Arrow->IsDestroyed)
@@ -86,28 +145,16 @@ void ShootyEnemy::Update(float deltaTime, glm::vec4 attackHitbox)
 
 void ShootyEnemy::OnAnimationEnd()
 {
-	if (State == ActorState::AGGRO || IsAttackState())
+	if (IsAttackState())
 	{
-		IsShooting = !IsShooting;
-
-		if (IsShooting)
-		{
-			SetAttackState();
-		}
-		else
-		{
-			SetState(ActorState::AGGRO);
-		}
+		hasShot = false;
+		std::cout << "Shooty AGGRO" << std::endl;
+		SetState(ActorState::AGGRO);
 	}
 }
 
 void ShootyEnemy::SetAttackState()
 {
-	if (Arrow)
-	{
-		return;
-	}
-
 	auto objectiveDirection = GetAggroDirection();
 
 	if (objectiveDirection.y < 0)
@@ -138,25 +185,25 @@ void ShootyEnemy::CreateArrow(ActorState attackDirection)
 	scale.y = Config::Get()->GetValue(SRC_HEIGHT) / ARROW_SIZE.y;
 
 	std::string spriteName;
-	glm::vec2 arrowSpeed;
+	glm::vec2 arrowDirection;
 	switch (attackDirection)
 	{
 	case ActorState::ATTACK_UP:
 	default:
 		spriteName = "shooty_arrow_up";
-		arrowSpeed = glm::vec2(0, -1);
+		arrowDirection = glm::vec2(0, -1);
 		break;
 	case ActorState::ATTACK_RIGHT:
 		spriteName = "shooty_arrow_right";
-		arrowSpeed = glm::vec2(1, 0);
+		arrowDirection = glm::vec2(1, 0);
 		break;
 	case ActorState::ATTACK_DOWN:
 		spriteName = "shooty_arrow_down";
-		arrowSpeed = glm::vec2(0, 1);
+		arrowDirection = glm::vec2(0, 1);
 		break;
 	case ActorState::ATTACK_LEFT:
 		spriteName = "shooty_arrow_left";
-		arrowSpeed = glm::vec2(0, -1);
+		arrowDirection = glm::vec2(-1, 0);
 		break;
 	}
 
@@ -167,7 +214,7 @@ void ShootyEnemy::CreateArrow(ActorState attackDirection)
 	Arrow = std::make_unique<Projectile>(
 			GetArrowPosition(),
 			scale,
-			arrowSpeed,
+			arrowDirection,
 			std::move(sprite));
 }
 
@@ -182,6 +229,11 @@ void ShootyEnemy::Draw(SpriteRenderer &renderer, double deltatime)
 {
 	Enemy::Draw(renderer, deltatime);
 
+	DrawArrow(renderer, deltatime);
+}
+
+void ShootyEnemy::DrawArrow(SpriteRenderer &renderer, double deltatime)
+{
 	if (Arrow && !Arrow->IsDestroyed)
 	{
 		Arrow->Draw(renderer, deltatime);
@@ -213,15 +265,36 @@ AnimationType ShootyEnemy::GetAnimationFromState()
 			else
 				return AnimationType::IDLE_LEFT;
 		}
-
+	case ActorState::SHOOT:
 	case ActorState::ATTACK_UP:
-		return AnimationType::WALK_UP;
 	case ActorState::ATTACK_RIGHT:
-		return AnimationType::WALK_RIGHT;
 	case ActorState::ATTACK_DOWN:
-		return AnimationType::WALK_DOWN;
 	case ActorState::ATTACK_LEFT:
-		return AnimationType::WALK_LEFT;
+		return GetShootAnimation();
+	}
+}
+
+AnimationType ShootyEnemy::GetShootAnimation()
+{
+	auto objectiveDirection = GetAggroDirection();
+
+	if (objectiveDirection.y < 0)
+	{
+		if (std::abs(objectiveDirection.y) > std::abs(objectiveDirection.x))
+			return AnimationType::WALK_UP;
+		else if (objectiveDirection.x > 0)
+			return AnimationType::WALK_RIGHT;
+		else
+			return AnimationType::WALK_LEFT;
+	}
+	else
+	{
+		if (std::abs(objectiveDirection.y) > std::abs(objectiveDirection.x))
+			return AnimationType::WALK_DOWN;
+		else if (objectiveDirection.x > 0)
+			return AnimationType::WALK_RIGHT;
+		else
+			return AnimationType::WALK_LEFT;
 	}
 }
 
@@ -236,6 +309,7 @@ void ShootyEnemy::SetSpeed()
 	case ActorState::AGGRO:
 		Speed = MAX_SPEED / 5;
 		break;
+	case ActorState::SHOOT:
 	case ActorState::ATTACK_UP:
 	case ActorState::ATTACK_RIGHT:
 	case ActorState::ATTACK_DOWN:
@@ -252,7 +326,7 @@ glm::vec2 ShootyEnemy::GetAggroDirection()
 
 void ShootyEnemy::OnBeginOverlapFunction(std::shared_ptr<PhysicActor> other)
 {
-	other->report->TakeDamage();
+	// other->report->TakeDamage();
 }
 
 void ShootyEnemy::OnEndOverlapFunction(std::shared_ptr<PhysicActor> other)
@@ -261,8 +335,9 @@ void ShootyEnemy::OnEndOverlapFunction(std::shared_ptr<PhysicActor> other)
 
 void ShootyEnemy::OnBeginOverlapAggro(std::shared_ptr<PhysicActor> other)
 {
-	if (other->report->IsPlayer())
+	if (other->report->IsPlayer() && State == ActorState::IDLE)
 	{
+		std::cout << "Shooty AGGRO" << std::endl;
 		SetState(ActorState::AGGRO);
 		AggroedActor = other->report;
 	}

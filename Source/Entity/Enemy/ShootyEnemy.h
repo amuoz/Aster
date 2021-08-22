@@ -29,10 +29,18 @@ public:
 
 private:
 
-	bool IsShooting;
-	float ProjectileDelay;
+	bool hasShot;
+	float ShootDelay;
+	float ShootInterval;
+	float AttackProgress;
+	float AggroProgress;
 	std::unique_ptr<Projectile> Arrow;
 
+	void UpdateAggroState(float deltaTime, glm::vec4 attackHitbox);
+	void UpdateShootState(float deltaTime, glm::vec4 attackHitbox);
+	void UpdateAttackState(float deltaTime, glm::vec4 attackHitbox);
+	void UpdateArrow(float deltaTime, glm::vec4 attackHitbox);
+	void DrawArrow(SpriteRenderer &renderer, double deltatime);
 	AnimationType GetAnimationFromState() override;
 	void SetSpeed() override;
 	virtual glm::vec2 GetAggroDirection() override;
@@ -40,6 +48,7 @@ private:
 	void OnAnimationEnd();
 	void CreateArrow(ActorState attackDirection);
 	glm::vec2 GetArrowPosition();
+	AnimationType GetShootAnimation();
 
 	const float MAX_SPEED = 100.0f;
 };

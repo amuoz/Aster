@@ -14,7 +14,7 @@ Actor::Actor()
 {
 	Position = glm::vec2(0.0f);
 	ZIndex = 0.5f;
-	m_scale = glm::vec3(1.0f);
+	Scale = glm::vec3(1.0f);
 	ActorSprite = nullptr;
 	Color = glm::vec4(1.0f);
 
@@ -33,7 +33,7 @@ Actor::Actor(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> sprite, glm:
 {
 	Position = pos;
 	ZIndex = 0.5f;
-	m_scale = size;
+	Scale = size;
 	ActorSprite = std::move(sprite);
 	Color = color;
 }
@@ -72,7 +72,7 @@ void Actor::Draw(SpriteRenderer &renderer, double)
 {
 	Texture2D texture = ActorSprite->GetTexture();
 	glm::vec3 spritePosition(Position, ZIndex);
-	renderer.DrawTexture(texture, spritePosition, m_scale, m_rotAngle, Color);
+	renderer.DrawTexture(texture, spritePosition, Scale, m_rotAngle, Color);
 }
 
 void Actor::TakeDamage()
@@ -140,8 +140,8 @@ bool Actor::IsAttacked(glm::vec4 attackHitbox)
 	float widthHitbox = attackHitbox.z;
 	float heightHitbox = attackHitbox.w;
 
-	float blockWidth = m_scale.x;
-	float blockHeight = m_scale.y;
+	float blockWidth = Scale.x;
+	float blockHeight = Scale.y;
 
 	bool xCollision = Position.x + blockWidth >= xHitbox && xHitbox + widthHitbox >= Position.x;
 
