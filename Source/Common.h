@@ -31,3 +31,5 @@ static const std::string SHOOTY_CHANGE_DIRECTION_CHANCE = "SHOOTY_CHANGE_DIRECTI
 static const std::string SHOOTY_AGGRO_SIZE = "SHOOTY_AGGRO_SIZE";
 static const std::string SHOOTY_SHOOT_DELAY = "SHOOTY_SHOOT_DELAY";
 static const std::string SHOOTY_SHOOT_INTERVAL = "SHOOTY_SHOOT_INTERVAL";
+static const std::string SHOOTY_ARROW_SHIFT_X = "SHOOTY_ARROW_SHIFT_X";
+static const std::string SHOOTY_ARROW_SHIFT_Y = "SHOOTY_ARROW_SHIFT_Y";

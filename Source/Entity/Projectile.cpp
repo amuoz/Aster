@@ -10,19 +10,19 @@
 #include "ResourceManager.h"
 #include "SpriteRenderer.h"
 
-Projectile::Projectile(glm::vec2 pos, glm::vec3 size, glm::vec2 direction, std::unique_ptr<Sprite> sprite, glm::vec4 color)
+Projectile::Projectile(glm::vec2 pos, glm::vec3 size,
+											 glm::vec2 colliderPosition, glm::vec3 colliderSize,
+											 glm::vec2 direction, std::unique_ptr<Sprite> sprite, glm::vec4 color)
 		: Actor(pos, size, std::move(sprite), color)
 {
 	ZIndex = 0.1f;
 	Direction = direction;
 
-	// std::cout << "pos: " << pos.x << ", " << pos.y << std::endl;
-	// std::cout << "Proj size: " << size.x << ", " << size.y << std::endl;
-	ActorCollider = Physics::Get()->AddDynamicActor(pos, size, CollisionChannel::DYNAMIC);
+	ActorCollider = Physics::Get()->AddDynamicActor(colliderPosition, colliderSize, CollisionChannel::DYNAMIC);
 	ActorCollider->bCheckCollision = true;
 	ActorCollider->ChannelResponse[CollisionChannel::STATIC] = CollisionResponse::BLOCK;
-	ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::BLOCK;
-	ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::BLOCK;
+	ActorCollider->ChannelResponse[CollisionChannel::DYNAMIC] = CollisionResponse::IGNORED;
+	ActorCollider->ChannelResponse[CollisionChannel::PLAYER] = CollisionResponse::OVERLAP;
 }
 
 Projectile::~Projectile()
@@ -40,8 +40,9 @@ void Projectile::Draw(SpriteRenderer &renderer, double deltatime)
 {
 	if (IsActive())
 	{
-		glm::vec3 spritePosition(Position, ZIndex);
-		ActorSprite->Draw(AnimationType::IDLE, renderer, deltatime, spritePosition, Scale, m_rotAngle, Color);
+		glm::vec3 spritePosition(Position.x, Position.y, ZIndex);
+		glm::vec2 spriteSize(Scale.x, Scale.y);
+		ActorSprite->Draw(AnimationType::IDLE, renderer, deltatime, spritePosition, spriteSize, m_rotAngle, Color);
 		// DebugProjectileHitbox(renderer);
 	}
 }

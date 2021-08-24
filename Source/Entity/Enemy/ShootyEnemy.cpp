@@ -27,6 +27,8 @@ ShootyEnemy::ShootyEnemy(glm::vec2 pos, glm::vec3 size, std::unique_ptr<Sprite> 
 	AggroSize = Config::Get()->GetValue(SHOOTY_AGGRO_SIZE);
 	ShootDelay = Config::Get()->GetValue(SHOOTY_SHOOT_DELAY);
 	ShootInterval = Config::Get()->GetValue(SHOOTY_SHOOT_INTERVAL);
+	ArrowShiftX = Config::Get()->GetValue(SHOOTY_ARROW_SHIFT_X);
+	ArrowShiftY = Config::Get()->GetValue(SHOOTY_ARROW_SHIFT_Y);
 	AggroProgress = 0;
 	AttackProgress = 0;
 	hasShot = false;
@@ -179,7 +181,7 @@ void ShootyEnemy::SetAttackState()
 
 void ShootyEnemy::CreateArrow(ActorState attackDirection)
 {
-	const glm::vec3 ARROW_SIZE(16.0f, 9.0f, 0.0f);
+	const glm::vec3 ARROW_SIZE(12.0f, 7.0f, 0.0f);
 	glm::vec3 scale(1.0f, 1.0f, 1.0f);
 	scale.x = Config::Get()->GetValue(SRC_WIDTH) / ARROW_SIZE.x;
 	scale.y = Config::Get()->GetValue(SRC_HEIGHT) / ARROW_SIZE.y;
@@ -210,19 +212,17 @@ void ShootyEnemy::CreateArrow(ActorState attackDirection)
 	auto sprite = std::make_unique<Sprite>(spriteName);
 	float framePeriod = 0.10f;
 	sprite->AddAnimation("shooty_arrow_fire", AnimationType::IDLE, framePeriod);
+	glm::vec2 colliderPosition(Position.x + ArrowShiftX,
+														 Position.y - ArrowShiftY);
+	glm::vec3 colliderSize(scale);
 
 	Arrow = std::make_unique<Projectile>(
-			GetArrowPosition(),
+			Position,
 			scale,
+			colliderPosition,
+			colliderSize,
 			arrowDirection,
 			std::move(sprite));
-}
-
-glm::vec2 ShootyEnemy::GetArrowPosition()
-{
-	return glm::vec2(
-			Position.x,
-			Position.y - Config::Get()->GetValue(CELL_HEIGHT));
 }
 
 void ShootyEnemy::Draw(SpriteRenderer &renderer, double deltatime)

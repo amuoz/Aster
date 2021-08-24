@@ -34,6 +34,8 @@ private:
 	float ShootInterval;
 	float AttackProgress;
 	float AggroProgress;
+	int ArrowShiftX;
+	int ArrowShiftY;
 	std::unique_ptr<Projectile> Arrow;
 
 	void UpdateAggroState(float deltaTime, glm::vec4 attackHitbox);
@@ -47,7 +49,6 @@ private:
 	void SetAttackState();
 	void OnAnimationEnd();
 	void CreateArrow(ActorState attackDirection);
-	glm::vec2 GetArrowPosition();
 	AnimationType GetShootAnimation();
 
 	const float MAX_SPEED = 100.0f;
